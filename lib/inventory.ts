@@ -90,7 +90,7 @@ export const inventory: InventoryItem[] = [
   { id: "lantana-camara", name: "Lantana camara", priceUGX: 40000 },
   { id: "gorontula", name: "Gorontula", priceUGX: 35000 },
   { id: "senna", name: "Senna", priceUGX: 40000 },
-  { id: "oil-of-oregano", name: "Oil of oregano" },
+  { id: "oil-of-oregano", name: "Oil of oregano", priceUGX: 40000 },
   { id: "bentonite-clay", name: "Bentonite clay", priceUGX: 30000 },
 ];
 
