@@ -1,0 +1,107 @@
+export type InventoryItem = {
+  id: string;
+  name: string;
+  priceUGX?: number; // single price
+  priceOptionsUGX?: number[]; // multiple sizes/options
+};
+
+export const inventory: InventoryItem[] = [
+  { id: "ulcers-tea", name: "Ulcers tea", priceUGX: 30000 },
+  { id: "spearmint-oil", name: "Spearmint oil", priceUGX: 40000 },
+  { id: "moringa", name: "Moringa", priceUGX: 40000 },
+  { id: "saw-palmetto", name: "Saw palmetto", priceUGX: 30000 },
+  { id: "okra", name: "Okra", priceUGX: 30000 },
+  { id: "dried-cranberries", name: "Dried cranberries", priceUGX: 50000 },
+  { id: "black-seed-capsules", name: "Black seed capsules", priceUGX: 60000 },
+  { id: "turmeric-capsules", name: "Turmeric capsules", priceUGX: 60000 },
+  { id: "aloe-vera-capsules", name: "Aloe Vera capsules", priceUGX: 60000 },
+  { id: "green-tea", name: "Green tea", priceUGX: 40000 },
+  { id: "probiotic", name: "Probiotic", priceUGX: 50000 },
+  { id: "liquid-mullien", name: "Liquid Mullien", priceUGX: 50000 },
+  { id: "liquid-chlorophyll", name: "Liquid chlorophyll", priceUGX: 55000 },
+  { id: "sorsoup", name: "Sorsoup", priceUGX: 40000 },
+  { id: "ashwagandha", name: "Ashwagandha", priceUGX: 40000 },
+  { id: "black-maca", name: "Black Maca", priceUGX: 50000 },
+  { id: "red-maca", name: "Red maca", priceUGX: 50000 },
+  { id: "sea-moss", name: "Sea moss", priceUGX: 50000 },
+  { id: "cranberry", name: "Cranberry", priceUGX: 40000 },
+  {
+    id: "castor-oil",
+    name: "Castor oil",
+    priceOptionsUGX: [40000, 70000, 140000],
+  },
+  { id: "castor-oil-pack", name: "Castor oil pack", priceUGX: 120000 },
+  { id: "chasteberry-vitex", name: "Chasteberry/ vitex", priceUGX: 50000 },
+  { id: "shilajit", name: "Shilajit", priceUGX: 120000 },
+  { id: "poke-root", name: "Poke root", priceUGX: 80000 },
+  { id: "milk-thistle", name: "Milk thistle", priceUGX: 50000 },
+  { id: "chlorella", name: "Chlorella", priceUGX: 50000 },
+  { id: "dandelion", name: "Dandelion", priceUGX: 40000 },
+  { id: "oregano", name: "Oregano", priceUGX: 40000 },
+  { id: "propolis", name: "Propolis", priceUGX: 90000 },
+  { id: "activated-charcoal", name: "Activated charcoal", priceUGX: 60000 },
+  { id: "burdock-root", name: "Burdock root", priceUGX: 50000 },
+  { id: "slippery-elm", name: "Slippery elm", priceUGX: 50000 },
+  { id: "elderberry", name: "Elderberry", priceUGX: 50000 },
+  { id: "horny-goat-weed", name: "Horny goat weed", priceUGX: 50000 },
+  { id: "red-korean-ginseng", name: "Red Korean ginseng", priceUGX: 80000 },
+  { id: "high-bp-tea", name: "High blood pressure tea", priceUGX: 40000 },
+  { id: "period-pain-tea", name: "Period pain tea", priceUGX: 40000 },
+  {
+    id: "poke-root-oil",
+    name: "Poke root oil",
+    priceOptionsUGX: [70000, 150000],
+  },
+  { id: "frankincense-oil", name: "frankincense oil", priceUGX: 45000 },
+  { id: "marine-collagen", name: "Marine Collagen", priceUGX: 60000 },
+  { id: "mullein-extract", name: "Mullein extract", priceUGX: 50000 },
+  { id: "face-glow-serum", name: "Face glow Serum", priceUGX: 60000 },
+  { id: "hair-oil", name: "Hair oil", priceUGX: 50000 },
+  { id: "black-seed-oil", name: "Black seed oil", priceUGX: 40000 },
+  { id: "sarsaparilla", name: "Sarsaparilla", priceUGX: 50000 },
+  { id: "dong-quai", name: "Dong quai", priceUGX: 50000 },
+  { id: "hawthorn-berry", name: "Hawthorn berry", priceUGX: 60000 },
+  { id: "lions-mane", name: "Lion’s mane", priceUGX: 60000 },
+  { id: "matcha-tea", name: "Matcha tea", priceUGX: 60000 },
+  { id: "black-cohosh", name: "Black cohosh", priceUGX: 60000 },
+  { id: "spearmint-mint-tea", name: "Spearmint mint tea", priceUGX: 50000 },
+  { id: "red-raspberry-tea", name: "Red Raspberry tea", priceUGX: 50000 },
+  { id: "stinging-nettle", name: "Stinging nettle", priceUGX: 40000 },
+  { id: "red-clover", name: "Red clover", priceUGX: 40000 },
+  { id: "cleavers", name: "Cleavers", priceUGX: 50000 },
+  { id: "apricot-kernels", name: "Apricot kernels", priceUGX: 80000 },
+  { id: "berberine-capsules", name: "Berberine capsules", priceUGX: 80000 },
+  { id: "tongkat-ali", name: "Tongkat Ali", priceUGX: 60000 },
+  { id: "licorice-root", name: "Licorice root", priceUGX: 50000 },
+  { id: "flax-seeds", name: "Flax seeds", priceUGX: 30000 },
+  { id: "gingko-biloba", name: "Gingko biloba", priceUGX: 80000 },
+  { id: "wild-yam-cream", name: "Wild yam cream", priceUGX: 100000 },
+  { id: "omega-3-fish-oil", name: "Omega 3 Fish oil", priceUGX: 150000 },
+  { id: "psyllium-husk", name: "Psyllium husk", priceUGX: 50000 },
+  { id: "shatavari", name: "Shatavari", priceUGX: 50000 },
+  { id: "golden-seal", name: "Golden seal", priceUGX: 50000 },
+  { id: "st-johns-wort", name: "St. John’s wort", priceUGX: 50000 },
+  { id: "mugwort", name: "Mugwort", priceUGX: 40000 },
+  { id: "motherwort", name: "Motherwort", priceUGX: 40000 },
+  { id: "colon-gut-cleanse", name: "Colon gut cleanse", priceUGX: 150000 },
+  { id: "blood-detox", name: "Blood detox", priceUGX: 150000 },
+  { id: "womb-tea", name: "Womb tea", priceUGX: 150000 },
+  { id: "quasil", name: "Quasil", priceUGX: 30000 },
+  { id: "lantana-camara", name: "Lantana camara", priceUGX: 40000 },
+  { id: "gorontula", name: "Gorontula", priceUGX: 35000 },
+  { id: "senna", name: "Senna", priceUGX: 40000 },
+  { id: "oil-of-oregano", name: "Oil of oregano" },
+  { id: "bentonite-clay", name: "Bentonite clay", priceUGX: 30000 },
+];
+
+export function formatUGX(value: number) {
+  try {
+    return new Intl.NumberFormat("en-UG", {
+      style: "currency",
+      currency: "UGX",
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `UGX ${value.toLocaleString()}`;
+  }
+}
