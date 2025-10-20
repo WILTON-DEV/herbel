@@ -44,7 +44,7 @@ export default function ProductsPage() {
                       <div className="flex items-center space-x-3">
                         <div className="relative h-10 w-10 rounded-md overflow-hidden bg-gray-100">
                           <Image
-                            src="/placeholder.svg"
+                            src={item.image || "/placeholder.svg"}
                             alt={item.name}
                             fill
                             className="object-cover"

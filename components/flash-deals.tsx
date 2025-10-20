@@ -64,7 +64,7 @@ export function FlashDeals() {
               <Link href={`/product/${item.id}`} className="block">
                 <div className="relative bg-muted rounded-lg overflow-hidden mb-3 aspect-square">
                   <Image
-                    src="/placeholder.svg"
+                    src={item.image || "/placeholder.svg"}
                     alt={item.name}
                     fill
                     className="object-contain group-hover:scale-105 transition-transform duration-300"
@@ -93,7 +93,7 @@ export function FlashDeals() {
                       id: item.id,
                       name: item.name,
                       price,
-                      image: "/placeholder.svg",
+                      image: item.image || "/placeholder.svg",
                     });
                   } else {
                     console.error("addToCart is not defined");

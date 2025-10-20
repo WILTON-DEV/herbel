@@ -12,10 +12,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export function AdminHeader() {
+type AdminHeaderProps = {
+  onMenuClick?: () => void
+}
+
+export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-6">
-      <div className="flex items-center flex-1 max-w-xl">
+    <header className="flex h-16 items-center justify-between border-b bg-white px-4 md:px-6">
+      <div className="flex items-center flex-1 max-w-xl gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={() => onMenuClick?.()}
+          aria-label="Open sidebar"
+        >
+          {/* simple hamburger */}
+          <span className="block h-0.5 w-5 bg-current" />
+          <span className="block h-0.5 w-5 bg-current mt-1.5" />
+          <span className="block h-0.5 w-5 bg-current mt-1.5" />
+        </Button>
         <div className="relative w-full">
           <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input type="search" placeholder="Search products, orders, customers..." className="pl-10 w-full" />

@@ -25,11 +25,16 @@ const navigation = [
   { name: "Settings", href: "/admin/settings", icon: SettingsIcon },
 ]
 
-export function AdminSidebar() {
+export function AdminSidebar({ open = true, onClose }: { open?: boolean; onClose?: () => void }) {
   const pathname = usePathname()
 
   return (
-    <div className="flex h-full w-64 flex-col bg-[#1a3a2e] text-white">
+    <div
+      className={cn(
+        "fixed inset-y-0 left-0 z-40 w-64 bg-[#1a3a2e] text-white transform transition-transform duration-200 md:static md:translate-x-0 md:flex md:flex-col",
+        open ? "translate-x-0" : "-translate-x-full",
+      )}
+    >
       <div className="flex h-16 items-center border-b border-white/10 px-6">
         <Link href="/admin" className="flex items-center space-x-2">
           <div className="h-8 w-8 rounded-full bg-[#d4a574] flex items-center justify-center">
@@ -37,6 +42,13 @@ export function AdminSidebar() {
           </div>
           <span className="font-bold text-lg">Admin Panel</span>
         </Link>
+        <button
+          className="ml-auto md:hidden text-white/70 hover:text-white"
+          onClick={onClose}
+          aria-label="Close sidebar"
+        >
+          ✕
+        </button>
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {
