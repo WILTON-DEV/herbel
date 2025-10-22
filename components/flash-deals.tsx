@@ -67,12 +67,12 @@ export function FlashDeals() {
                     src={item.image || "/placeholder.svg"}
                     alt={item.name}
                     fill
-                    className="object-contain group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover object-center border group-hover:scale-105 transition-transform duration-300"
                   />
                   {/* Example discount badge. If discounts are added later, compute here. */}
                 </div>
               </Link>
-              <h3 className="text-sm font-medium text-foreground mb-1 line-clamp-2 min-h-[40px]">
+              <h3 className="text-sm font-medium text-primary mb-1 line-clamp-2 min-h-[40px]">
                 {item.name}
               </h3>
               <div className="flex items-center gap-2 mb-2">
@@ -80,7 +80,7 @@ export function FlashDeals() {
                   {formatUGX(price)}
                 </span>
                 {item.priceOptionsUGX && item.priceOptionsUGX.length > 1 ? (
-                  <span className="text-xs text-muted-foreground">from</span>
+                  <span className="text-xs text-muted-primary">from</span>
                 ) : null}
               </div>
               <Button
