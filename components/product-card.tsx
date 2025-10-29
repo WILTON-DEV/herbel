@@ -38,7 +38,7 @@ export function ProductCard({
     <div className=" rounded-lg overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
       <Link href={`/product/${id}`} className="block">
         <div className="relative aspect-square bg-[#f5f1e8] p-4">
-          <Image src={image} alt={name} fill className="object-contain" />
+          <Image src={image} alt={name} fill className="object-cover" />
         </div>
       </Link>
 
@@ -72,6 +72,7 @@ export function ProductCard({
 
           <Button
             onClick={handleAddToCart}
+            size="sm"
             className={`w-full text-sm py-2 ${
               added
                 ? "bg-primary hover:bg-primary"
