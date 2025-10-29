@@ -85,7 +85,7 @@ export function FeaturedProducts() {
                         ? "bg-green-500"
                         : product.badge === "Best Seller"
                         ? "bg-[#c9a961]"
-                        : "bg-[#1a3a2e]"
+                        : "bg-primary"
                     }`}
                   >
                     {product.badge}
@@ -94,11 +94,11 @@ export function FeaturedProducts() {
 
                 {/* Quick Actions */}
                 <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#c9a961] hover:text-white transition-colors">
+                  <button className="w-10 h-10  rounded-full flex items-center justify-center shadow-lg hover:bg-[#c9a961] hover:text-white transition-colors">
                     <HeartIcon className="w-5 h-5" />
                   </button>
                   <Link href={`/product/${product.id}`}>
-                    <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#c9a961] hover:text-white transition-colors">
+                    <button className="w-10 h-10  rounded-full flex items-center justify-center shadow-lg hover:bg-[#c9a961] hover:text-white transition-colors">
                       <EyeIcon className="w-5 h-5" />
                     </button>
                   </Link>
@@ -151,8 +151,8 @@ export function FeaturedProducts() {
                   onClick={() => handleAddToCart(product)}
                   className={`w-full ${
                     addedToCart === product.id
-                      ? "bg-green-500 hover:bg-green-600"
-                      : "bg-[#1a3a2e] hover:bg-[#2a4a3e]"
+                      ? "bg-green-500 hover:bg-primary"
+                      : "bg-primary hover:bg-[#2a4a3e]"
                   } text-white transition-colors`}
                 >
                   {addedToCart === product.id ? (

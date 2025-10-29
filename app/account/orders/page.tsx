@@ -1,7 +1,7 @@
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function OrdersPage() {
   const orders = [
@@ -26,7 +26,7 @@ export default function OrdersPage() {
       status: "Delivered",
       items: 1,
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-[#f5f1e8]">
@@ -38,26 +38,33 @@ export default function OrdersPage() {
 
           <div className="space-y-4">
             {orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-2xl p-6">
+              <div key={order.id} className=" rounded-2xl p-6">
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
                   <div>
                     <p className="text-sm text-gray-600">Order {order.id}</p>
                     <p className="text-sm text-gray-600">{order.date}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-[#1a3a2e]">${order.total.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-[#1a3a2e]">
+                      ${order.total.toFixed(2)}
+                    </p>
                     <p className="text-sm text-gray-600">{order.items} items</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span
                     className={`px-4 py-2 rounded-full text-sm font-medium ${
-                      order.status === "Delivered" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
+                      order.status === "Delivered"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-blue-100 text-blue-700"
                     }`}
                   >
                     {order.status}
                   </span>
-                  <Button variant="outline" className="border-[#1a3a2e] text-[#1a3a2e] bg-transparent">
+                  <Button
+                    variant="outline"
+                    className="border-[#1a3a2e] text-[#1a3a2e] bg-transparent"
+                  >
                     View Details
                   </Button>
                 </div>
@@ -67,7 +74,9 @@ export default function OrdersPage() {
 
           <div className="mt-8 text-center">
             <Link href="/shop">
-              <Button className="bg-[#c9a961] hover:bg-[#b89851] text-white px-8">Continue Shopping</Button>
+              <Button className="bg-[#c9a961] hover:bg-[#b89851] text-white px-8">
+                Continue Shopping
+              </Button>
             </Link>
           </div>
         </div>
@@ -75,5 +84,5 @@ export default function OrdersPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

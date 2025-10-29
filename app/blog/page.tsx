@@ -1,7 +1,7 @@
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
-import { CalendarIcon, ArrowRightIcon } from "@/components/icons"
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon, ArrowRightIcon } from "@/components/icons";
 
 export default function BlogPage() {
   const blogPosts = [
@@ -59,20 +59,23 @@ export default function BlogPage() {
       category: "Science",
       image: "/aromatherapy-science-research.jpg",
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-[#f5f1e8]">
       <Header />
 
       {/* Hero Section */}
-      <section className="bg-[#1a3a2e] text-white py-20 lg:py-32">
+      <section className="bg-primary text-white py-20 lg:py-32">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-[#c9a961] text-sm font-medium mb-4">Our Blog</p>
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6">Latest insights, trends, and expert tips</h1>
+            <h1 className="text-4xl lg:text-6xl font-bold mb-6">
+              Latest insights, trends, and expert tips
+            </h1>
             <p className="text-lg text-white/80">
-              Stay informed with our latest articles on essential oils, wellness, and natural living.
+              Stay informed with our latest articles on essential oils,
+              wellness, and natural living.
             </p>
           </div>
         </div>
@@ -85,20 +88,33 @@ export default function BlogPage() {
             {blogPosts.map((post) => (
               <article
                 key={post.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                className=" rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
-                <img src={post.image || "/placeholder.svg"} alt={post.title} className="w-full h-64 object-cover" />
+                <img
+                  src={post.image || "/placeholder.svg"}
+                  alt={post.title}
+                  className="w-full h-64 object-cover"
+                />
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-4">
-                    <span className="text-[#c9a961] text-sm font-medium">{post.category}</span>
+                    <span className="text-[#c9a961] text-sm font-medium">
+                      {post.category}
+                    </span>
                     <div className="flex items-center gap-2 text-gray-500 text-sm">
                       <CalendarIcon className="w-4 h-4" />
                       <span>{post.date}</span>
                     </div>
                   </div>
-                  <h2 className="text-xl font-bold text-[#1a3a2e] mb-3 line-clamp-2">{post.title}</h2>
-                  <p className="text-gray-700 mb-4 line-clamp-3 leading-relaxed">{post.excerpt}</p>
-                  <Button variant="link" className="text-[#c9a961] p-0 h-auto font-medium group">
+                  <h2 className="text-xl font-bold text-[#1a3a2e] mb-3 line-clamp-2">
+                    {post.title}
+                  </h2>
+                  <p className="text-gray-700 mb-4 line-clamp-3 leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                  <Button
+                    variant="link"
+                    className="text-[#c9a961] p-0 h-auto font-medium group"
+                  >
                     Read More
                     <ArrowRightIcon className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
@@ -111,5 +127,5 @@ export default function BlogPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

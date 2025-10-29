@@ -1,10 +1,10 @@
-import Link from "next/link"
+import Link from "next/link";
 
 export function QuickLinks() {
   return (
     <div className="space-y-4">
       {/* WhatsApp Chat */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className=" rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white">
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -12,7 +12,9 @@ export function QuickLinks() {
             </svg>
           </div>
           <div>
-            <div className="font-semibold text-sm text-gray-800">Chat to Order</div>
+            <div className="font-semibold text-sm text-gray-800">
+              Chat to Order
+            </div>
             <div className="text-xs text-gray-500">Quick WhatsApp Support</div>
           </div>
         </div>
@@ -24,23 +26,27 @@ export function QuickLinks() {
         <div className="text-xs mb-3">Premium Oils</div>
         <Link
           href="/shop?filter=deals"
-          className="inline-block bg-white text-[#1a3a2e] px-4 py-2 rounded text-xs font-semibold hover:bg-gray-100 transition-colors"
+          className="inline-block  text-[#1a3a2e] px-4 py-2 rounded text-xs font-semibold hover:bg-gray-100 transition-colors"
         >
           SHOP NOW
         </Link>
       </div>
 
       {/* Sell on Platform */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div className="font-semibold text-sm text-gray-800 mb-1">Become a Seller</div>
-        <div className="text-xs text-gray-500 mb-3">Start selling your products</div>
+      <div className=" rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="font-semibold text-sm text-gray-800 mb-1">
+          Become a Seller
+        </div>
+        <div className="text-xs text-gray-500 mb-3">
+          Start selling your products
+        </div>
         <Link
           href="/seller/register"
-          className="inline-block bg-[#1a3a2e] text-white px-4 py-2 rounded text-xs font-semibold hover:bg-[#0f2419] transition-colors"
+          className="inline-block bg-primary text-white px-4 py-2 rounded text-xs font-semibold hover:bg-primary transition-colors"
         >
           Learn More
         </Link>
       </div>
     </div>
-  )
+  );
 }

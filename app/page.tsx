@@ -11,7 +11,7 @@ import { inventory } from "@/lib/inventory";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#f5f1e8]">
+    <main className="min-h-screen ">
       <Header />
 
       <div className="container mx-auto px-2 sm:px-4 lg:px-8 py-3 lg:py-6">
@@ -48,7 +48,7 @@ export default function Home() {
 
         {/* Top Selling Products */}
         <div className="mt-6">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className=" rounded-lg shadow-md overflow-hidden">
             <div className="bg-primary text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
               <h2 className="text-lg lg:text-xl font-bold">
                 🔥 Top Selling Products
@@ -97,7 +97,7 @@ export default function Home() {
 
         {/* New Arrivals */}
         <div className="mt-6">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className=" rounded-lg shadow-md overflow-hidden">
             <div className="bg-[#c9a961] text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
               <h2 className="text-lg lg:text-xl font-bold">✨ New Arrivals</h2>
               <a href="/shop" className="text-sm hover:underline">

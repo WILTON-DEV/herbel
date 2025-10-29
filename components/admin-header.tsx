@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { SearchIcon, BellIcon, UserIcon } from "@/components/icons"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { SearchIcon, BellIcon, UserIcon } from "@/components/icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,15 +10,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 type AdminHeaderProps = {
-  onMenuClick?: () => void
-}
+  onMenuClick?: () => void;
+};
 
 export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-4 md:px-6">
+    <header className="flex h-16 items-center justify-between border-b  px-4 md:px-6">
       <div className="flex items-center flex-1 max-w-xl gap-2">
         <Button
           variant="ghost"
@@ -34,7 +34,11 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
         </Button>
         <div className="relative w-full">
           <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input type="search" placeholder="Search products, orders, customers..." className="pl-10 w-full" />
+          <Input
+            type="search"
+            placeholder="Search products, orders, customers..."
+            className="pl-10 w-full"
+          />
         </div>
       </div>
       <div className="flex items-center space-x-4">
@@ -59,5 +63,5 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
         </DropdownMenu>
       </div>
     </header>
-  )
+  );
 }

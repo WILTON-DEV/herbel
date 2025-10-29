@@ -22,11 +22,11 @@ export function DealsGrid() {
   const { addToCart } = useCart();
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className=" rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="bg-[#f5f1e8] px-6 py-4 flex items-center justify-between border-b">
         <h2 className="text-xl font-bold text-[#1a3a2e]">Top Selling Items</h2>
         <Link href="/shop">
-          <Button variant="ghost" className="text-[#1a3a2e] hover:bg-white">
+          <Button variant="ghost" className="text-[#1a3a2e] hover:">
             See All →
           </Button>
         </Link>
@@ -86,7 +86,7 @@ export function DealsGrid() {
                   image: product.image,
                 })
               }
-              className="w-full bg-[#1a3a2e] hover:bg-[#0f2419] text-white text-sm py-2"
+              className="w-full bg-primary hover:bg-primary text-white text-sm py-2"
             >
               Add to Cart
             </Button>

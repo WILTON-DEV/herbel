@@ -11,7 +11,7 @@ export default function ShopPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="bg-[#1a3a2e] text-white py-12 lg:py-20">
+      <section className="bg-primary text-white py-12 lg:py-20">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="mx-auto text-center">
             <p className="text-[#c9a961] text-sm font-medium mb-4">

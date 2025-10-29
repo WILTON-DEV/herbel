@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { ArrowRightIcon } from "@/components/icons"
-import Image from "next/image"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { ArrowRightIcon } from "@/components/icons";
+import Image from "next/image";
+import Link from "next/link";
 
 export function PremiumHero() {
   return (
-    <section className="relative bg-[#1a3a2e] overflow-hidden">
+    <section className="relative bg-primary overflow-hidden">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[600px] py-12 lg:py-0">
           {/* Left Content */}
@@ -23,13 +23,16 @@ export function PremiumHero() {
             </h1>
 
             <p className="text-gray-300 text-lg leading-relaxed max-w-xl">
-              Experience the transformative power of nature with our premium essential oils. Carefully crafted for your
-              wellness journey.
+              Experience the transformative power of nature with our premium
+              essential oils. Carefully crafted for your wellness journey.
             </p>
 
             <div className="flex flex-wrap gap-4">
               <Link href="/shop">
-                <Button size="lg" className="bg-[#c9a961] hover:bg-[#b89851] text-white px-8">
+                <Button
+                  size="lg"
+                  className="bg-[#c9a961] hover:bg-[#b89851] text-white px-8"
+                >
                   Shop Now
                   <ArrowRightIcon className="ml-2 w-5 h-5" />
                 </Button>
@@ -38,7 +41,7 @@ export function PremiumHero() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white text-white hover:bg-white/10 bg-transparent"
+                  className="border-white text-white hover:/10 bg-transparent"
                 >
                   Learn More
                 </Button>
@@ -73,7 +76,7 @@ export function PremiumHero() {
               priority
             />
             {/* Floating Badge */}
-            <div className="absolute top-8 right-8 bg-white rounded-2xl p-4 shadow-2xl">
+            <div className="absolute top-8 right-8  rounded-2xl p-4 shadow-2xl">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-[#c9a961] rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-lg">✓</span>
@@ -92,5 +95,5 @@ export function PremiumHero() {
       <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-[#2a4a3e] to-transparent opacity-50" />
       <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-[#c9a961]/10 to-transparent" />
     </section>
-  )
+  );
 }

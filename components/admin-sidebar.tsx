@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   LayoutDashboardIcon,
   PackageIcon,
@@ -12,7 +12,7 @@ import {
   SettingsIcon,
   FileTextIcon,
   TagIcon,
-} from "@/components/icons"
+} from "@/components/icons";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboardIcon },
@@ -23,16 +23,22 @@ const navigation = [
   { name: "Categories", href: "/admin/categories", icon: TagIcon },
   { name: "Reviews", href: "/admin/reviews", icon: FileTextIcon },
   { name: "Settings", href: "/admin/settings", icon: SettingsIcon },
-]
+];
 
-export function AdminSidebar({ open = true, onClose }: { open?: boolean; onClose?: () => void }) {
-  const pathname = usePathname()
+export function AdminSidebar({
+  open = true,
+  onClose,
+}: {
+  open?: boolean;
+  onClose?: () => void;
+}) {
+  const pathname = usePathname();
 
   return (
     <div
       className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 bg-[#1a3a2e] text-white transform transition-transform duration-200 md:static md:translate-x-0 md:flex md:flex-col",
-        open ? "translate-x-0" : "-translate-x-full",
+        "fixed inset-y-0 left-0 z-40 w-64 bg-primary text-white transform transition-transform duration-200 md:static md:translate-x-0 md:flex md:flex-col",
+        open ? "translate-x-0" : "-translate-x-full"
       )}
     >
       <div className="flex h-16 items-center border-b border-white/10 px-6">
@@ -52,30 +58,32 @@ export function AdminSidebar({ open = true, onClose }: { open?: boolean; onClose
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.name}
               href={item.href}
               className={cn(
                 "flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                isActive ? "bg-[#d4a574] text-[#1a3a2e]" : "text-white/80 hover:bg-white/10 hover:text-white",
+                isActive
+                  ? "bg-[#d4a574] text-[#1a3a2e]"
+                  : "text-white/80 hover:/10 hover:text-white"
               )}
             >
               <item.icon className="h-5 w-5" />
               <span>{item.name}</span>
             </Link>
-          )
+          );
         })}
       </nav>
       <div className="border-t border-white/10 p-4">
         <Link
           href="/"
-          className="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+          className="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-white/80 hover:/10 hover:text-white transition-colors"
         >
           <span>← Back to Website</span>
         </Link>
       </div>
     </div>
-  )
+  );
 }

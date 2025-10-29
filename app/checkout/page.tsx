@@ -74,7 +74,7 @@ export default function CheckoutPage() {
           {/* Left Column - Order Details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Delivery Method Selection */}
-            <div className="bg-white rounded-xl lg:rounded-2xl p-6 lg:p-8">
+            <div className=" rounded-xl lg:rounded-2xl p-6 lg:p-8">
               <h2 className="text-xl lg:text-2xl font-bold text-[#4CAF50] mb-6">
                 Choose Delivery Method
               </h2>
@@ -182,7 +182,7 @@ export default function CheckoutPage() {
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       required
-                      className="bg-white border-2 border-[#1a3a2e] py-6 text-base"
+                      className=" border-2 border-[#1a3a2e] py-6 text-base"
                     />
                     <p className="text-sm text-gray-600 mt-2 flex items-center gap-2">
                       <span className="font-medium text-[#4CAF50]">Note:</span>
@@ -195,7 +195,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Contact Information */}
-            <div className="bg-white rounded-xl lg:rounded-2xl p-6 lg:p-8">
+            <div className=" rounded-xl lg:rounded-2xl p-6 lg:p-8">
               <h2 className="text-xl lg:text-2xl font-bold text-[#4CAF50] mb-6">
                 Contact Information
               </h2>
@@ -209,7 +209,7 @@ export default function CheckoutPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="bg-white border-2 border-gray-300 py-5"
+                    className=" border-2 border-gray-300 py-5"
                   />
                 </div>
                 <div>
@@ -222,7 +222,7 @@ export default function CheckoutPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
-                    className="bg-white border-2 border-gray-300 py-5"
+                    className=" border-2 border-gray-300 py-5"
                   />
                 </div>
                 <div>
@@ -234,7 +234,7 @@ export default function CheckoutPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-white border-2 border-gray-300 py-5"
+                    className=" border-2 border-gray-300 py-5"
                   />
                 </div>
               </div>
@@ -243,7 +243,7 @@ export default function CheckoutPage() {
 
           {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl lg:rounded-2xl p-6 sticky top-20">
+            <div className=" rounded-xl lg:rounded-2xl p-6 sticky top-20">
               <h2 className="text-xl lg:text-2xl font-bold text-[#4CAF50] mb-6">
                 Order Summary
               </h2>
@@ -284,7 +284,7 @@ export default function CheckoutPage() {
               <Button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full bg-[#1a3a2e] hover:bg-[#0f2419] text-white py-6 text-base lg:text-lg"
+                className="w-full bg-primary hover:bg-primary text-white py-6 text-base lg:text-lg"
               >
                 {isProcessing ? "Processing..." : "Complete Order"}
               </Button>

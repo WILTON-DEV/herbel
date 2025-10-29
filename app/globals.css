@@ -6,13 +6,13 @@
 :root {
   /* Brand palette: green leaves + golden drop from logo */
   --primary: #4caf50; /* leaf green #4CAF50 */
-  --primary-foreground: oklch(0.99 0 0);
+  --primary-foreground: oklch(0.955 0.014 93.9);
   --secondary: oklch(0.94 0.03 100); /* soft cream backdrop */
   --secondary-foreground: oklch(0.28 0.06 155);
   --accent: oklch(0.8 0.19 80); /* golden amber */
   --accent-foreground: oklch(0.15 0 0);
 
-  --background: oklch(0.99 0 0);
+  --background: oklch(0.955 0.014 93.9);
   --foreground: oklch(0.2 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0 0);
@@ -24,7 +24,7 @@
   --ring: var(--accent);
 
   --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive-foreground: oklch(0.955 0.014 93.9);
 
   --success: #4caf50; /* leaf green */
   --warning: oklch(0.8 0.19 80);
@@ -80,22 +80,22 @@
   --z-popover: 1060;
   --z-tooltip: 1070;
 
-  --background: oklch(0.99 0 0);
+  --background: oklch(0.955 0.014 93.9);
   --foreground: oklch(0.2 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0 0);
   --primary: #4caf50; /* leaf green #4CAF50 */
-  --primary-foreground: oklch(0.99 0 0);
+  --primary-foreground: oklch(0.955 0.014 93.9);
   --secondary: oklch(0.96 0.01 85);
   --secondary-foreground: oklch(0.28 0.06 155);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.55 0 0);
   --accent: oklch(0.75 0.1 75);
-  --accent-foreground: oklch(0.99 0 0);
+  --accent-foreground: oklch(0.955 0.014 93.9);
   --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive-foreground: oklch(0.955 0.014 93.9);
   --border: oklch(0.93 0 0);
   --input: oklch(0.95 0 0);
   --ring: var(--accent);

@@ -1,7 +1,7 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
-import { CheckCircleIcon, PhoneIcon } from "@/components/icons";
+import { CheckCircleIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
 
 export default function OrderConfirmationPage() {
@@ -43,7 +43,7 @@ export default function OrderConfirmationPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 lg:p-8 mb-8 text-left">
+          <div className=" rounded-2xl p-6 lg:p-8 mb-8 text-left">
             <h3 className="font-semibold text-[#4CAF50] mb-4">
               What happens next?
             </h3>
@@ -71,14 +71,14 @@ export default function OrderConfirmationPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/account/orders">
-              <Button className="bg-[#1a3a2e] hover:bg-[#0f2419] text-white px-8 py-6">
+              <Button className="bg-primary hover:bg-primary text-white px-8 py-6">
                 View Orders
               </Button>
             </Link>
             <Link href="/shop">
               <Button
                 variant="outline"
-                className="border-2 border-[#1a3a2e] text-[#4CAF50] px-8 py-6 bg-white hover:bg-[#f5f1e8]"
+                className="border-2 border-[#1a3a2e] text-[#4CAF50] px-8 py-6  hover:bg-[#f5f1e8]"
               >
                 Continue Shopping
               </Button>

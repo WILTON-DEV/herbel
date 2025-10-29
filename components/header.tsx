@@ -39,7 +39,7 @@ export function Header() {
   }, []);
 
   return (
-    <header className="bg-white border-b sticky top-0 z-50 shadow-sm">
+    <header className=" border-b sticky top-0 z-50 shadow-sm bg-background ">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Mobile Menu */}

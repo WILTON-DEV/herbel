@@ -24,16 +24,16 @@ export function Footer() {
               and effective.
             </p>
             <div className="flex gap-3">
-              <button className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#c9a961] flex items-center justify-center transition-colors">
+              <button className="w-10 h-10 rounded-full /10 hover:bg-[#c9a961] flex items-center justify-center transition-colors">
                 <FacebookIcon className="w-5 h-5" />
               </button>
-              <button className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#c9a961] flex items-center justify-center transition-colors">
+              <button className="w-10 h-10 rounded-full /10 hover:bg-[#c9a961] flex items-center justify-center transition-colors">
                 <InstagramIcon className="w-5 h-5" />
               </button>
-              <button className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#c9a961] flex items-center justify-center transition-colors">
+              <button className="w-10 h-10 rounded-full /10 hover:bg-[#c9a961] flex items-center justify-center transition-colors">
                 <TwitterIcon className="w-5 h-5" />
               </button>
-              <button className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#c9a961] flex items-center justify-center transition-colors">
+              <button className="w-10 h-10 rounded-full /10 hover:bg-[#c9a961] flex items-center justify-center transition-colors">
                 <YoutubeIcon className="w-5 h-5" />
               </button>
             </div>
@@ -127,7 +127,7 @@ export function Footer() {
               <Input
                 type="email"
                 placeholder="Your email"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                className="/10 border-white/20 text-white placeholder:text-white/50"
               />
               <Button className="bg-[#c9a961] hover:bg-[#b89851] text-white flex-shrink-0">
                 Subscribe

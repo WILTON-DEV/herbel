@@ -36,7 +36,7 @@ export function BestSellers() {
   };
 
   return (
-    <section className="bg-white py-16 lg:py-24">
+    <section className=" py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-12">
           <p className="text-[#c9a961] text-sm font-medium tracking-wide mb-2">
@@ -57,7 +57,7 @@ export function BestSellers() {
               key={product.id}
               className="overflow-hidden group hover:shadow-2xl transition-all duration-300 border border-gray-200"
             >
-              <div className="relative aspect-square bg-white overflow-hidden">
+              <div className="relative aspect-square  overflow-hidden">
                 <Link href={`/product/${product.id}`}>
                   <Image
                     src={product.image || "/placeholder.svg"}
@@ -97,8 +97,8 @@ export function BestSellers() {
                     onClick={() => handleAddToCart(product)}
                     className={`${
                       addedToCart === product.id
-                        ? "bg-green-500 hover:bg-green-600"
-                        : "bg-[#1a3a2e] hover:bg-[#2a4a3e]"
+                        ? "bg-green-500 hover:bg-primary"
+                        : "bg-primary hover:bg-[#2a4a3e]"
                     } text-white`}
                   >
                     {addedToCart === product.id ? (

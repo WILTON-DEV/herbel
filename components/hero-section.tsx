@@ -1,23 +1,26 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { ArrowRightIcon } from "@/components/icons"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { ArrowRightIcon } from "@/components/icons";
+import Link from "next/link";
 
 export function HeroSection() {
   return (
-    <section className="bg-[#1a3a2e] text-white py-16 lg:py-24">
+    <section className="bg-primary text-white py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left content */}
           <div className="space-y-6">
-            <p className="text-[#c9a961] text-sm font-medium tracking-wide">100% Pure Organic Ingredients</p>
+            <p className="text-[#c9a961] text-sm font-medium tracking-wide">
+              100% Pure Organic Ingredients
+            </p>
             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-balance">
               Pure drops perfect precision care you can trust
             </h1>
             <p className="text-white/80 text-lg leading-relaxed max-w-xl">
-              Experience the power of nature with our premium essential oils. Carefully crafted for your wellness
-              journey with uncompromising quality and purity.
+              Experience the power of nature with our premium essential oils.
+              Carefully crafted for your wellness journey with uncompromising
+              quality and purity.
             </p>
             <div className="flex gap-4">
               <Link href="/shop">
@@ -29,7 +32,7 @@ export function HeroSection() {
               <Link href="/about">
                 <Button
                   variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-[#1a3a2e] px-8 py-6 text-base bg-transparent"
+                  className="border-white text-white hover: hover:text-[#1a3a2e] px-8 py-6 text-base bg-transparent"
                 >
                   Learn More
                 </Button>
@@ -50,5 +53,5 @@ export function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

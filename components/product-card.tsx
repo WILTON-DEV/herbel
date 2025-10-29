@@ -35,7 +35,7 @@ export function ProductCard({
   };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
+    <div className=" rounded-lg overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
       <Link href={`/product/${id}`} className="block">
         <div className="relative aspect-square bg-[#f5f1e8] p-4">
           <Image src={image} alt={name} fill className="object-contain" />
@@ -74,8 +74,8 @@ export function ProductCard({
             onClick={handleAddToCart}
             className={`w-full text-sm py-2 ${
               added
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-[#1a3a2e] hover:bg-[#0f2419]"
+                ? "bg-primary hover:bg-primary"
+                : "bg-primary hover:bg-primary"
             } text-white transition-colors`}
           >
             {added ? "Added!" : "Add to Cart"}

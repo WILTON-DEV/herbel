@@ -30,19 +30,19 @@ export function FlashDeals() {
   }, []);
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className=" rounded-lg shadow-md overflow-hidden">
       <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between flex-wrap gap-2">
         <h2 className="text-lg lg:text-xl font-bold">⚡ Flash Sales</h2>
         <div className="flex items-center gap-2">
           <span className="text-xs lg:text-sm">Time Left:</span>
           <div className="flex gap-1">
-            <div className="bg-white text-red-600 px-2 py-1 rounded-md font-bold text-xs lg:text-sm">
+            <div className=" text-red-600 px-2 py-1 rounded-md font-bold text-xs lg:text-sm">
               {String(timeLeft.hours).padStart(2, "0")}h
             </div>
-            <div className="bg-white text-red-600 px-2 py-1 rounded-md font-bold text-xs lg:text-sm">
+            <div className=" text-red-600 px-2 py-1 rounded-md font-bold text-xs lg:text-sm">
               {String(timeLeft.minutes).padStart(2, "0")}m
             </div>
-            <div className="bg-white text-red-600 px-2 py-1 rounded-md font-bold text-xs lg:text-sm">
+            <div className=" text-red-600 px-2 py-1 rounded-md font-bold text-xs lg:text-sm">
               {String(timeLeft.seconds).padStart(2, "0")}s
             </div>
           </div>
@@ -50,7 +50,7 @@ export function FlashDeals() {
         <Link href="/shop?filter=flash-deals">
           <Button
             variant="ghost"
-            className="text-white hover:bg-white/20 text-xs lg:text-sm"
+            className="text-white hover:/20 text-xs lg:text-sm"
           >
             See All →
           </Button>

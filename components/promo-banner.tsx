@@ -28,7 +28,7 @@ export function PromoBanner({
   image,
   ctaText = "Shop Now",
   ctaLink = "/shop",
-  bgColor = "bg-[#1a3a2e]",
+  bgColor = "bg-primary",
   textColor = "text-white",
 }: PromoBannerProps) {
   return (

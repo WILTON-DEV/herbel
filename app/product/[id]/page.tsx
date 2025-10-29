@@ -125,7 +125,7 @@ export default function ProductDetailPage() {
                 onClick={handleAddToCart}
                 className={`flex-1 py-6 text-lg ${
                   addedToCart
-                    ? "bg-green-600 hover:bg-green-700"
+                    ? "bg-primary hover:bg-primary"
                     : "bg-[#c9a961] hover:bg-[#b89851]"
                 } text-white`}
               >
@@ -133,7 +133,7 @@ export default function ProductDetailPage() {
               </Button>
             </div>
 
-            <div className="bg-[#1a3a2e]/5 rounded-xl p-6">
+            <div className="bg-primary/5 rounded-xl p-6">
               <p className="text-sm text-gray-700">
                 <strong>Free shipping</strong> on orders over $50 •{" "}
                 <strong>30-day</strong> money-back guarantee
@@ -142,7 +142,7 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-8">
+        <div className=" rounded-2xl p-8">
           <h2 className="text-2xl font-bold text-[#1a3a2e] mb-6">
             Customer Reviews
           </h2>

@@ -49,7 +49,7 @@ export default function CartPage() {
             {items.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-2xl p-6 flex gap-6 overflow-hidden"
+                className=" rounded-2xl p-6 flex gap-6 overflow-hidden"
               >
                 <div className="w-24 h-24 bg-[#f5f1e8] rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
                   <img
@@ -96,7 +96,7 @@ export default function CartPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl p-6 sticky top-8">
+            <div className=" rounded-2xl p-6 sticky top-8">
               <h2 className="text-2xl font-bold text-[#1a3a2e] mb-6">
                 Order Summary
               </h2>
