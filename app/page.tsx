@@ -58,7 +58,7 @@ export default function Home() {
 
         {/* Top Selling Products */}
         <div className="mt-6">
-          <div className=" rounded-lg shadow-md overflow-hidden">
+          <div className=" rounded-lg  overflow-hidden">
             <div className="bg-primary text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
               <h2 className="text-lg lg:text-xl font-bold">
                 🔥 Top Selling Products
@@ -107,7 +107,7 @@ export default function Home() {
 
         {/* New Arrivals */}
         <div className="mt-6">
-          <div className=" rounded-lg shadow-md overflow-hidden">
+          <div className=" rounded-lg overflow-hidden">
             <div className="bg-[#c9a961] text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
               <h2 className="text-lg lg:text-xl font-bold">✨ New Arrivals</h2>
               <a href="/shop" className="text-sm hover:underline">

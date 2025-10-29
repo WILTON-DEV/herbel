@@ -25,7 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="font-sans antialiased bg-background text-foreground">
+      <body
+        className="font-sans antialiased  text-foreground bg-background"
+
+      >
         <CartProvider>
           <Suspense>{children}</Suspense>
         </CartProvider>

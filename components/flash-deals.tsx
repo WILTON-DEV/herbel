@@ -30,7 +30,7 @@ export function FlashDeals() {
   }, []);
 
   return (
-    <div className=" rounded-lg shadow-md overflow-hidden">
+    <div className=" rounded-lg  overflow-hidden">
       <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between flex-wrap gap-2">
         <h2 className="text-lg lg:text-xl font-bold">⚡ Flash Sales</h2>
         <div className="flex items-center gap-2">

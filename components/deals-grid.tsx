@@ -22,7 +22,7 @@ export function DealsGrid() {
   const { addToCart } = useCart();
 
   return (
-    <div className=" rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className=" rounded-lg  border border-gray-200 overflow-hidden">
       <div className="bg-[#f5f1e8] px-6 py-4 flex items-center justify-between border-b">
         <h2 className="text-xl font-bold text-[#1a3a2e]">Top Selling Items</h2>
         <Link href="/shop">
