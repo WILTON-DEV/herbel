@@ -66,7 +66,7 @@ export function ProductCard({
         </div>
 
         <div className="mt-auto">
-          <div className="text-lg font-bold text-[#1a3a2e] mb-3">
+          <div className="text-lg font-bold text-primary mb-3">
             {formatUGX(price)}
           </div>
 

@@ -5,7 +5,7 @@
 
 :root {
   /* Brand palette: green leaves + golden drop from logo */
-  --primary: oklch(0.7 0.2 140); /* leaf green */
+  --primary: #4caf50; /* leaf green #4CAF50 */
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.94 0.03 100); /* soft cream backdrop */
   --secondary-foreground: oklch(0.28 0.06 155);
@@ -26,7 +26,7 @@
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  --success: oklch(0.7 0.2 140);
+  --success: #4caf50; /* leaf green */
   --warning: oklch(0.8 0.19 80);
   --info: oklch(0.65 0.15 235);
 
@@ -86,7 +86,7 @@
   --card-foreground: oklch(0.2 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0 0);
-  --primary: oklch(0.28 0.06 155);
+  --primary: #4caf50; /* leaf green #4CAF50 */
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.96 0.01 85);
   --secondary-foreground: oklch(0.28 0.06 155);

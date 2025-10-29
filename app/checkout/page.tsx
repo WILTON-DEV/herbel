@@ -63,7 +63,7 @@ export default function CheckoutPage() {
       <Header />
 
       <div className="container mx-auto px-4 lg:px-8 py-8 lg:py-12">
-        <h1 className="text-2xl lg:text-4xl font-bold text-[#1a3a2e] mb-6 lg:mb-12">
+        <h1 className="text-2xl lg:text-4xl font-bold text-[#4CAF50] mb-6 lg:mb-12">
           Checkout
         </h1>
 
@@ -75,7 +75,7 @@ export default function CheckoutPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Delivery Method Selection */}
             <div className="bg-white rounded-xl lg:rounded-2xl p-6 lg:p-8">
-              <h2 className="text-xl lg:text-2xl font-bold text-[#1a3a2e] mb-6">
+              <h2 className="text-xl lg:text-2xl font-bold text-[#4CAF50] mb-6">
                 Choose Delivery Method
               </h2>
               <RadioGroup
@@ -128,7 +128,7 @@ export default function CheckoutPage() {
               {/* Branch Selection - Only show if pickup */}
               {deliveryMethod === "pickup" && (
                 <div className="mt-6 space-y-3">
-                  <h3 className="font-semibold text-[#1a3a2e] text-lg">
+                  <h3 className="font-semibold text-[#4CAF50] text-lg">
                     Select Branch
                   </h3>
                   {branches.map((branch) => (
@@ -154,7 +154,7 @@ export default function CheckoutPage() {
                           )}
                         </div>
                         <div className="flex-1">
-                          <div className="font-semibold text-[#1a3a2e]">
+                          <div className="font-semibold text-[#4CAF50]">
                             {branch.name}
                           </div>
                           <div className="text-sm text-gray-600">
@@ -174,7 +174,7 @@ export default function CheckoutPage() {
               {deliveryMethod === "delivery" && (
                 <div className="mt-6 space-y-4">
                   <div>
-                    <Label className="text-[#1a3a2e] font-semibold mb-2 block">
+                    <Label className="text-[#4CAF50] font-semibold mb-2 block">
                       Delivery Location
                     </Label>
                     <Input
@@ -185,7 +185,7 @@ export default function CheckoutPage() {
                       className="bg-white border-2 border-[#1a3a2e] py-6 text-base"
                     />
                     <p className="text-sm text-gray-600 mt-2 flex items-center gap-2">
-                      <span className="font-medium text-[#1a3a2e]">Note:</span>
+                      <span className="font-medium text-[#4CAF50]">Note:</span>
                       Delivery cost is covered by buyer. We'll contact you to
                       confirm your location.
                     </p>
@@ -196,7 +196,7 @@ export default function CheckoutPage() {
 
             {/* Contact Information */}
             <div className="bg-white rounded-xl lg:rounded-2xl p-6 lg:p-8">
-              <h2 className="text-xl lg:text-2xl font-bold text-[#1a3a2e] mb-6">
+              <h2 className="text-xl lg:text-2xl font-bold text-[#4CAF50] mb-6">
                 Contact Information
               </h2>
               <div className="space-y-4">
@@ -244,7 +244,7 @@ export default function CheckoutPage() {
           {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl lg:rounded-2xl p-6 sticky top-20">
-              <h2 className="text-xl lg:text-2xl font-bold text-[#1a3a2e] mb-6">
+              <h2 className="text-xl lg:text-2xl font-bold text-[#4CAF50] mb-6">
                 Order Summary
               </h2>
               <div className="space-y-3 mb-6">
@@ -272,10 +272,10 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                   <div className="border-t pt-3 flex justify-between">
-                    <span className="text-lg font-bold text-[#1a3a2e]">
+                    <span className="text-lg font-bold text-[#4CAF50]">
                       Total
                     </span>
-                    <span className="text-lg font-bold text-[#1a3a2e]">
+                    <span className="text-lg font-bold text-[#4CAF50]">
                       {formatUGX(finalTotal)}
                     </span>
                   </div>

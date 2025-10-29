@@ -7,8 +7,8 @@ export function Logo({
 }) {
   const textColor = variant === "white" ? "#ffffff" : "#C9A961";
   const subtextColor = variant === "white" ? "#ffffff" : "#1A3A2E";
-  // Use theme green from brand palette (corresponds to #1A3A2E)
-  const leafColor = "#1A3A2E";
+  // Use fresh leaf green from logo (Material Green #4CAF50)
+  const leafColor = "#4CAF50";
   const dropperColor = variant === "white" ? "#ffffff" : "#C9A961";
 
   return (
@@ -61,7 +61,7 @@ export function Logo({
             y1="2"
             x2="85"
             y2="8"
-            stroke="#C9A961"
+            stroke="#4CAF50"
             strokeWidth="0.3"
           />
         </g>
@@ -79,7 +79,7 @@ export function Logo({
             y1="2"
             x2="143"
             y2="8"
-            stroke="#C9A961"
+            stroke="#4CAF50"
             strokeWidth="0.3"
           />
         </g>

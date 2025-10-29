@@ -49,7 +49,7 @@ export default function Home() {
         {/* Top Selling Products */}
         <div className="mt-6">
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="bg-[#1a3a2e] text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
+            <div className="bg-primary text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
               <h2 className="text-lg lg:text-xl font-bold">
                 🔥 Top Selling Products
               </h2>

@@ -88,15 +88,15 @@ export function Header() {
               <Input
                 type="search"
                 placeholder="Search products..."
-                className="w-full pr-10"
+                className="w-full min-w-[300px] pr-10"
               />
-              <Button
+              {/* <Button
                 size="icon"
                 variant="ghost"
                 className="absolute right-0 top-0 h-full"
               >
                 <SearchIcon className="w-5 h-5" />
-              </Button>
+              </Button> */}
             </div>
           </div>
 

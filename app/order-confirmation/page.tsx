@@ -14,7 +14,7 @@ export default function OrderConfirmationPage() {
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircleIcon className="w-12 h-12 text-green-600" />
           </div>
-          <h1 className="text-3xl lg:text-4xl font-bold text-[#1a3a2e] mb-4">
+          <h1 className="text-3xl lg:text-4xl font-bold text-[#4CAF50] mb-4">
             Order Placed Successfully!
           </h1>
           <p className="text-base lg:text-lg text-gray-700 mb-8">
@@ -26,7 +26,7 @@ export default function OrderConfirmationPage() {
           <div className="bg-[#fff4e6] border-2 border-[#c9a961] rounded-xl p-6 mb-8">
             <div className="flex items-center gap-3 mb-3">
               <PhoneIcon className="w-6 h-6 text-[#c9a961]" />
-              <h2 className="text-lg font-bold text-[#1a3a2e]">Next Steps</h2>
+              <h2 className="text-lg font-bold text-[#4CAF50]">Next Steps</h2>
             </div>
             <p className="text-gray-700 text-left">
               <strong>We will contact you soon</strong> via phone to confirm
@@ -36,7 +36,7 @@ export default function OrderConfirmationPage() {
             <div className="mt-4 pt-4 border-t border-[#c9a961]/30">
               <p className="text-sm text-gray-600 text-left">
                 Order Number:{" "}
-                <span className="font-mono font-semibold text-[#1a3a2e]">
+                <span className="font-mono font-semibold text-[#4CAF50]">
                   #ORD-{Math.floor(Math.random() * 100000)}
                 </span>
               </p>
@@ -44,7 +44,7 @@ export default function OrderConfirmationPage() {
           </div>
 
           <div className="bg-white rounded-2xl p-6 lg:p-8 mb-8 text-left">
-            <h3 className="font-semibold text-[#1a3a2e] mb-4">
+            <h3 className="font-semibold text-[#4CAF50] mb-4">
               What happens next?
             </h3>
             <div className="space-y-3 text-sm lg:text-base text-gray-700">
@@ -78,7 +78,7 @@ export default function OrderConfirmationPage() {
             <Link href="/shop">
               <Button
                 variant="outline"
-                className="border-2 border-[#1a3a2e] text-[#1a3a2e] px-8 py-6 bg-white hover:bg-[#f5f1e8]"
+                className="border-2 border-[#1a3a2e] text-[#4CAF50] px-8 py-6 bg-white hover:bg-[#f5f1e8]"
               >
                 Continue Shopping
               </Button>
