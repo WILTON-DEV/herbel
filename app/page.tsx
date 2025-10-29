@@ -15,7 +15,7 @@ export default function Home() {
     <main className="min-h-screen ">
       <Header />
 
-      <div className="container mx-auto  py-3 lg:py-6 px-1">
+      <div className="container mx-auto  py-3 lg:py-6 px-1 lg:px-4">
         {/* Desktop: Grid with sidebars, Mobile: Full width hero only */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
           <div className="hidden lg:block lg:col-span-2">
