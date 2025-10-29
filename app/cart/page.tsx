@@ -13,74 +13,83 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#f5f1e8]">
+      <div className="min-h-screen bg-[#f5f1e8] flex flex-col">
         <Header />
-        <div className="container mx-auto px-4 lg:px-8 py-24  flex items-center justify-center min-h-[65vh]">
-          <div className="max-w-6xl  mx-auto text-center">
-            <h1 className="text-4xl font-bold text-[#1a3a2e] mb-4">
-              Your Cart is Empty
-            </h1>
-            <p className="text-gray-600 mb-8">
-              Add some products to get started
-            </p>
-            <Link href="/shop">
-              <Button className="bg-[#c9a961] hover:bg-[#b89851] text-white px-8">
-                Continue Shopping
-              </Button>
-            </Link>
-          </div>
-        </div>
+        <main className="flex-1 flex flex-col items-center justify-center px-4 py-24 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#1a3a2e] mb-4">
+            Your Cart is Empty
+          </h1>
+          <p className="text-gray-600 mb-8">
+            Add some products to get started
+          </p>
+          <Link href="/shop">
+            <Button className="bg-[#c9a961] hover:bg-[#b89851] text-white px-8 py-3 text-sm sm:text-base">
+              Continue Shopping
+            </Button>
+          </Link>
+        </main>
         <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f1e8]">
+    <div className="min-h-screen bg-[#f5f1e8] flex flex-col">
       <Header />
 
-      <div className="container mx-auto px-4 lg:px-8 py-16 lg:py-24">
-        <h1 className="text-4xl font-bold text-[#1a3a2e] mb-12">
+      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+        <h1 className="text-3xl sm:text-4xl font-bold text-[#1a3a2e] mb-8 sm:mb-12 text-center sm:text-left">
           Shopping Cart
         </h1>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-4">
+        {/* Cart Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* Cart Items */}
+          <div className="lg:col-span-2 space-y-6">
             {items.map((item) => (
               <div
                 key={item.id}
-                className=" rounded-2xl p-6 flex gap-6 overflow-hidden"
+                className="border rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 shadow-sm"
               >
-                <div className="w-24 h-24 bg-[#f5f1e8] rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {/* Product Image */}
+                <div className="w-24 h-24 bg-[#f5f1e8] rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
                   <img
                     src={item.image || "/placeholder.svg"}
                     alt={item.name}
                     className="w-full h-full object-contain p-2"
                   />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-[#1a3a2e] mb-2">
+
+                {/* Product Info */}
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="text-lg font-bold text-[#1a3a2e] mb-1">
                     {item.name}
                   </h3>
-                  <p className="text-2xl font-bold text-[#1a3a2e]">
+                  <p className="text-xl font-semibold text-[#1a3a2e]">
                     {formatUGX(item.price)}
                   </p>
                 </div>
-                <div className="flex flex-col items-end justify-between">
+
+                {/* Controls */}
+                <div className="flex items-center sm:flex-col gap-3 sm:gap-4 justify-center sm:justify-between">
                   <button
                     onClick={() => removeItem(item.id)}
                     className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    aria-label="Remove item"
                   >
                     <TrashIcon className="w-5 h-5 text-red-600" />
                   </button>
-                  <div className="flex items-center gap-3 border border-gray-300 rounded-lg">
+
+                  <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(item.id, Math.max(1, item.quantity - 1))
+                      }
                       className="px-3 py-1 hover:bg-gray-100 transition-colors"
                     >
-                      -
+                      −
                     </button>
-                    <span className="font-medium w-8 text-center">
+                    <span className="px-3 font-medium text-sm">
                       {item.quantity}
                     </span>
                     <button
@@ -95,46 +104,46 @@ export default function CartPage() {
             ))}
           </div>
 
-          <div className="lg:col-span-1">
-            <div className=" rounded-2xl p-6 sticky top-8">
-              <h2 className="text-2xl font-bold text-[#1a3a2e] mb-6">
+          {/* Order Summary */}
+          <aside className="lg:col-span-1">
+            <div className="border rounded-2xl p-6 shadow-sm sticky top-8">
+              <h2 className="text-2xl font-bold text-[#1a3a2e] mb-6 text-center sm:text-left">
                 Order Summary
               </h2>
               <div className="space-y-4 mb-6">
-                <div className="flex justify-between">
+                <div className="flex justify-between text-sm sm:text-base">
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-medium">{formatUGX(totalPrice)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Shipping</span>
+                <div className="flex justify-between text-sm sm:text-base">
+                  <span className="text-gray-600">Delivering</span>
                   <span className="font-medium">{formatUGX(5000)}</span>
                 </div>
-                <div className="border-t pt-4 flex justify-between">
-                  <span className="text-xl font-bold text-[#1a3a2e]">
-                    Total
-                  </span>
-                  <span className="text-xl font-bold text-[#1a3a2e]">
-                    {formatUGX(totalPrice + 5000)}
-                  </span>
+                <div className="border-t pt-4 flex justify-between text-base sm:text-lg font-bold text-[#1a3a2e]">
+                  <span>Total</span>
+                  <span>{formatUGX(totalPrice + 5000)}</span>
                 </div>
               </div>
-              <Link href="/checkout">
-                <Button className="w-full bg-[#c9a961] hover:bg-[#b89851] text-white py-6 text-lg">
-                  Proceed to Checkout
-                </Button>
-              </Link>
-              <Link href="/shop">
-                <Button
-                  variant="outline"
-                  className="w-full mt-4 border-[#1a3a2e] text-[#1a3a2e] bg-transparent"
-                >
-                  Continue Shopping
-                </Button>
-              </Link>
+
+              <div className="space-y-4 flex flex-col gap-2">
+                <Link href="/checkout">
+                  <Button className="w-full bg-[#c9a961] hover:bg-[#b89851] text-white py-5 text-base">
+                    Proceed to Checkout
+                  </Button>
+                </Link>
+                <Link href="/shop">
+                  <Button
+                    variant="outline"
+                    className="w-full border-primary border text-primary hover:bg-primary/5"
+                  >
+                    Continue Shopping
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
+          </aside>
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>
