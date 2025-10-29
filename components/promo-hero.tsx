@@ -47,6 +47,16 @@ export function PromoHero() {
           }`}
         >
           <div className="container mx-auto h-full grid grid-cols-1 lg:grid-cols-2 items-center gap-2 px-4 ">
+
+
+                   {/* Right visual - hidden on mobile */}
+                   <div className="relative hidden lg:block h-full">
+              <img
+                src={slide.image || "/placeholder.svg"}
+                alt={slide.description}
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
             {/* Left copy */}
             <div className="relative z-10 p-3 lg:p-4 border h-full">
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1 rounded-full text-xs tracking-wide uppercase mb-4 shadow-sm">
@@ -78,14 +88,7 @@ export function PromoHero() {
                 Free delivery over UGX 50k
               </span>
             </div>
-            {/* Right visual - hidden on mobile */}
-            <div className="relative hidden lg:block h-full">
-              <img
-                src={slide.image || "/placeholder.svg"}
-                alt={slide.description}
-                className="w-full h-full object-cover object-center"
-              />
-            </div>
+     
           </div>
         </div>
       ))}

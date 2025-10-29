@@ -8,6 +8,7 @@ import { DealsGrid } from "@/components/deals-grid";
 import { ProductCard } from "@/components/product-card";
 import { Footer } from "@/components/footer";
 import { inventory } from "@/lib/inventory";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -21,8 +22,17 @@ export default function Home() {
             <CategorySidebar />
           </div>
 
-          <div className="lg:col-span-10">
+          <div className="lg:col-span-8">
             <PromoHero />
+          </div>
+
+          <div className="lg:col-span-2 relative bg-primary">
+            <Image
+              src="https://res.cloudinary.com/dkz73xkbr/image/upload/v1761716224/freepik__create-a-bright-modern-and-highenergy-ecommerce-ad__86227_l895hl.png"
+              alt="adds images"
+              className="object-center object-contain"
+              fill
+            />
           </div>
         </div>
 
