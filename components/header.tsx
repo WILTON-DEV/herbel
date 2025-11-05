@@ -46,7 +46,7 @@ export function Header() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className=" border-b  top-0 z-50  ">
+    <header className=" border-b  top-0 z-50  max-w-7xl mx-auto">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Mobile Menu */}
@@ -64,7 +64,7 @@ export function Header() {
 
             <SheetContent
               side="left"
-              className="p-0 w-[320px] sm:w-[360px] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80"
+              className="p-0 w-[320px] sm:w-[360px] /95 backdrop-blur supports-[backdrop-filter]:/80"
             >
               {/* Branded header */}
               <div className="flex items-center justify-between px-4 py-4 border-b">

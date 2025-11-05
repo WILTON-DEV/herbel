@@ -2,7 +2,6 @@ import { Header } from "@/components/header";
 import { CategorySidebar } from "@/components/category-sidebar";
 import { PromoHero } from "@/components/promo-hero";
 import { PromoBanner } from "@/components/promo-banner";
-import { QuickLinks } from "@/components/quick-links";
 import { FlashDeals } from "@/components/flash-deals";
 import { DealsGrid } from "@/components/deals-grid";
 import { ProductCard } from "@/components/product-card";
@@ -12,12 +11,10 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <main className="min-h-screen ">
-      <Header />
-
-      <div className="container mx-auto  py-3 lg:py-6 px-1 lg:px-4">
+    <main className="min-h-screen">
+      <div className="container mx-auto py-2 sm:py-3 lg:py-5 px-2 sm:px-3 lg:px-4 ">
         {/* Desktop: Grid with sidebars, Mobile: Full width hero only */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3 lg:gap-5">
           <div className="hidden lg:block lg:col-span-2">
             <CategorySidebar />
           </div>
@@ -37,12 +34,12 @@ export default function Home() {
         </div>
 
         {/* Flash Sales Section */}
-        <div className="mt-6">
+        <div className="mt-3 sm:mt-4 lg:mt-5">
           <FlashDeals />
         </div>
 
         {/* Promo Banner 1 */}
-        <div className="mt-6">
+        <div className="mt-3 sm:mt-4 lg:mt-5">
           <PromoBanner
             title="Special Offers"
             subtitle="Wellness Collection"
@@ -57,17 +54,17 @@ export default function Home() {
         </div>
 
         {/* Top Selling Products */}
-        <div className="mt-6">
-          <div className=" rounded-lg  overflow-hidden">
-            <div className="bg-primary text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
-              <h2 className="text-lg lg:text-xl font-bold">
-                🔥 Top Selling Products
+        <div className="mt-3 sm:mt-4 lg:mt-5">
+          <div className=" rounded-lg overflow-hidden border">
+            <div className="bg-primary text-white px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 lg:py-3 flex items-center justify-between">
+              <h2 className="text-sm sm:text-base lg:text-lg font-bold">
+                🔥 Top Selling
               </h2>
-              <a href="/shop" className="text-sm hover:underline">
+              <a href="/shop" className="text-xs sm:text-sm hover:underline">
                 See All →
               </a>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-4 p-3 sm:p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4">
               {inventory.slice(0, 6).map((item) => {
                 const price = item.priceUGX ?? item.priceOptionsUGX?.[0] ?? 0;
                 return (
@@ -87,11 +84,11 @@ export default function Home() {
         </div>
 
         {/* Promo Banner 2 */}
-        <div className="mt-6">
+        <div className="mt-3 sm:mt-4 lg:mt-5">
           <PromoBanner
             title="Limited Time"
             subtitle="Shop & Win Big!"
-            description="Spend over UGX 100,000 and get a chance to win amazing prizes"
+            description="Spend over UGX 100,000 and win prizes"
             price="From UGX 30,000"
             ctaText="Learn More"
             ctaLink="/shop"
@@ -101,20 +98,22 @@ export default function Home() {
         </div>
 
         {/* Deals Grid */}
-        <div className="mt-6">
+        <div className="mt-3 sm:mt-4 lg:mt-5">
           <DealsGrid />
         </div>
 
         {/* New Arrivals */}
-        <div className="mt-6">
-          <div className=" rounded-lg overflow-hidden">
-            <div className="bg-[#c9a961] text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
-              <h2 className="text-lg lg:text-xl font-bold">✨ New Arrivals</h2>
-              <a href="/shop" className="text-sm hover:underline">
+        <div className="mt-3 sm:mt-4 lg:mt-5">
+          <div className=" rounded-lg overflow-hidden border">
+            <div className="bg-[#c9a961] text-white px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 lg:py-3 flex items-center justify-between">
+              <h2 className="text-sm sm:text-base lg:text-lg font-bold">
+                ✨ New Arrivals
+              </h2>
+              <a href="/shop" className="text-xs sm:text-sm hover:underline">
                 See All →
               </a>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-4 p-3 sm:p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4">
               {inventory.slice(12, 18).map((item) => {
                 const price = item.priceUGX ?? item.priceOptionsUGX?.[0] ?? 0;
                 return (
@@ -133,8 +132,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </main>
   );
 }

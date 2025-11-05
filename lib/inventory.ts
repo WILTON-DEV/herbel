@@ -1,18 +1,25 @@
+import type { ProductCategory } from "./types";
+import { getCategoriesForProduct } from "./product-categories-map";
+
 export type InventoryItem = {
   id: string;
   name: string;
   priceUGX?: number; // single price
   priceOptionsUGX?: number[]; // multiple sizes/options
   image?: string; // product image URL
+  category?: ProductCategory[];
+  stockQuantity?: number;
+  description?: string;
 };
 
-export const inventory: InventoryItem[] = [
+const rawInventory: Omit<InventoryItem, "category">[] = [
   {
     id: "ulcers-tea",
     name: "Ulcers tea",
     priceUGX: 30000,
     image:
       "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=400&fit=crop",
+    stockQuantity: 50,
   },
   {
     id: "spearmint-oil",
@@ -554,6 +561,12 @@ export const inventory: InventoryItem[] = [
       "https://images.pexels.com/photos/5947032/pexels-photo-5947032.jpeg?w=400&h=400&fit=crop",
   },
 ];
+
+// Add categories to inventory items
+export const inventory: InventoryItem[] = rawInventory.map((item) => ({
+  ...item,
+  category: getCategoriesForProduct(item.id),
+}));
 
 export function formatUGX(value: number) {
   try {

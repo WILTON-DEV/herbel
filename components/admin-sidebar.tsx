@@ -12,12 +12,17 @@ import {
   SettingsIcon,
   FileTextIcon,
   TagIcon,
+  DollarSignIcon,
 } from "@/components/icons";
+import { Package, Receipt } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboardIcon },
-  { name: "Products", href: "/admin/products", icon: PackageIcon },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCartIcon },
+  { name: "Inventory", href: "/admin/inventory", icon: Package },
+  { name: "Products", href: "/admin/products", icon: PackageIcon },
+  { name: "Sales Records", href: "/admin/sales", icon: Receipt },
+  { name: "Expenses", href: "/admin/expenses", icon: DollarSignIcon },
   { name: "Customers", href: "/admin/customers", icon: UsersIcon },
   { name: "Analytics", href: "/admin/analytics", icon: BarChartIcon },
   { name: "Categories", href: "/admin/categories", icon: TagIcon },

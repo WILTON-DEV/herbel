@@ -6,8 +6,6 @@ import { LeafIcon, DropletIcon, CheckCircleIcon } from "@/components/icons";
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#f5f1e8]">
-      <Header />
-
       {/* Hero Section */}
       <section className="bg-primary text-white py-20 lg:py-32">
         <div className="container mx-auto px-4 lg:px-8">
@@ -145,8 +143,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

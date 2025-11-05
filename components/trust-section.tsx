@@ -18,8 +18,8 @@ const features = [
   },
   {
     icon: TruckIcon,
-    title: "Free Shipping",
-    description: "On orders over $50 with fast delivery",
+    title: "Free Delivery",
+    description: "On orders over UGX 100,000 with fast delivery",
   },
   {
     icon: HeartIcon,

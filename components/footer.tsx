@@ -35,28 +35,28 @@ export function Footer() {
               <Link
                 href="#"
                 aria-label="Facebook"
-                className="w-11 h-11 rounded-full bg-white/10 hover:bg-[#c9a961] transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                className="w-11 h-11 rounded-full /10 hover:bg-[#c9a961] transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 <FacebookIcon className="w-5 h-5" />
               </Link>
               <Link
                 href="#"
                 aria-label="Instagram"
-                className="w-11 h-11 rounded-full bg-white/10 hover:bg-[#c9a961] transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                className="w-11 h-11 rounded-full /10 hover:bg-[#c9a961] transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 <InstagramIcon className="w-5 h-5" />
               </Link>
               <Link
                 href="#"
                 aria-label="Twitter"
-                className="w-11 h-11 rounded-full bg-white/10 hover:bg-[#c9a961] transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                className="w-11 h-11 rounded-full /10 hover:bg-[#c9a961] transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 <TwitterIcon className="w-5 h-5" />
               </Link>
               <Link
                 href="#"
                 aria-label="YouTube"
-                className="w-11 h-11 rounded-full bg-white/10 hover:bg-[#c9a961] transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                className="w-11 h-11 rounded-full /10 hover:bg-[#c9a961] transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 <YoutubeIcon className="w-5 h-5" />
               </Link>
@@ -122,7 +122,7 @@ export function Footer() {
                     href="#"
                     className="text-white/80 hover:text-[#c9a961] text-sm transition-colors"
                   >
-                    Shipping
+                    Delivery
                   </Link>
                 </li>
                 <li>
@@ -161,7 +161,7 @@ export function Footer() {
                 type="email"
                 inputMode="email"
                 placeholder="Your email"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/60 w-full"
+                className="/10 border-white/20 text-white placeholder:text-white/60 w-full"
                 aria-label="Email address"
                 required
               />

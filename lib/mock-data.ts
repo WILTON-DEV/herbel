@@ -1,0 +1,141 @@
+// Mock data for development - Replace with real database in production
+import type { Order, Expense, SalesRecord } from "./types";
+
+export const mockOrders: Order[] = [
+  {
+    id: "ord_001",
+    orderNumber: "#ORD-3210",
+    customerName: "John Doe",
+    customerPhone: "0700 123 456",
+    customerEmail: "john@example.com",
+    items: [
+      {
+        productId: "ulcers-tea",
+        productName: "Ulcers tea",
+        quantity: 2,
+        price: 30000,
+      },
+      {
+        productId: "spearmint-oil",
+        productName: "Spearmint oil",
+        quantity: 1,
+        price: 40000,
+      },
+    ],
+    subtotal: 100000,
+    deliveryFee: 5000,
+    total: 105000,
+    deliveryMethod: "delivery",
+    location: "Kampala, Nakasero",
+    status: "pending",
+    paymentMethod: "pending",
+    source: "website",
+    createdAt: new Date("2024-11-05T10:30:00"),
+    updatedAt: new Date("2024-11-05T10:30:00"),
+  },
+  {
+    id: "ord_002",
+    orderNumber: "#ORD-3211",
+    customerName: "Jane Smith",
+    customerPhone: "0700 987 654",
+    items: [
+      {
+        productId: "castor-oil",
+        productName: "Castor oil",
+        quantity: 1,
+        price: 70000,
+      },
+    ],
+    subtotal: 70000,
+    deliveryFee: 0,
+    total: 70000,
+    deliveryMethod: "pickup",
+    branch: "kampala",
+    status: "cash-received",
+    paymentMethod: "cash",
+    notes: "Sin - Cash received at shop",
+    source: "manual",
+    createdAt: new Date("2024-11-05T09:15:00"),
+    updatedAt: new Date("2024-11-05T11:45:00"),
+  },
+  {
+    id: "ord_003",
+    orderNumber: "#ORD-3212",
+    customerName: "Mike Johnson",
+    customerPhone: "0700 555 123",
+    items: [
+      {
+        productId: "shilajit",
+        productName: "Shilajit",
+        quantity: 1,
+        price: 120000,
+      },
+      {
+        productId: "black-seed-capsules",
+        productName: "Black seed capsules",
+        quantity: 2,
+        price: 60000,
+      },
+    ],
+    subtotal: 240000,
+    deliveryFee: 5000,
+    total: 245000,
+    deliveryMethod: "delivery",
+    location: "Entebbe, Airport Road",
+    status: "mobile-money-received",
+    paymentMethod: "mobile-money",
+    notes: "Mum - Money sent to boss via mobile money",
+    source: "manual",
+    createdAt: new Date("2024-11-05T08:00:00"),
+    updatedAt: new Date("2024-11-05T10:00:00"),
+  },
+];
+
+export const mockExpenses: Expense[] = [
+  {
+    id: "exp_001",
+    branch: "kampala",
+    description: "Shop supplies and packaging materials",
+    amount: 50000,
+    category: "supplies",
+    recordedBy: "Shop Attendant - Kampala",
+    date: new Date("2024-11-05"),
+    createdAt: new Date("2024-11-05T12:00:00"),
+  },
+  {
+    id: "exp_002",
+    branch: "ntinda",
+    description: "Transportation for product delivery",
+    amount: 30000,
+    category: "transport",
+    recordedBy: "Shop Attendant - Ntinda",
+    date: new Date("2024-11-05"),
+    createdAt: new Date("2024-11-05T14:30:00"),
+  },
+];
+
+export const mockSalesRecords: SalesRecord[] = [
+  {
+    id: "sale_001",
+    orderId: "ord_002",
+    branch: "kampala",
+    amount: 70000,
+    paymentMethod: "cash",
+    deliveryMethod: "pickup",
+    status: "cash-received",
+    date: new Date("2024-11-05"),
+    recordedBy: "Shop Attendant - Kampala",
+  },
+  {
+    id: "sale_002",
+    orderId: "ord_003",
+    branch: "entebbe",
+    amount: 245000,
+    paymentMethod: "mobile-money",
+    deliveryMethod: "delivery",
+    status: "mobile-money-sent",
+    date: new Date("2024-11-05"),
+    recordedBy: "Shop Attendant - Entebbe",
+  },
+];
+

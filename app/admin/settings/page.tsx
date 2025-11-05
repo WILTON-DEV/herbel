@@ -57,16 +57,16 @@ export default function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Shipping Settings</CardTitle>
+            <CardTitle>Delivery Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="shippingFee">Standard Shipping Fee</Label>
-              <Input id="shippingFee" type="number" defaultValue="9.99" />
+              <Label htmlFor="deliveryFee">Standard Delivery Fee (UGX)</Label>
+              <Input id="deliveryFee" type="number" defaultValue="5000" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="freeShipping">Free Shipping Threshold</Label>
-              <Input id="freeShipping" type="number" defaultValue="50.00" />
+              <Label htmlFor="freeDelivery">Free Delivery Threshold (UGX)</Label>
+              <Input id="freeDelivery" type="number" defaultValue="100000" />
             </div>
             <Button className="bg-[#d4a574] hover:bg-[#d4a574]/90 text-[#1a3a2e]">Save Changes</Button>
           </CardContent>

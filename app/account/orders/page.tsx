@@ -30,8 +30,6 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f1e8]">
-      <Header />
-
       <div className="container mx-auto px-4 lg:px-8 py-16 lg:py-24">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-[#1a3a2e] mb-12">My Orders</h1>
@@ -81,8 +79,6 @@ export default function OrdersPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

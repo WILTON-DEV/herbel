@@ -51,8 +51,6 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f1e8]">
-      <Header />
-
       <div className="container mx-auto px-4 lg:px-8 py-16 lg:py-24">
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
           <div className="rounded-2xl p-6 md:p-12 flex items-center justify-center overflow-hidden">
@@ -135,7 +133,7 @@ export default function ProductDetailPage() {
 
             <div className="bg-primary/5 rounded-xl p-6">
               <p className="text-sm text-gray-700">
-                <strong>Free shipping</strong> on orders over $50 •{" "}
+                <strong>Free delivery</strong> on orders over UGX 100,000 •{" "}
                 <strong>30-day</strong> money-back guarantee
               </p>
             </div>
@@ -172,8 +170,6 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

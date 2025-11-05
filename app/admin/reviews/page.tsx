@@ -17,7 +17,7 @@ const reviews = [
     customer: "Jane Smith",
     product: "CBD Dropper 30ml",
     rating: 4,
-    comment: "Good product, fast shipping.",
+    comment: "Good product, fast delivery.",
     date: "2024-01-14",
     status: "approved",
   },
