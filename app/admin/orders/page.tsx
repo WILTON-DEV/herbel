@@ -348,29 +348,46 @@ export default function OrdersPage() {
                         {formatUGX(order.total)}
                       </td>
                       <td className="py-3 px-4">
-                        <Select
-                          value={order.paymentMethod}
-                          onValueChange={(value) =>
-                            handlePaymentChange(
-                              order.id,
-                              value as PaymentMethod
-                            )
-                          }
-                        >
-                          <SelectTrigger className="w-[140px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="cash">Cash (Sin)</SelectItem>
-                            <SelectItem value="mobile-money">
-                              MoMo (Mum)
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <div className="space-y-1.5">
+                          <Select
+                            value={order.paymentMethod}
+                            onValueChange={(value) =>
+                              handlePaymentChange(
+                                order.id,
+                                value as PaymentMethod
+                              )
+                            }
+                          >
+                            <SelectTrigger className="w-[160px] h-9 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="cash">
+                                Cash (Sin) - Received
+                              </SelectItem>
+                              <SelectItem value="mobile-money">
+                                MoMo (Mum) - Received
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {order.paymentMethod === "pending" && (
+                            <p className="text-xs text-muted-foreground">
+                              Click to mark as paid
+                            </p>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-4">
-                        {getStatusBadge(order.status)}
+                        <div className="space-y-1">
+                          {getStatusBadge(order.status)}
+                          {order.status === "pending" &&
+                            order.paymentMethod === "pending" && (
+                              <p className="text-xs text-muted-foreground">
+                                Update payment above
+                              </p>
+                            )}
+                        </div>
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center justify-end gap-2">
@@ -481,9 +498,21 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Payment Method</Label>
+                <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border/50">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-base font-semibold">
+                        Payment Method
+                      </Label>
+                      {selectedOrder.paymentMethod === "pending" && (
+                        <Badge
+                          variant="outline"
+                          className="bg-yellow-50 text-yellow-700 border-yellow-200"
+                        >
+                          Payment Pending
+                        </Badge>
+                      )}
+                    </div>
                     <Select
                       value={selectedOrder.paymentMethod}
                       onValueChange={(value) => {
@@ -493,18 +522,32 @@ export default function OrdersPage() {
                         );
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="cash">Cash (Sin)</SelectItem>
-                        <SelectItem value="mobile-money">MoMo (Mum)</SelectItem>
+                        <SelectItem value="pending">
+                          Pending - Not Paid
+                        </SelectItem>
+                        <SelectItem value="cash">
+                          Cash (Sin) - Received at Shop
+                        </SelectItem>
+                        <SelectItem value="mobile-money">
+                          Mobile Money (Mum) - Sent to Boss
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+                    {selectedOrder.paymentMethod === "pending" && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        💡 Select "Cash" or "MoMo" above when payment is
+                        received. Status will update automatically.
+                      </p>
+                    )}
                   </div>
-                  <div>
-                    <Label>Order Status</Label>
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold">
+                      Order Status
+                    </Label>
                     <Select
                       value={selectedOrder.status}
                       onValueChange={(value) => {
@@ -514,7 +557,7 @@ export default function OrdersPage() {
                         );
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -530,6 +573,9 @@ export default function OrdersPage() {
                         <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Status updates automatically when payment method changes.
+                    </p>
                   </div>
                 </div>
 
