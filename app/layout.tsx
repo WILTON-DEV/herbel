@@ -4,8 +4,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
 import { CartProvider } from "@/lib/cart-context";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ConditionalLayout } from "@/components/conditional-layout";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,16 +27,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="font-sans antialiased  text-foreground bg-background">
-        <CartProvider>
-          <Suspense>
-            <>
-              <Header />
-              <div className="max-w-7xl mx-auto">{children}</div>
-              <Footer />
-            </>
-          </Suspense>
-        </CartProvider>
+      <body className="font-sans antialiased text-foreground bg-gray-50">
+        <AuthProvider>
+          <CartProvider>
+            <Suspense>
+              <ConditionalLayout>{children}</ConditionalLayout>
+            </Suspense>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

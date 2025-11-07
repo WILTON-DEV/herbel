@@ -42,7 +42,7 @@ export function HeroSection() {
 
           {/* Right content - Product image */}
           <div className="relative">
-            <div className="relative w-full aspect-square max-w-lg mx-auto">
+            <div className="relative w-full aspect-square  mx-auto">
               <img
                 src="/premium-essential-oil-dropper-bottle-with-green-bo.jpg"
                 alt="Premium essential oil bottle with botanical elements"

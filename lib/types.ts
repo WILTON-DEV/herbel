@@ -177,3 +177,62 @@ export type SalesRecord = {
   recordedBy: string;
 };
 
+// User & Authentication types
+export type UserRole = "admin" | "attendant";
+
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  branch?: string; // Required for attendants, optional for admins
+  createdAt: Date;
+};
+
+// Customer type
+export type Customer = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  totalOrders: number;
+  totalSpent: number;
+  joinedDate: Date;
+};
+
+// Product type
+export type Product = {
+  id: string;
+  name: string;
+  description: string;
+  category: ProductCategory;
+  image: string;
+  priceUGX?: number;
+  priceOptionsUGX?: number[];
+  sizeOptions?: string[];
+  stockQuantity?: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+// Category management type
+export type Category = {
+  id: string;
+  name: string;
+  description: string;
+  productCount: number;
+  createdAt: Date;
+};
+
+// Settings type
+export type Settings = {
+  storeName: string;
+  storeEmail: string;
+  storePhone: string;
+  storeAddress: string;
+  currency: string;
+  taxRate: number;
+  deliveryFee: number;
+  freeDeliveryThreshold: number;
+};
+

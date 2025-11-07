@@ -14,7 +14,7 @@ import {
   TagIcon,
   DollarSignIcon,
 } from "@/components/icons";
-import { Package, Receipt } from "lucide-react";
+import { Package, Receipt, X, UserCog } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboardIcon },
@@ -24,6 +24,7 @@ const navigation = [
   { name: "Sales Records", href: "/admin/sales", icon: Receipt },
   { name: "Expenses", href: "/admin/expenses", icon: DollarSignIcon },
   { name: "Customers", href: "/admin/customers", icon: UsersIcon },
+  { name: "Users", href: "/admin/users", icon: UserCog },
   { name: "Analytics", href: "/admin/analytics", icon: BarChartIcon },
   { name: "Categories", href: "/admin/categories", icon: TagIcon },
   { name: "Reviews", href: "/admin/reviews", icon: FileTextIcon },
@@ -42,26 +43,29 @@ export function AdminSidebar({
   return (
     <div
       className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 bg-primary text-white transform transition-transform duration-200 md:static md:translate-x-0 md:flex md:flex-col",
+        "fixed inset-y-0 left-0 z-40 w-64 bg-sidebar border-r border-sidebar-border transform transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:flex md:flex-col",
         open ? "translate-x-0" : "-translate-x-full"
       )}
     >
-      <div className="flex h-16 items-center border-b border-white/10 px-6">
-        <Link href="/admin" className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-full bg-[#d4a574] flex items-center justify-center">
-            <span className="text-[#1a3a2e] font-bold text-sm">A</span>
+      <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-6">
+        <Link href="/admin" className="flex items-center space-x-3">
+          <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center shadow-sm">
+            <span className="text-primary-foreground font-semibold text-sm">H</span>
           </div>
-          <span className="font-bold text-lg">Admin Panel</span>
+          <div className="flex flex-col">
+            <span className="font-semibold text-sm text-sidebar-foreground">Herbel</span>
+            <span className="text-xs text-muted-foreground">Admin</span>
+          </div>
         </Link>
         <button
-          className="ml-auto md:hidden text-white/70 hover:text-white"
+          className="md:hidden text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-md hover:bg-sidebar-accent"
           onClick={onClose}
           aria-label="Close sidebar"
         >
-          ✕
+          <X className="h-4 w-4" />
         </button>
       </div>
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-0.5 px-3 py-4 overflow-y-auto">
         {navigation.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -69,22 +73,22 @@ export function AdminSidebar({
               key={item.name}
               href={item.href}
               className={cn(
-                "flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-[#d4a574] text-[#1a3a2e]"
-                  : "text-white/80 hover:/10 hover:text-white"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon className="h-4 w-4 shrink-0" />
               <span>{item.name}</span>
             </Link>
           );
         })}
       </nav>
-      <div className="border-t border-white/10 p-4">
+      <div className="border-t border-sidebar-border p-4">
         <Link
           href="/"
-          className="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-white/80 hover:/10 hover:text-white transition-colors"
+          className="flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200"
         >
           <span>← Back to Website</span>
         </Link>

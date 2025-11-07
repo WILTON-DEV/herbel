@@ -11,74 +11,71 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { PlusIcon, MinusIcon, PackageIcon } from "@/components/icons";
-import { useState } from "react";
-import { inventory, formatUGX } from "@/lib/inventory";
+import { PlusIcon, MinusIcon } from "@/components/icons";
+import { useState, useEffect } from "react";
+import { inventoryApi, productsApi } from "@/lib/mockApi";
+import type { InventoryItem, Product } from "@/lib/types";
+import { formatUGX } from "@/lib/inventory";
 import { branches } from "@/lib/types";
 import Image from "next/image";
 
-type InventoryStock = {
-  productId: string;
-  productName: string;
-  branch: string;
-  quantity: number;
-  lastUpdated: Date;
-};
-
-// Mock initial inventory data
-const initialInventory: InventoryStock[] = inventory.flatMap((product) =>
-  branches.map((branch) => ({
-    productId: product.id,
-    productName: product.name,
-    branch: branch.id,
-    quantity: product.stockQuantity || 0,
-    lastUpdated: new Date(),
-  }))
-);
-
 export default function InventoryPage() {
-  const [inventoryStock, setInventoryStock] =
-    useState<InventoryStock[]>(initialInventory);
+  const [inventoryStock, setInventoryStock] = useState<InventoryItem[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [filterBranch, setFilterBranch] = useState<string>("all");
   const [filterProduct, setFilterProduct] = useState<string>("");
-  const [isAdjustDialogOpen, setIsAdjustDialogOpen] = useState(false);
-  const [selectedStock, setSelectedStock] = useState<InventoryStock | null>(
-    null
-  );
+  const [loading, setLoading] = useState(true);
 
-  const handleAdjustStock = (
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const [inventoryData, productsData] = await Promise.all([
+        inventoryApi.getInventory(),
+        productsApi.getProducts(),
+      ]);
+      setInventoryStock(inventoryData);
+      setProducts(productsData);
+    } catch (error) {
+      console.error("Failed to load inventory data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAdjustStock = async (
     productId: string,
     branch: string,
     adjustment: number
   ) => {
+    try {
+      const updated = await inventoryApi.adjustInventory(
+        productId,
+        branch,
+        adjustment
+      );
     setInventoryStock((prev) =>
       prev.map((stock) =>
         stock.productId === productId && stock.branch === branch
-          ? {
-              ...stock,
-              quantity: Math.max(0, stock.quantity + adjustment),
-              lastUpdated: new Date(),
-            }
+            ? updated
           : stock
       )
     );
+    } catch (error) {
+      console.error("Failed to adjust inventory:", error);
+      alert("Failed to adjust inventory. Please try again.");
+    }
   };
 
   const filteredInventory = inventoryStock.filter((stock) => {
     if (filterBranch !== "all" && stock.branch !== filterBranch) return false;
+    const product = products.find((p) => p.id === stock.productId);
     if (
       filterProduct &&
-      !stock.productName.toLowerCase().includes(filterProduct.toLowerCase())
+      !product?.name.toLowerCase().includes(filterProduct.toLowerCase())
     )
       return false;
     return true;
@@ -88,9 +85,12 @@ export default function InventoryPage() {
   const groupedInventory = filteredInventory.reduce(
     (acc, stock) => {
       if (!acc[stock.productId]) {
+        const product = products.find((p) => p.id === stock.productId);
+        if (!product) return acc;
+
         acc[stock.productId] = {
-          productName: stock.productName,
-          product: inventory.find((p) => p.id === stock.productId)!,
+          productName: product.name,
+          product,
           stocks: [],
         };
       }
@@ -101,8 +101,8 @@ export default function InventoryPage() {
       string,
       {
         productName: string;
-        product: (typeof inventory)[0];
-        stocks: InventoryStock[];
+        product: Product;
+        stocks: InventoryItem[];
       }
     >
   );
@@ -121,11 +121,20 @@ export default function InventoryPage() {
     }).length;
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-[#1a3a2e]">Inventory</h1>
+        <p className="text-muted-foreground">Loading inventory data...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1a3a2e]">Inventory</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Inventory</h1>
           <p className="text-muted-foreground">
             Track product stock across all branches
           </p>
@@ -134,15 +143,15 @@ export default function InventoryPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
+        <Card className="border-border/50 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Products
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[#1a3a2e]">
-              {inventory.length}
+            <div className="text-2xl font-semibold tracking-tight">
+              {products.length}
             </div>
           </CardContent>
         </Card>
@@ -154,7 +163,7 @@ export default function InventoryPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-2xl font-semibold tracking-tight text-destructive">
               {getLowStockCount()}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Below 10 units</p>
@@ -201,15 +210,20 @@ export default function InventoryPage() {
       </div>
 
       {/* Inventory Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold">
             Stock Levels ({Object.keys(groupedInventory).length} products)
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {Object.entries(groupedInventory).map(
+            {Object.keys(groupedInventory).length === 0 ? (
+              <p className="text-sm text-muted-foreground py-6 text-center">
+                No products found matching your filters
+              </p>
+            ) : (
+              Object.entries(groupedInventory).map(
               ([productId, { productName, product, stocks }]) => {
                 const totalStock = getTotalStock(productId);
                 const price =
@@ -241,7 +255,7 @@ export default function InventoryPage() {
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="text-2xl font-bold text-[#1a3a2e]">
+                            <div className="text-2xl font-semibold tracking-tight">
                               {totalStock}
                             </div>
                             <p className="text-xs text-muted-foreground">
@@ -250,7 +264,7 @@ export default function InventoryPage() {
                             {totalStock < 10 && (
                               <Badge
                                 variant="outline"
-                                className="bg-orange-50 text-orange-700 mt-1"
+                                className="bg-destructive/10 text-destructive border-destructive/20 mt-1"
                               >
                                 Low Stock
                               </Badge>
@@ -262,7 +276,7 @@ export default function InventoryPage() {
                           {stocks.map((stock) => (
                             <div
                               key={`${stock.productId}-${stock.branch}`}
-                              className=" border rounded p-3"
+                                className="border rounded p-3"
                             >
                               <div className="text-xs text-muted-foreground mb-1">
                                 {branches.find((b) => b.id === stock.branch)
@@ -284,6 +298,7 @@ export default function InventoryPage() {
                                         -1
                                       )
                                     }
+                                      disabled={stock.quantity === 0}
                                   >
                                     <MinusIcon className="h-3 w-3" />
                                   </Button>
@@ -311,18 +326,20 @@ export default function InventoryPage() {
                   </div>
                 );
               }
+              )
             )}
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-blue-50 border-blue-200">
-        <CardHeader>
-          <CardTitle className="text-blue-900">
-            ℹ️ Automatic Inventory Updates
+      <Card className="bg-muted/50 border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold flex items-center gap-2">
+            <span className="text-lg">ℹ️</span>
+            Automatic Inventory Updates
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-blue-800">
+        <CardContent className="text-sm text-muted-foreground">
           <p>
             <strong>Note:</strong> Inventory is automatically reduced when
             orders are marked as "Cash Received (Sin)" or "Mobile Money Received

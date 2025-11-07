@@ -22,11 +22,12 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { PlusIcon, TrashIcon } from "@/components/icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Expense } from "@/lib/types";
-import { mockExpenses } from "@/lib/mock-data";
+import { expensesApi } from "@/lib/mockApi";
 import { formatUGX } from "@/lib/inventory";
 import { branches } from "@/lib/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 const expenseCategories = [
   { id: "supplies", name: "Supplies & Packaging" },
@@ -39,24 +40,54 @@ const expenseCategories = [
 ];
 
 export default function ExpensesPage() {
-  const [expenses, setExpenses] = useState<Expense[]>(mockExpenses);
+  const { user } = useAuth();
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filterBranch, setFilterBranch] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [loading, setLoading] = useState(true);
 
-  const handleAddExpense = (expense: Omit<Expense, "id" | "createdAt">) => {
-    const newExpense: Expense = {
-      ...expense,
-      id: `exp_${Date.now()}`,
-      createdAt: new Date(),
-    };
-    setExpenses((prev) => [newExpense, ...prev]);
-    setIsDialogOpen(false);
+  useEffect(() => {
+    loadExpenses();
+  }, []);
+
+  const loadExpenses = async () => {
+    try {
+      const data = await expensesApi.getExpenses();
+      setExpenses(data);
+    } catch (error) {
+      console.error("Failed to load expenses:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteExpense = (id: string) => {
-    if (confirm("Are you sure you want to delete this expense?")) {
+  const handleAddExpense = async (
+    expense: Omit<Expense, "id" | "createdAt">
+  ) => {
+    try {
+      const newExpense = await expensesApi.createExpense(expense);
+    setExpenses((prev) => [newExpense, ...prev]);
+    setIsDialogOpen(false);
+      alert("Expense added successfully!");
+    } catch (error) {
+      console.error("Failed to add expense:", error);
+      alert("Failed to add expense. Please try again.");
+    }
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this expense?")) {
+      return;
+    }
+
+    try {
+      await expensesApi.deleteExpense(id);
       setExpenses((prev) => prev.filter((exp) => exp.id !== id));
+      alert("Expense deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete expense:", error);
+      alert("Failed to delete expense. Please try again.");
     }
   };
 
@@ -72,44 +103,53 @@ export default function ExpensesPage() {
     0
   );
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-semibold tracking-tight">Expenses</h1>
+        <p className="text-muted-foreground">Loading expenses...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1a3a2e]">Expenses</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Expenses</h1>
           <p className="text-muted-foreground">
             Track and manage shop expenses by branch
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#4CAF50] hover:bg-[#45a049] text-white">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm">
               <PlusIcon className="h-4 w-4 mr-2" />
               Add Expense
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="">
             <DialogHeader>
               <DialogTitle>Add New Expense</DialogTitle>
               <DialogDescription>
                 Record a new expense for a branch
               </DialogDescription>
             </DialogHeader>
-            <ExpenseForm onSubmit={handleAddExpense} />
+            <ExpenseForm onSubmit={handleAddExpense} currentUser={user} />
           </DialogContent>
         </Dialog>
       </div>
 
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="border-border/50 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Expenses
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-[#1a3a2e]">
+            <div className="text-2xl font-semibold tracking-tight">
               {formatUGX(totalExpenses)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -166,9 +206,9 @@ export default function ExpensesPage() {
       </div>
 
       {/* Expenses Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>All Expenses ({filteredExpenses.length})</CardTitle>
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold">All Expenses ({filteredExpenses.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -189,7 +229,17 @@ export default function ExpensesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredExpenses.map((expense) => (
+                {filteredExpenses.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="py-6 text-center text-muted-foreground"
+                    >
+                      No expenses found
+                    </td>
+                  </tr>
+                ) : (
+                  filteredExpenses.map((expense) => (
                   <tr key={expense.id} className="border-b last:border-0">
                     <td className="py-3 px-4 text-sm text-muted-foreground">
                       {expense.date.toLocaleDateString()}
@@ -199,8 +249,9 @@ export default function ExpensesPage() {
                         expense.branch}
                     </td>
                     <td className="py-3 px-4">
-                      {expenseCategories.find((c) => c.id === expense.category)
-                        ?.name || expense.category}
+                        {expenseCategories.find(
+                          (c) => c.id === expense.category
+                        )?.name || expense.category}
                     </td>
                     <td className="py-3 px-4">{expense.description}</td>
                     <td className="py-3 px-4 font-medium">
@@ -216,12 +267,13 @@ export default function ExpensesPage() {
                           size="icon"
                           onClick={() => handleDeleteExpense(expense.id)}
                         >
-                          <TrashIcon className="h-4 w-4 text-red-600" />
+                            <TrashIcon className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -233,14 +285,16 @@ export default function ExpensesPage() {
 
 function ExpenseForm({
   onSubmit,
+  currentUser,
 }: {
   onSubmit: (expense: Omit<Expense, "id" | "createdAt">) => void;
+  currentUser: any;
 }) {
-  const [branch, setBranch] = useState("kampala");
+  const [branch, setBranch] = useState(currentUser?.branch || "kampala");
   const [category, setCategory] = useState("supplies");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
-  const [recordedBy, setRecordedBy] = useState("Shop Attendant");
+  const [recordedBy, setRecordedBy] = useState(currentUser?.name || "Admin");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -345,7 +399,7 @@ function ExpenseForm({
       <DialogFooter>
         <Button
           type="submit"
-          className="bg-[#4CAF50] hover:bg-[#45a049] text-white"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
         >
           Add Expense
         </Button>
@@ -353,4 +407,3 @@ function ExpenseForm({
     </form>
   );
 }
-

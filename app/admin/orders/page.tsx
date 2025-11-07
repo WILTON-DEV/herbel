@@ -30,60 +30,99 @@ import {
   TruckIcon,
   StoreIcon,
 } from "@/components/icons";
-import { useState } from "react";
-import type { Order, OrderStatus, PaymentMethod } from "@/lib/types";
-import { mockOrders } from "@/lib/mock-data";
+import { useState, useEffect } from "react";
+import type { Order, OrderStatus, PaymentMethod, Product } from "@/lib/types";
+import { ordersApi, productsApi } from "@/lib/mockApi";
 import { formatUGX } from "@/lib/inventory";
 import { branches } from "@/lib/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
+  const { user } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterBranch, setFilterBranch] = useState<string>("all");
+  const [filterSource, setFilterSource] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === orderId
-          ? { ...order, status: newStatus, updatedAt: new Date() }
-          : order
-      )
-    );
+  useEffect(() => {
+    loadOrders();
+    loadProducts();
+  }, []);
+
+  const loadOrders = async () => {
+    try {
+      const data = await ordersApi.getOrders();
+      setOrders(data);
+    } catch (error) {
+      console.error("Failed to load orders:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handlePaymentChange = (
+  const loadProducts = async () => {
+    try {
+      const data = await productsApi.getProducts();
+      setProducts(data);
+    } catch (error) {
+      console.error("Failed to load products:", error);
+    }
+  };
+
+  const handleStatusChange = async (
+    orderId: string,
+    newStatus: OrderStatus
+  ) => {
+    try {
+      const updated = await ordersApi.updateOrder(
+        orderId,
+        { status: newStatus },
+        user || undefined
+      );
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder(updated);
+      }
+    } catch (error: any) {
+      alert(error.message || "Failed to update order status");
+      console.error("Failed to update order:", error);
+    }
+  };
+
+  const handlePaymentChange = async (
     orderId: string,
     newPaymentMethod: PaymentMethod
   ) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === orderId
-          ? {
-              ...order,
-              paymentMethod: newPaymentMethod,
-              status:
-                newPaymentMethod === "cash"
-                  ? "cash-received"
-                  : newPaymentMethod === "mobile-money"
-                    ? "mobile-money-received"
-                    : order.status,
-              updatedAt: new Date(),
-            }
-          : order
-      )
-    );
+    try {
+      const updated = await ordersApi.updateOrder(
+        orderId,
+        { paymentMethod: newPaymentMethod },
+        user || undefined
+      );
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder(updated);
+      }
+    } catch (error: any) {
+      alert(error.message || "Failed to update payment method");
+      console.error("Failed to update order:", error);
+    }
   };
 
   const getStatusBadge = (status: OrderStatus) => {
     const variants: Record<OrderStatus, string> = {
-      pending: "bg-yellow-100 text-yellow-800",
-      confirmed: "bg-blue-100 text-blue-800",
-      "cash-received": "bg-green-100 text-green-800",
-      "mobile-money-received": "bg-purple-100 text-purple-800",
-      completed: "bg-emerald-100 text-emerald-800",
-      cancelled: "bg-red-100 text-red-800",
+      pending: "bg-muted text-muted-foreground border-border/50",
+      confirmed: "bg-primary/10 text-primary border-primary/20",
+      "cash-received": "bg-primary/10 text-primary border-primary/20",
+      "mobile-money-received": "bg-accent/10 text-accent border-accent/20",
+      completed: "bg-primary/10 text-primary border-primary/20",
+      cancelled: "bg-destructive/10 text-destructive border-destructive/20",
     };
 
     const labels: Record<OrderStatus, string> = {
@@ -96,7 +135,7 @@ export default function OrdersPage() {
     };
 
     return (
-      <Badge className={variants[status]} variant="outline">
+      <Badge className={`${variants[status]} font-medium`} variant="outline">
         {labels[status]}
       </Badge>
     );
@@ -105,47 +144,81 @@ export default function OrdersPage() {
   const filteredOrders = orders.filter((order) => {
     if (filterStatus !== "all" && order.status !== filterStatus) return false;
     if (filterBranch !== "all" && order.branch !== filterBranch) return false;
+    if (filterSource !== "all" && order.source !== filterSource) return false;
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        order.orderNumber.toLowerCase().includes(query) ||
+        order.customerName.toLowerCase().includes(query) ||
+        order.customerPhone.includes(query)
+      );
+    }
     return true;
   });
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-semibold tracking-tight">Orders</h1>
+        <p className="text-muted-foreground">Loading orders...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-[#1a3a2e]">Orders</h1>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-semibold tracking-tight">Orders</h1>
           <p className="text-muted-foreground">
             Manage orders from website and shop attendants
           </p>
         </div>
-        <Dialog>
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#4CAF50] hover:bg-[#45a049] text-white">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm">
               <PlusIcon className="h-4 w-4 mr-2" />
               Add Manual Order
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add Manual Order</DialogTitle>
               <DialogDescription>
                 Manually record an order placed at the shop
               </DialogDescription>
             </DialogHeader>
-            <ManualOrderForm />
+            <ManualOrderForm
+              products={products}
+              onClose={() => setIsCreateOpen(false)}
+              onSuccess={() => {
+                setIsCreateOpen(false);
+                loadOrders();
+              }}
+              currentUser={user}
+            />
           </DialogContent>
         </Dialog>
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <FilterIcon className="h-5 w-5" />
-            Filters
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold flex items-center gap-2">
+            <FilterIcon className="h-4 w-4 text-muted-foreground" />
+            Filters & Search
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <Label>Search</Label>
+              <Input
+                placeholder="Order #, customer, phone..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
             <div>
               <Label>Status</Label>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
@@ -156,7 +229,9 @@ export default function OrdersPage() {
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="confirmed">Confirmed</SelectItem>
-                  <SelectItem value="cash-received">Cash Received (Sin)</SelectItem>
+                  <SelectItem value="cash-received">
+                    Cash Received (Sin)
+                  </SelectItem>
                   <SelectItem value="mobile-money-received">
                     Mobile Money (Mum)
                   </SelectItem>
@@ -181,14 +256,27 @@ export default function OrdersPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label>Source</Label>
+              <Select value={filterSource} onValueChange={setFilterSource}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sources</SelectItem>
+                  <SelectItem value="website">🌐 Website</SelectItem>
+                  <SelectItem value="manual">🏪 Manual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Orders Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold">
             All Orders ({filteredOrders.length})
           </CardTitle>
         </CardHeader>
@@ -210,77 +298,97 @@ export default function OrdersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map((order) => (
-                  <tr key={order.id} className="border-b last:border-0">
-                    <td className="py-3 px-4 font-medium">
-                      {order.orderNumber}
-                      <br />
-                      <span className="text-xs text-muted-foreground">
-                        {order.source === "website" ? "🌐 Website" : "🏪 Manual"}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="font-medium">{order.customerName}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {order.customerPhone}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      {order.deliveryMethod === "pickup" ? (
-                        <div className="flex items-center gap-1 text-sm">
-                          <StoreIcon className="h-4 w-4 text-[#4CAF50]" />
-                          <span>Pickup</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1 text-sm">
-                          <TruckIcon className="h-4 w-4 text-[#4CAF50]" />
-                          <span>Delivery</span>
-                        </div>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-muted-foreground">
-                      {order.deliveryMethod === "pickup"
-                        ? branches.find((b) => b.id === order.branch)?.name ||
-                          order.branch
-                        : order.location}
-                    </td>
-                    <td className="py-3 px-4 font-medium">
-                      {formatUGX(order.total)}
-                    </td>
-                    <td className="py-3 px-4">
-                      <Select
-                        value={order.paymentMethod}
-                        onValueChange={(value) =>
-                          handlePaymentChange(order.id, value as PaymentMethod)
-                        }
-                      >
-                        <SelectTrigger className="w-[140px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="cash">Cash (Sin)</SelectItem>
-                          <SelectItem value="mobile-money">MoMo (Mum)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    <td className="py-3 px-4">{getStatusBadge(order.status)}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedOrder(order);
-                            setIsDetailsOpen(true);
-                          }}
-                        >
-                          <EyeIcon className="h-4 w-4" />
-                        </Button>
-                      </div>
+                {filteredOrders.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="py-6 text-center text-muted-foreground"
+                    >
+                      No orders found
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredOrders.map((order) => (
+                    <tr key={order.id} className="border-b last:border-0">
+                      <td className="py-3 px-4 font-medium">
+                        {order.orderNumber}
+                        <br />
+                        <span className="text-xs text-muted-foreground">
+                          {order.source === "website"
+                            ? "🌐 Website"
+                            : "🏪 Manual"}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-medium">{order.customerName}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {order.customerPhone}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        {order.deliveryMethod === "pickup" ? (
+                          <div className="flex items-center gap-1 text-sm">
+                            <StoreIcon className="h-4 w-4 text-[#4CAF50]" />
+                            <span>Pickup</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1 text-sm">
+                            <TruckIcon className="h-4 w-4 text-[#4CAF50]" />
+                            <span>Delivery</span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-muted-foreground">
+                        {order.deliveryMethod === "pickup"
+                          ? branches.find((b) => b.id === order.branch)?.name ||
+                            order.branch
+                          : order.location}
+                      </td>
+                      <td className="py-3 px-4 font-medium">
+                        {formatUGX(order.total)}
+                      </td>
+                      <td className="py-3 px-4">
+                        <Select
+                          value={order.paymentMethod}
+                          onValueChange={(value) =>
+                            handlePaymentChange(
+                              order.id,
+                              value as PaymentMethod
+                            )
+                          }
+                        >
+                          <SelectTrigger className="w-[140px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="cash">Cash (Sin)</SelectItem>
+                            <SelectItem value="mobile-money">
+                              MoMo (Mum)
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="py-3 px-4">
+                        {getStatusBadge(order.status)}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setSelectedOrder(order);
+                              setIsDetailsOpen(true);
+                            }}
+                          >
+                            <EyeIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -289,11 +397,13 @@ export default function OrdersPage() {
 
       {/* Order Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           {selectedOrder && (
             <>
               <DialogHeader>
-                <DialogTitle>Order Details - {selectedOrder.orderNumber}</DialogTitle>
+                <DialogTitle>
+                  Order Details - {selectedOrder.orderNumber}
+                </DialogTitle>
                 <DialogDescription>
                   View and update order information
                 </DialogDescription>
@@ -313,7 +423,9 @@ export default function OrdersPage() {
                     )}
                   </div>
                   <div>
-                    <Label className="text-muted-foreground">Delivery Method</Label>
+                    <Label className="text-muted-foreground">
+                      Delivery Method
+                    </Label>
                     <p className="font-medium capitalize">
                       {selectedOrder.deliveryMethod}
                     </p>
@@ -379,10 +491,6 @@ export default function OrdersPage() {
                           selectedOrder.id,
                           value as PaymentMethod
                         );
-                        setSelectedOrder({
-                          ...selectedOrder,
-                          paymentMethod: value as PaymentMethod,
-                        });
                       }}
                     >
                       <SelectTrigger>
@@ -400,11 +508,10 @@ export default function OrdersPage() {
                     <Select
                       value={selectedOrder.status}
                       onValueChange={(value) => {
-                        handleStatusChange(selectedOrder.id, value as OrderStatus);
-                        setSelectedOrder({
-                          ...selectedOrder,
-                          status: value as OrderStatus,
-                        });
+                        handleStatusChange(
+                          selectedOrder.id,
+                          value as OrderStatus
+                        );
                       }}
                     >
                       <SelectTrigger>
@@ -437,6 +544,23 @@ export default function OrdersPage() {
                   <p>Created: {selectedOrder.createdAt.toLocaleString()}</p>
                   <p>Updated: {selectedOrder.updatedAt.toLocaleString()}</p>
                 </div>
+
+                <div className="bg-muted/50 border border-border/50 rounded-lg p-4 text-sm text-muted-foreground">
+                  <p className="font-semibold text-foreground mb-2">
+                    💡 Business Logic:
+                  </p>
+                  <ul className="mt-2 space-y-1 list-disc list-inside">
+                    <li>
+                      Changing payment to "Cash" or "MoMo" auto-updates status
+                      and creates sales record
+                    </li>
+                    <li>
+                      Inventory is automatically deducted when payment is
+                      received
+                    </li>
+                    <li>Cannot mark as paid if insufficient inventory</li>
+                  </ul>
+                </div>
               </div>
             </>
           )}
@@ -446,53 +570,166 @@ export default function OrdersPage() {
   );
 }
 
-function ManualOrderForm() {
+function ManualOrderForm({
+  products,
+  onClose,
+  onSuccess,
+  currentUser,
+}: {
+  products: Product[];
+  onClose: () => void;
+  onSuccess: () => void;
+  currentUser: any;
+}) {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">(
     "pickup"
   );
-  const [branch, setBranch] = useState("kampala");
+  const [branch, setBranch] = useState(currentUser?.branch || "kampala");
   const [location, setLocation] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pending");
   const [notes, setNotes] = useState("");
+  const [orderItems, setOrderItems] = useState<
+    Array<{ productId: string; quantity: number }>
+  >([]);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement order creation
-    alert("Manual order creation will be implemented with backend");
+  const addItem = () => {
+    setOrderItems([...orderItems, { productId: "", quantity: 1 }]);
   };
 
+  const removeItem = (index: number) => {
+    setOrderItems(orderItems.filter((_, i) => i !== index));
+  };
+
+  const updateItem = (
+    index: number,
+    field: "productId" | "quantity",
+    value: string | number
+  ) => {
+    const updated = [...orderItems];
+    updated[index] = { ...updated[index], [field]: value };
+    setOrderItems(updated);
+  };
+
+  const calculateTotal = () => {
+    let subtotal = 0;
+    orderItems.forEach((item) => {
+      const product = products.find((p) => p.id === item.productId);
+      if (product) {
+        const price = product.priceUGX || product.priceOptionsUGX?.[0] || 0;
+        subtotal += price * item.quantity;
+      }
+    });
+    const deliveryFee = deliveryMethod === "delivery" ? 5000 : 0;
+    return { subtotal, deliveryFee, total: subtotal + deliveryFee };
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (orderItems.length === 0) {
+      alert("Please add at least one item to the order");
+      return;
+    }
+
+    if (orderItems.some((item) => !item.productId || item.quantity < 1)) {
+      alert("Please select a product and quantity for all items");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const { subtotal, deliveryFee, total } = calculateTotal();
+
+      const items = orderItems.map((item) => {
+        const product = products.find((p) => p.id === item.productId);
+        const price = product?.priceUGX || product?.priceOptionsUGX?.[0] || 0;
+        return {
+          productId: item.productId,
+          productName: product?.name || "Unknown",
+          quantity: item.quantity,
+          price,
+        };
+      });
+
+      await ordersApi.createOrder({
+        customerName,
+        customerPhone,
+        customerEmail: customerEmail || undefined,
+        items,
+        subtotal,
+        deliveryFee,
+        total,
+        deliveryMethod,
+        branch: deliveryMethod === "pickup" ? branch : undefined,
+        location: deliveryMethod === "delivery" ? location : undefined,
+        status: "pending",
+        paymentMethod,
+        notes: notes || undefined,
+        source: "manual",
+      });
+
+      alert("Order created successfully!");
+      onSuccess();
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      alert("Failed to create order. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const { subtotal, deliveryFee, total } = calculateTotal();
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
           <Label htmlFor="customerName">Customer Name *</Label>
           <Input
             id="customerName"
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
             required
+            className="h-11"
           />
         </div>
-        <div>
+        <div className="space-y-2">
           <Label htmlFor="customerPhone">Phone Number *</Label>
           <Input
             id="customerPhone"
             value={customerPhone}
             onChange={(e) => setCustomerPhone(e.target.value)}
             required
+            className="h-11"
           />
         </div>
       </div>
 
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="customerEmail">Email (Optional)</Label>
+        <Input
+          id="customerEmail"
+          type="email"
+          value={customerEmail}
+          onChange={(e) => setCustomerEmail(e.target.value)}
+          className="h-11"
+        />
+      </div>
+
+      <div className="space-y-2">
         <Label>Delivery Method</Label>
         <Select
           value={deliveryMethod}
-          onValueChange={(value) => setDeliveryMethod(value as "pickup" | "delivery")}
+          onValueChange={(value) =>
+            setDeliveryMethod(value as "pickup" | "delivery")
+          }
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-11">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -503,10 +740,10 @@ function ManualOrderForm() {
       </div>
 
       {deliveryMethod === "pickup" ? (
-        <div>
+        <div className="space-y-2">
           <Label>Pickup Branch</Label>
           <Select value={branch} onValueChange={setBranch}>
-            <SelectTrigger>
+            <SelectTrigger className="h-11">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -519,21 +756,111 @@ function ManualOrderForm() {
           </Select>
         </div>
       ) : (
-        <div>
+        <div className="space-y-2">
           <Label htmlFor="location">Delivery Location *</Label>
           <Input
             id="location"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             required
+            className="h-11"
           />
         </div>
       )}
 
-      <div>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-base font-medium">Order Items *</Label>
+          <Button
+            type="button"
+            size="sm"
+            onClick={addItem}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            <PlusIcon className="h-4 w-4 mr-1" />
+            Add Item
+          </Button>
+        </div>
+        <div className="space-y-3 border border-border/50 rounded-lg p-4 bg-muted/30">
+          {orderItems.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No items added yet</p>
+          ) : (
+            orderItems.map((item, index) => (
+              <div key={index} className="flex gap-3 items-end">
+                <Select
+                  value={item.productId}
+                  onValueChange={(value) =>
+                    updateItem(index, "productId", value)
+                  }
+                >
+                  <SelectTrigger className="flex-1 h-11">
+                    <SelectValue placeholder="Select product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {products.map((product) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.name} -{" "}
+                        {formatUGX(
+                          product.priceUGX || product.priceOptionsUGX?.[0] || 0
+                        )}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Qty</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={(e) =>
+                      updateItem(
+                        index,
+                        "quantity",
+                        parseInt(e.target.value) || 1
+                      )
+                    }
+                    className="w-24 h-11"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeItem(index)}
+                >
+                  ×
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {orderItems.length > 0 && (
+        <div className="bg-muted/50 rounded-lg p-4 space-y-2 border border-border/50">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Subtotal:</span>
+            <span className="font-medium">{formatUGX(subtotal)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Delivery Fee:</span>
+            <span className="font-medium">{formatUGX(deliveryFee)}</span>
+          </div>
+          <div className="flex justify-between font-semibold text-base border-t border-border/50 pt-2 mt-2">
+            <span>Total:</span>
+            <span className="text-primary">{formatUGX(total)}</span>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-2">
         <Label>Payment Method</Label>
-        <Select value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}>
-          <SelectTrigger>
+        <Select
+          value={paymentMethod}
+          onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
+        >
+          <SelectTrigger className="h-11">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -546,7 +873,7 @@ function ManualOrderForm() {
         </Select>
       </div>
 
-      <div>
+      <div className="space-y-2">
         <Label htmlFor="notes">Notes (Optional)</Label>
         <Textarea
           id="notes"
@@ -557,11 +884,15 @@ function ManualOrderForm() {
       </div>
 
       <DialogFooter>
+        <Button type="button" variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
         <Button
           type="submit"
-          className="bg-[#4CAF50] hover:bg-[#45a049] text-white"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+          disabled={submitting}
         >
-          Create Order
+          {submitting ? "Creating..." : "Create Order"}
         </Button>
       </DialogFooter>
     </form>
