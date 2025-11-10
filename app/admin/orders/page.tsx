@@ -26,10 +26,11 @@ import {
   EyeIcon,
   PlusIcon,
   FilterIcon,
-  PackageIcon,
   TruckIcon,
   StoreIcon,
 } from "@/components/icons";
+import { RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import type { Order, OrderStatus, PaymentMethod, Product } from "@/lib/types";
 import { ordersApi, productsApi } from "@/lib/mockApi";
@@ -49,13 +50,26 @@ export default function OrdersPage() {
   const [filterSource, setFilterSource] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadOrders();
     loadProducts();
+
+    // Auto-refresh orders every 10 seconds to catch new website orders
+    const interval = setInterval(() => {
+      loadOrders(true); // Silent refresh
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  const loadOrders = async () => {
+  const loadOrders = async (silent = false) => {
+    if (!silent) {
+      setLoading(true);
+    } else {
+      setRefreshing(true);
+    }
     try {
       const data = await ordersApi.getOrders();
       setOrders(data);
@@ -63,6 +77,7 @@ export default function OrdersPage() {
       console.error("Failed to load orders:", error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -89,8 +104,15 @@ export default function OrdersPage() {
       if (selectedOrder?.id === orderId) {
         setSelectedOrder(updated);
       }
+
+      // Show success notification
+      toast.success("Order status updated", {
+        description: `Order ${updated.orderNumber} status changed to ${newStatus}.`,
+      });
     } catch (error: any) {
-      alert(error.message || "Failed to update order status");
+      toast.error("Failed to update status", {
+        description: error.message || "Failed to update order status",
+      });
       console.error("Failed to update order:", error);
     }
   };
@@ -109,8 +131,24 @@ export default function OrdersPage() {
       if (selectedOrder?.id === orderId) {
         setSelectedOrder(updated);
       }
+
+      // Show success notification
+      if (
+        updated.status === "cash-received" ||
+        updated.status === "mobile-money-received"
+      ) {
+        toast.success("Payment recorded!", {
+          description: `Order ${updated.orderNumber} marked as paid. Sales record created and inventory updated.`,
+        });
+      } else {
+        toast.success("Payment method updated", {
+          description: `Order ${updated.orderNumber} payment method changed.`,
+        });
+      }
     } catch (error: any) {
-      alert(error.message || "Failed to update payment method");
+      toast.error("Failed to update payment", {
+        description: error.message || "Failed to update payment method",
+      });
       console.error("Failed to update order:", error);
     }
   };
@@ -169,36 +207,61 @@ export default function OrdersPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight">Orders</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-semibold tracking-tight">Orders</h1>
+            {refreshing && (
+              <RefreshCw className="h-5 w-5 text-muted-foreground animate-spin" />
+            )}
+          </div>
           <p className="text-muted-foreground">
             Manage orders from website and shop attendants
+            {refreshing && (
+              <span className="ml-2 text-xs text-primary">Refreshing...</span>
+            )}
           </p>
         </div>
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm">
-              <PlusIcon className="h-4 w-4 mr-2" />
-              Add Manual Order
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add Manual Order</DialogTitle>
-              <DialogDescription>
-                Manually record an order placed at the shop
-              </DialogDescription>
-            </DialogHeader>
-            <ManualOrderForm
-              products={products}
-              onClose={() => setIsCreateOpen(false)}
-              onSuccess={() => {
-                setIsCreateOpen(false);
-                loadOrders();
-              }}
-              currentUser={user}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => loadOrders()}
+            disabled={refreshing || loading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
             />
-          </DialogContent>
-        </Dialog>
+            Refresh
+          </Button>
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm">
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Add Manual Order
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add Manual Order</DialogTitle>
+                <DialogDescription>
+                  Manually record an order placed at the shop
+                </DialogDescription>
+              </DialogHeader>
+              <ManualOrderForm
+                products={products}
+                onClose={() => setIsCreateOpen(false)}
+                onSuccess={() => {
+                  setIsCreateOpen(false);
+                  loadOrders();
+                  toast.success("Order created!", {
+                    description: "Manual order has been added successfully.",
+                  });
+                }}
+                currentUser={user}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Filters */}

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import { seedData } from "@/lib/mockApi";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -52,12 +53,27 @@ export default function LoginPage() {
       if (success) {
         router.push("/admin");
       } else {
-        setError("Demo login failed");
+        setError("Demo login failed. Try resetting data below.");
       }
     } catch (err) {
       setError("An error occurred during login");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResetData = () => {
+    if (typeof window !== "undefined") {
+      // Clear all localStorage keys
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("herbel_")) {
+          localStorage.removeItem(key);
+        }
+      });
+      // Seed fresh data
+      seedData();
+      setError("");
+      alert("Data reset! Please try logging in again.");
     }
   };
 
@@ -189,9 +205,18 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-sm text-muted-foreground space-y-2">
           <p>This is a demo system with mock data.</p>
           <p>Any password will work for demo accounts.</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleResetData}
+            className="mt-4 text-xs"
+          >
+            🔄 Reset Demo Data
+          </Button>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 /**
  * Mock API Layer
- * 
+ *
  * Simulates REST-like API endpoints with:
  * - Promise-based async operations
  * - Simulated network latency (200-700ms)
@@ -19,8 +19,6 @@ import type {
   Category,
   User,
   Settings,
-  OrderStatus,
-  PaymentMethod,
 } from "./types";
 import { inventory } from "./inventory";
 import { branches } from "./types";
@@ -40,9 +38,7 @@ const STORAGE_KEYS = {
 
 // Utility: Simulate network delay
 const delay = () =>
-  new Promise((resolve) =>
-    setTimeout(resolve, Math.random() * 500 + 200)
-  );
+  new Promise((resolve) => setTimeout(resolve, Math.random() * 500 + 200));
 
 // Utility: Parse dates from localStorage
 const parseDates = <T>(data: any): T => {
@@ -54,11 +50,11 @@ const parseDates = <T>(data: any): T => {
 
 const parseDatesInObject = (obj: any): any => {
   if (obj === null || typeof obj !== "object") return obj;
-  
+
   if (obj instanceof Array) {
     return obj.map(parseDatesInObject);
   }
-  
+
   const parsed: any = {};
   for (const key in obj) {
     const value = obj[key];
@@ -614,8 +610,14 @@ export const seedData = () => {
 
 // Initialize data if not already done
 export const initializeData = () => {
+  if (typeof window === "undefined") return null;
+
   const initialized = getFromStorage(STORAGE_KEYS.INITIALIZED, false);
-  if (!initialized) {
+  const users = getFromStorage(STORAGE_KEYS.USERS, []);
+
+  // If not initialized OR if users array is empty, seed data
+  if (!initialized || !Array.isArray(users) || users.length === 0) {
+    console.log("Initializing demo data...");
     return seedData();
   }
   return null;
@@ -628,7 +630,21 @@ export const initializeData = () => {
 export const authApi = {
   login: async (email: string, password: string): Promise<User | null> => {
     await delay();
+
+    // Ensure data is initialized
+    initializeData();
+
     const users = getFromStorage<User[]>(STORAGE_KEYS.USERS, []);
+
+    // If still no users, force seed
+    if (!users || users.length === 0) {
+      console.warn("No users found, forcing data initialization...");
+      seedData();
+      const freshUsers = getFromStorage<User[]>(STORAGE_KEYS.USERS, []);
+      const user = freshUsers.find((u) => u.email === email);
+      return user || null;
+    }
+
     // In demo, any password works for simplicity
     const user = users.find((u) => u.email === email);
     return user || null;
@@ -692,9 +708,7 @@ export const ordersApi = {
       orders = orders.filter((o) => o.source === filters.source);
     }
 
-    return orders.sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    );
+    return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   },
 
   getOrder: async (id: string): Promise<Order | null> => {
@@ -703,10 +717,12 @@ export const ordersApi = {
     return orders.find((o) => o.id === id) || null;
   },
 
-  createOrder: async (orderData: Omit<Order, "id" | "orderNumber" | "createdAt" | "updatedAt">): Promise<Order> => {
+  createOrder: async (
+    orderData: Omit<Order, "id" | "orderNumber" | "createdAt" | "updatedAt">
+  ): Promise<Order> => {
     await delay();
     const orders = getFromStorage<Order[]>(STORAGE_KEYS.ORDERS, []);
-    
+
     const newOrder: Order = {
       ...orderData,
       id: `ord_${Date.now()}`,
@@ -720,11 +736,15 @@ export const ordersApi = {
     return newOrder;
   },
 
-  updateOrder: async (id: string, updates: Partial<Order>, currentUser?: User): Promise<Order> => {
+  updateOrder: async (
+    id: string,
+    updates: Partial<Order>,
+    currentUser?: User
+  ): Promise<Order> => {
     await delay();
     const orders = getFromStorage<Order[]>(STORAGE_KEYS.ORDERS, []);
     const orderIndex = orders.findIndex((o) => o.id === id);
-    
+
     if (orderIndex === -1) {
       throw new Error("Order not found");
     }
@@ -744,22 +764,33 @@ export const ordersApi = {
     }
 
     // Check if order is being marked as paid (cash-received or mobile-money-received)
-    const wasNotPaid = oldOrder.status !== "cash-received" && oldOrder.status !== "mobile-money-received";
-    const isNowPaid = updatedOrder.status === "cash-received" || updatedOrder.status === "mobile-money-received";
+    const wasNotPaid =
+      oldOrder.status !== "cash-received" &&
+      oldOrder.status !== "mobile-money-received";
+    const isNowPaid =
+      updatedOrder.status === "cash-received" ||
+      updatedOrder.status === "mobile-money-received";
 
     if (wasNotPaid && isNowPaid) {
       // Check inventory availability
-      const inventory = getFromStorage<InventoryItem[]>(STORAGE_KEYS.INVENTORY, []);
+      const inventory = getFromStorage<InventoryItem[]>(
+        STORAGE_KEYS.INVENTORY,
+        []
+      );
       const branch = updatedOrder.branch || currentUser?.branch || "kampala";
-      
+
       for (const item of updatedOrder.items) {
         const inventoryItem = inventory.find(
           (inv) => inv.productId === item.productId && inv.branch === branch
         );
-        
+
         if (!inventoryItem || inventoryItem.quantity < item.quantity) {
           throw new Error(
-            `Insufficient inventory for ${item.productName} at ${branch} branch. Available: ${inventoryItem?.quantity || 0}, Required: ${item.quantity}`
+            `Insufficient inventory for ${
+              item.productName
+            } at ${branch} branch. Available: ${
+              inventoryItem?.quantity || 0
+            }, Required: ${item.quantity}`
           );
         }
       }
@@ -785,7 +816,10 @@ export const ordersApi = {
         amount: updatedOrder.total,
         paymentMethod: updatedOrder.paymentMethod,
         deliveryMethod: updatedOrder.deliveryMethod,
-        status: updatedOrder.paymentMethod === "cash" ? "cash-received" : "mobile-money-sent",
+        status:
+          updatedOrder.paymentMethod === "cash"
+            ? "cash-received"
+            : "mobile-money-sent",
         date: new Date(),
         recordedBy: currentUser?.name || "System",
       };
@@ -822,10 +856,12 @@ export const productsApi = {
     return products.find((p) => p.id === id) || null;
   },
 
-  createProduct: async (productData: Omit<Product, "id" | "createdAt" | "updatedAt">): Promise<Product> => {
+  createProduct: async (
+    productData: Omit<Product, "id" | "createdAt" | "updatedAt">
+  ): Promise<Product> => {
     await delay();
     const products = getFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, []);
-    
+
     const newProduct: Product = {
       ...productData,
       id: `prod_${Date.now()}`,
@@ -837,7 +873,10 @@ export const productsApi = {
     saveToStorage(STORAGE_KEYS.PRODUCTS, products);
 
     // Initialize inventory for all branches
-    const inventory = getFromStorage<InventoryItem[]>(STORAGE_KEYS.INVENTORY, []);
+    const inventory = getFromStorage<InventoryItem[]>(
+      STORAGE_KEYS.INVENTORY,
+      []
+    );
     branches.forEach((branch) => {
       inventory.push({
         productId: newProduct.id,
@@ -851,11 +890,14 @@ export const productsApi = {
     return newProduct;
   },
 
-  updateProduct: async (id: string, updates: Partial<Product>): Promise<Product> => {
+  updateProduct: async (
+    id: string,
+    updates: Partial<Product>
+  ): Promise<Product> => {
     await delay();
     const products = getFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, []);
     const productIndex = products.findIndex((p) => p.id === id);
-    
+
     if (productIndex === -1) {
       throw new Error("Product not found");
     }
@@ -878,7 +920,10 @@ export const productsApi = {
     saveToStorage(STORAGE_KEYS.PRODUCTS, filtered);
 
     // Also remove from inventory
-    const inventory = getFromStorage<InventoryItem[]>(STORAGE_KEYS.INVENTORY, []);
+    const inventory = getFromStorage<InventoryItem[]>(
+      STORAGE_KEYS.INVENTORY,
+      []
+    );
     const filteredInv = inventory.filter((inv) => inv.productId !== id);
     saveToStorage(STORAGE_KEYS.INVENTORY, filteredInv);
   },
@@ -892,17 +937,24 @@ export const inventoryApi = {
   getInventory: async (branch?: string): Promise<InventoryItem[]> => {
     await delay();
     let inventory = getFromStorage<InventoryItem[]>(STORAGE_KEYS.INVENTORY, []);
-    
+
     if (branch && branch !== "all") {
       inventory = inventory.filter((inv) => inv.branch === branch);
     }
-    
+
     return inventory;
   },
 
-  updateInventory: async (productId: string, branch: string, quantity: number): Promise<InventoryItem> => {
+  updateInventory: async (
+    productId: string,
+    branch: string,
+    quantity: number
+  ): Promise<InventoryItem> => {
     await delay();
-    const inventory = getFromStorage<InventoryItem[]>(STORAGE_KEYS.INVENTORY, []);
+    const inventory = getFromStorage<InventoryItem[]>(
+      STORAGE_KEYS.INVENTORY,
+      []
+    );
     const invIndex = inventory.findIndex(
       (inv) => inv.productId === productId && inv.branch === branch
     );
@@ -914,13 +966,20 @@ export const inventoryApi = {
     inventory[invIndex].quantity = Math.max(0, quantity);
     inventory[invIndex].lastUpdated = new Date();
     saveToStorage(STORAGE_KEYS.INVENTORY, inventory);
-    
+
     return inventory[invIndex];
   },
 
-  adjustInventory: async (productId: string, branch: string, adjustment: number): Promise<InventoryItem> => {
+  adjustInventory: async (
+    productId: string,
+    branch: string,
+    adjustment: number
+  ): Promise<InventoryItem> => {
     await delay();
-    const inventory = getFromStorage<InventoryItem[]>(STORAGE_KEYS.INVENTORY, []);
+    const inventory = getFromStorage<InventoryItem[]>(
+      STORAGE_KEYS.INVENTORY,
+      []
+    );
     const invIndex = inventory.findIndex(
       (inv) => inv.productId === productId && inv.branch === branch
     );
@@ -929,10 +988,13 @@ export const inventoryApi = {
       throw new Error("Inventory item not found");
     }
 
-    inventory[invIndex].quantity = Math.max(0, inventory[invIndex].quantity + adjustment);
+    inventory[invIndex].quantity = Math.max(
+      0,
+      inventory[invIndex].quantity + adjustment
+    );
     inventory[invIndex].lastUpdated = new Date();
     saveToStorage(STORAGE_KEYS.INVENTORY, inventory);
-    
+
     return inventory[invIndex];
   },
 };
@@ -986,10 +1048,12 @@ export const expensesApi = {
     return expenses.sort((a, b) => b.date.getTime() - a.date.getTime());
   },
 
-  createExpense: async (expenseData: Omit<Expense, "id" | "createdAt">): Promise<Expense> => {
+  createExpense: async (
+    expenseData: Omit<Expense, "id" | "createdAt">
+  ): Promise<Expense> => {
     await delay();
     const expenses = getFromStorage<Expense[]>(STORAGE_KEYS.EXPENSES, []);
-    
+
     const newExpense: Expense = {
       ...expenseData,
       id: `exp_${Date.now()}`,
@@ -1036,10 +1100,12 @@ export const categoriesApi = {
     return getFromStorage<Category[]>(STORAGE_KEYS.CATEGORIES, []);
   },
 
-  createCategory: async (categoryData: Omit<Category, "id" | "createdAt" | "productCount">): Promise<Category> => {
+  createCategory: async (
+    categoryData: Omit<Category, "id" | "createdAt" | "productCount">
+  ): Promise<Category> => {
     await delay();
     const categories = getFromStorage<Category[]>(STORAGE_KEYS.CATEGORIES, []);
-    
+
     const newCategory: Category = {
       ...categoryData,
       id: `cat_${Date.now()}`,
@@ -1052,11 +1118,14 @@ export const categoriesApi = {
     return newCategory;
   },
 
-  updateCategory: async (id: string, updates: Partial<Category>): Promise<Category> => {
+  updateCategory: async (
+    id: string,
+    updates: Partial<Category>
+  ): Promise<Category> => {
     await delay();
     const categories = getFromStorage<Category[]>(STORAGE_KEYS.CATEGORIES, []);
     const catIndex = categories.findIndex((c) => c.id === id);
-    
+
     if (catIndex === -1) {
       throw new Error("Category not found");
     }
@@ -1098,7 +1167,7 @@ export const userApi = {
   }): Promise<User> => {
     await delay();
     const users = getFromStorage<User[]>(STORAGE_KEYS.USERS, []);
-    
+
     // Check if email already exists
     if (users.find((u) => u.email === data.email)) {
       throw new Error("Email already exists");
@@ -1138,7 +1207,10 @@ export const userApi = {
       ...users[userIndex],
       ...updates,
       // Remove branch if changing to admin
-      branch: updates.role === "admin" ? undefined : updates.branch || users[userIndex].branch,
+      branch:
+        updates.role === "admin"
+          ? undefined
+          : updates.branch || users[userIndex].branch,
     };
 
     users[userIndex] = updatedUser;
@@ -1150,7 +1222,7 @@ export const userApi = {
     await delay();
     const users = getFromStorage<User[]>(STORAGE_KEYS.USERS, []);
     const filtered = users.filter((u) => u.id !== id);
-    
+
     if (filtered.length === users.length) {
       throw new Error("User not found");
     }
@@ -1180,7 +1252,10 @@ export const settingsApi = {
 
   updateSettings: async (updates: Partial<Settings>): Promise<Settings> => {
     await delay();
-    const currentSettings = getFromStorage<Settings>(STORAGE_KEYS.SETTINGS, {} as Settings);
+    const currentSettings = getFromStorage<Settings>(
+      STORAGE_KEYS.SETTINGS,
+      {} as Settings
+    );
     const updatedSettings = {
       ...currentSettings,
       ...updates,
@@ -1201,4 +1276,3 @@ export const resetDemoData = () => {
   });
   return seedData();
 };
-

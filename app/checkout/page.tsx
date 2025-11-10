@@ -1,8 +1,6 @@
 "use client";
 
 import type React from "react";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/lib/cart-context";
@@ -11,37 +9,21 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { CheckIcon, MapPinIcon, StoreIcon } from "lucide-react";
-
-const branches = [
-  {
-    id: 1,
-    name: "Main Branch - Kampala",
-    address: "Kampala Road, Kampala",
-    phone: "0200 804 020",
-  },
-  {
-    id: 2,
-    name: "Entebbe Branch",
-    address: "Entebbe Road, Entebbe",
-    phone: "0200 804 020",
-  },
-  {
-    id: 3,
-    name: "Ntinda Branch",
-    address: "Ntinda Shopping Center, Ntinda",
-    phone: "0200 804 020",
-  },
-];
+import { CheckIcon, MapPinIcon, StoreIcon, AlertCircle } from "lucide-react";
+import { ordersApi } from "@/lib/mockApi";
+import { branches } from "@/lib/types";
+import type { Order } from "@/lib/types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">(
     "pickup"
   );
-  const [selectedBranch, setSelectedBranch] = useState<number>(1);
+  const [selectedBranch, setSelectedBranch] = useState<string>("kampala");
   const [location, setLocation] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -49,10 +31,77 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    // Validation
+    if (items.length === 0) {
+      setError("Your cart is empty. Please add items before checkout.");
+      return;
+    }
+
+    if (deliveryMethod === "delivery" && !location.trim()) {
+      setError("Please enter a delivery location.");
+      return;
+    }
+
+    if (deliveryMethod === "pickup" && !selectedBranch) {
+      setError("Please select a pickup branch.");
+      return;
+    }
+
     setIsProcessing(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    clearCart();
-    router.push("/order-confirmation");
+
+    try {
+      // Prepare order items
+      const orderItems = items.map((item) => ({
+        productId: String(item.id),
+        productName: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+
+      // Calculate totals
+      const deliveryCost = deliveryMethod === "delivery" ? 5000 : 0;
+      const subtotal = totalPrice;
+      const total = subtotal + deliveryCost;
+
+      // Create order data
+      const orderData: Omit<
+        Order,
+        "id" | "orderNumber" | "createdAt" | "updatedAt"
+      > = {
+        customerName: name.trim(),
+        customerPhone: phone.trim(),
+        customerEmail: email.trim() || undefined,
+        items: orderItems,
+        subtotal,
+        deliveryFee: deliveryCost,
+        total,
+        deliveryMethod,
+        branch: deliveryMethod === "pickup" ? selectedBranch : undefined,
+        location: deliveryMethod === "delivery" ? location.trim() : undefined,
+        status: "pending",
+        paymentMethod: "pending",
+        source: "website",
+      };
+
+      // Create order via API
+      const createdOrder = await ordersApi.createOrder(orderData);
+
+      // Clear cart
+      clearCart();
+
+      // Redirect to confirmation page with order number
+      router.push(
+        `/order-confirmation?orderNumber=${encodeURIComponent(
+          createdOrder.orderNumber
+        )}`
+      );
+    } catch (err: any) {
+      console.error("Failed to create order:", err);
+      setError(err.message || "Failed to place order. Please try again.");
+      setIsProcessing(false);
+    }
   };
 
   const deliveryCost = deliveryMethod === "delivery" ? 5000 : 0;
@@ -64,6 +113,14 @@ export default function CheckoutPage() {
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#4CAF50] mb-4 sm:mb-6">
           Checkout
         </h1>
+
+        {/* Error Alert */}
+        {error && (
+          <Alert variant="destructive" className="mb-4 sm:mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -287,10 +344,17 @@ export default function CheckoutPage() {
               </div>
               <Button
                 type="submit"
-                disabled={isProcessing}
-                className="w-full bg-primary hover:bg-primary text-white py-2.5 sm:py-3 text-sm sm:text-base"
+                disabled={isProcessing || items.length === 0}
+                className="w-full bg-primary hover:bg-primary text-white py-2.5 sm:py-3 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isProcessing ? "Processing..." : "Complete Order"}
+                {isProcessing ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                    Processing Order...
+                  </span>
+                ) : (
+                  "Complete Order"
+                )}
               </Button>
             </div>
           </div>
