@@ -28,6 +28,14 @@ import type {
 import { formatUGX } from "@/lib/inventory";
 import { useAuth } from "@/contexts/AuthContext";
 import { branches } from "@/lib/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 type StatCard = {
   name: string;
@@ -45,6 +53,8 @@ export default function DashboardPage() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -404,7 +414,11 @@ export default function DashboardPage() {
                 recentOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between border-b border-border/50 pb-4 last:border-0 last:pb-0 hover:bg-muted/30 -mx-6 px-6 transition-colors"
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setIsOrderDetailsOpen(true);
+                    }}
+                    className="flex items-center justify-between border-b border-border/50 pb-4 last:border-0 last:pb-0 hover:bg-muted/30 -mx-6 px-6 transition-colors cursor-pointer"
                   >
                     <div className="space-y-1.5">
                       <p className="text-sm font-medium">
@@ -475,6 +489,180 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Order Details Dialog */}
+      <Dialog open={isOrderDetailsOpen} onOpenChange={setIsOrderDetailsOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto max-w-5xl p-6 sm:p-8">
+          {selectedOrder && (
+            <>
+              <DialogHeader className="pb-4">
+                <DialogTitle className="text-xl">
+                  Order Details - {selectedOrder.orderNumber}
+                </DialogTitle>
+                <DialogDescription className="text-sm mt-2">
+                  Order placed on{" "}
+                  {selectedOrder.createdAt.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-8">
+                {/* Customer Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 bg-muted/30 rounded-lg border border-border/50">
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs mb-2 block">
+                      Customer Name
+                    </Label>
+                    <p className="font-semibold text-base">
+                      {selectedOrder.customerName}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs mb-2 block">
+                      Phone Number
+                    </Label>
+                    <p className="font-semibold text-base">
+                      {selectedOrder.customerPhone}
+                    </p>
+                  </div>
+                  {selectedOrder.customerEmail && (
+                    <div className="space-y-1">
+                      <Label className="text-muted-foreground text-xs mb-2 block">
+                        Email
+                      </Label>
+                      <p className="font-semibold text-base">
+                        {selectedOrder.customerEmail}
+                      </p>
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs mb-2 block">
+                      Delivery Method
+                    </Label>
+                    <p className="font-semibold text-base capitalize">
+                      {selectedOrder.deliveryMethod}
+                    </p>
+                    {selectedOrder.deliveryMethod === "pickup" &&
+                      selectedOrder.branch && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Pickup from:{" "}
+                          {branches.find((b) => b.id === selectedOrder.branch)
+                            ?.name || selectedOrder.branch}
+                        </p>
+                      )}
+                    {selectedOrder.deliveryMethod === "delivery" &&
+                      selectedOrder.location && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Deliver to: {selectedOrder.location}
+                        </p>
+                      )}
+                  </div>
+                </div>
+
+                {/* Order Items */}
+                <div className="space-y-4">
+                  <Label className="text-lg font-semibold block">
+                    Order Items ({selectedOrder.items.length})
+                  </Label>
+                  <div className="border rounded-lg divide-y divide-border/50">
+                    {selectedOrder.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between items-start p-5 hover:bg-muted/30 transition-colors"
+                      >
+                        <div className="flex-1 pr-4">
+                          <p className="font-semibold text-base mb-2">
+                            {item.productName}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Quantity: {item.quantity} × {formatUGX(item.price)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-base">
+                            {formatUGX(item.price * item.quantity)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Order Summary */}
+                <div className="space-y-4 p-5 bg-muted/50 rounded-lg border border-border/50">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal:</span>
+                    <span className="font-medium">
+                      {formatUGX(selectedOrder.subtotal)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Delivery Fee:</span>
+                    <span className="font-medium">
+                      {formatUGX(selectedOrder.deliveryFee)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold border-t border-border/50 pt-4 mt-4">
+                    <span>Total:</span>
+                    <span className="text-primary">
+                      {formatUGX(selectedOrder.total)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Payment & Status */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 bg-muted/30 rounded-lg border border-border/50">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs block">
+                      Payment Method
+                    </Label>
+                    <Badge
+                      className={`${getStatusColor(
+                        selectedOrder.paymentMethod
+                      )}`}
+                    >
+                      {getStatusLabel(selectedOrder.paymentMethod)}
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs block">
+                      Order Status
+                    </Label>
+                    <Badge
+                      className={`${getStatusColor(selectedOrder.status)}`}
+                    >
+                      {getStatusLabel(selectedOrder.status)}
+                    </Badge>
+                  </div>
+                </div>
+
+                {selectedOrder.notes && (
+                  <div className="p-5 bg-muted/30 rounded-lg border border-border/50">
+                    <Label className="text-muted-foreground text-xs mb-2 block">
+                      Notes
+                    </Label>
+                    <p className="text-sm leading-relaxed">
+                      {selectedOrder.notes}
+                    </p>
+                  </div>
+                )}
+
+                <div className="text-xs text-muted-foreground pt-5 border-t border-border/50 space-y-1">
+                  <p>Created: {selectedOrder.createdAt.toLocaleString()}</p>
+                  {selectedOrder.updatedAt.getTime() !==
+                    selectedOrder.createdAt.getTime() && (
+                    <p>Updated: {selectedOrder.updatedAt.toLocaleString()}</p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

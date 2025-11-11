@@ -129,11 +129,10 @@ export const seedData = () => {
     id: item.id,
     name: item.name,
     description: item.description || `${item.name} - Natural herbal product`,
-    category: item.category,
+    category: item.category?.[0] || "general-wellness",
     image: item.image || "/placeholder.svg",
     priceUGX: item.priceUGX,
     priceOptionsUGX: item.priceOptionsUGX,
-    sizeOptions: item.sizeOptions,
     stockQuantity: item.stockQuantity || 50,
     createdAt: new Date("2024-01-01"),
     updatedAt: new Date("2024-01-01"),
@@ -723,10 +722,76 @@ export const ordersApi = {
     await delay();
     const orders = getFromStorage<Order[]>(STORAGE_KEYS.ORDERS, []);
 
+    // Validation
+    if (!orderData.customerName || !orderData.customerName.trim()) {
+      throw new Error("Customer name is required");
+    }
+    if (!orderData.customerPhone || !orderData.customerPhone.trim()) {
+      throw new Error("Customer phone is required");
+    }
+    if (!orderData.items || orderData.items.length === 0) {
+      throw new Error("Order must contain at least one item");
+    }
+    if (orderData.subtotal <= 0) {
+      throw new Error("Subtotal must be greater than zero");
+    }
+    if (orderData.total <= 0) {
+      throw new Error("Total must be greater than zero");
+    }
+    if (orderData.deliveryMethod === "delivery" && !orderData.location) {
+      throw new Error("Delivery location is required for delivery orders");
+    }
+    if (orderData.deliveryMethod === "pickup" && !orderData.branch) {
+      throw new Error("Branch is required for pickup orders");
+    }
+
+    // Validate items
+    for (const item of orderData.items) {
+      if (!item.productId || !item.productName) {
+        throw new Error("All order items must have product ID and name");
+      }
+      if (!item.quantity || item.quantity <= 0) {
+        throw new Error(`Invalid quantity for ${item.productName}`);
+      }
+      if (!item.price || item.price <= 0) {
+        throw new Error(`Invalid price for ${item.productName}`);
+      }
+    }
+
+    // Recalculate totals to ensure accuracy
+    const calculatedSubtotal = orderData.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    const calculatedTotal = calculatedSubtotal + (orderData.deliveryFee || 0);
+
+    // Use calculated values if they differ (with tolerance for floating point)
+    const finalSubtotal =
+      Math.abs(calculatedSubtotal - orderData.subtotal) > 1
+        ? calculatedSubtotal
+        : orderData.subtotal;
+    const finalTotal =
+      Math.abs(calculatedTotal - orderData.total) > 1
+        ? calculatedTotal
+        : orderData.total;
+
+    // Generate unique order number
+    const maxOrderNum = orders.reduce((max, order) => {
+      const numMatch = order.orderNumber.match(/#ORD-(\d+)/);
+      if (numMatch) {
+        const num = parseInt(numMatch[1], 10);
+        return Math.max(max, num);
+      }
+      return max;
+    }, 3210);
+    const nextOrderNum = maxOrderNum + 1;
+
     const newOrder: Order = {
       ...orderData,
-      id: `ord_${Date.now()}`,
-      orderNumber: `#ORD-${3210 + orders.length}`,
+      subtotal: finalSubtotal,
+      total: finalTotal,
+      id: `ord_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      orderNumber: `#ORD-${nextOrderNum}`,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

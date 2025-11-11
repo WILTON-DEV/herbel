@@ -52,20 +52,61 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
-      // Prepare order items
-      const orderItems = items.map((item) => ({
-        productId: String(item.id),
-        productName: item.name,
-        quantity: item.quantity,
-        price: item.price,
-      }));
+      // Validate cart items
+      if (
+        items.some(
+          (item) => !item.id || !item.name || !item.price || item.quantity <= 0
+        )
+      ) {
+        setError("Invalid cart items detected. Please refresh and try again.");
+        setIsProcessing(false);
+        return;
+      }
 
-      // Calculate totals
+      // Prepare order items with validation
+      const orderItems = items.map((item) => {
+        if (!item.price || item.price <= 0) {
+          throw new Error(`Invalid price for ${item.name}`);
+        }
+        if (!item.quantity || item.quantity <= 0) {
+          throw new Error(`Invalid quantity for ${item.name}`);
+        }
+        return {
+          productId: String(item.id),
+          productName: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        };
+      });
+
+      // Recalculate subtotal from items to ensure accuracy
+      const calculatedSubtotal = orderItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+
+      // Validate that calculated subtotal matches cart total (with small tolerance for floating point)
+      if (Math.abs(calculatedSubtotal - totalPrice) > 1) {
+        console.warn("Subtotal mismatch, using calculated value", {
+          cartTotal: totalPrice,
+          calculated: calculatedSubtotal,
+        });
+      }
+
+      // Calculate totals dynamically
       const deliveryCost = deliveryMethod === "delivery" ? 5000 : 0;
-      const subtotal = totalPrice;
+      const subtotal = calculatedSubtotal;
       const total = subtotal + deliveryCost;
 
-      // Create order data
+      // Validate totals
+      if (subtotal <= 0) {
+        throw new Error("Order subtotal must be greater than zero");
+      }
+      if (total <= 0) {
+        throw new Error("Order total must be greater than zero");
+      }
+
+      // Create order data with validated values
       const orderData: Omit<
         Order,
         "id" | "orderNumber" | "createdAt" | "updatedAt"
@@ -87,6 +128,11 @@ export default function CheckoutPage() {
 
       // Create order via API
       const createdOrder = await ordersApi.createOrder(orderData);
+
+      // Store customer phone in localStorage for order filtering
+      if (typeof window !== "undefined") {
+        localStorage.setItem("customer_phone", phone.trim());
+      }
 
       // Clear cart
       clearCart();

@@ -477,94 +477,133 @@ export default function OrdersPage() {
 
       {/* Order Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] overflow-y-auto max-w-5xl p-6 sm:p-8">
           {selectedOrder && (
             <>
-              <DialogHeader>
-                <DialogTitle>
+              <DialogHeader className="pb-4">
+                <DialogTitle className="text-xl">
                   Order Details - {selectedOrder.orderNumber}
                 </DialogTitle>
-                <DialogDescription>
-                  View and update order information
+                <DialogDescription className="text-sm mt-2">
+                  Order placed on{" "}
+                  {selectedOrder.createdAt.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-muted-foreground">Customer</Label>
-                    <p className="font-medium">{selectedOrder.customerName}</p>
-                    <p className="text-sm text-muted-foreground">
+              <div className="space-y-8">
+                {/* Customer Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 bg-muted/30 rounded-lg border border-border/50">
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs mb-2 block">
+                      Customer Name
+                    </Label>
+                    <p className="font-semibold text-base">
+                      {selectedOrder.customerName}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs mb-2 block">
+                      Phone Number
+                    </Label>
+                    <p className="font-semibold text-base">
                       {selectedOrder.customerPhone}
                     </p>
-                    {selectedOrder.customerEmail && (
-                      <p className="text-sm text-muted-foreground">
+                  </div>
+                  {selectedOrder.customerEmail && (
+                    <div className="space-y-1">
+                      <Label className="text-muted-foreground text-xs mb-2 block">
+                        Email
+                      </Label>
+                      <p className="font-semibold text-base">
                         {selectedOrder.customerEmail}
                       </p>
-                    )}
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <Label className="text-muted-foreground text-xs mb-2 block">
                       Delivery Method
                     </Label>
-                    <p className="font-medium capitalize">
+                    <p className="font-semibold text-base capitalize">
                       {selectedOrder.deliveryMethod}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedOrder.deliveryMethod === "pickup"
-                        ? branches.find((b) => b.id === selectedOrder.branch)
-                            ?.name
-                        : selectedOrder.location}
-                    </p>
+                    {selectedOrder.deliveryMethod === "pickup" &&
+                      selectedOrder.branch && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Pickup from:{" "}
+                          {branches.find((b) => b.id === selectedOrder.branch)
+                            ?.name || selectedOrder.branch}
+                        </p>
+                      )}
+                    {selectedOrder.deliveryMethod === "delivery" &&
+                      selectedOrder.location && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Deliver to: {selectedOrder.location}
+                        </p>
+                      )}
                   </div>
                 </div>
 
-                <div>
-                  <Label className="text-muted-foreground mb-2 block">
-                    Order Items
+                {/* Order Items */}
+                <div className="space-y-4">
+                  <Label className="text-lg font-semibold block">
+                    Order Items ({selectedOrder.items.length})
                   </Label>
-                  <div className="border rounded-lg divide-y">
+                  <div className="border rounded-lg divide-y divide-border/50">
                     {selectedOrder.items.map((item, idx) => (
                       <div
                         key={idx}
-                        className="flex justify-between items-center p-3"
+                        className="flex justify-between items-start p-5 hover:bg-muted/30 transition-colors"
                       >
-                        <div>
-                          <p className="font-medium">{item.productName}</p>
+                        <div className="flex-1 pr-4">
+                          <p className="font-semibold text-base mb-2">
+                            {item.productName}
+                          </p>
                           <p className="text-sm text-muted-foreground">
-                            Qty: {item.quantity} × {formatUGX(item.price)}
+                            Quantity: {item.quantity} × {formatUGX(item.price)}
                           </p>
                         </div>
-                        <p className="font-medium">
-                          {formatUGX(item.price * item.quantity)}
-                        </p>
+                        <div className="text-right">
+                          <p className="font-semibold text-base">
+                            {formatUGX(item.price * item.quantity)}
+                          </p>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="space-y-2 border-t pt-4">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotal</span>
+                {/* Order Summary */}
+                <div className="space-y-4 p-5 bg-muted/50 rounded-lg border border-border/50">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal:</span>
                     <span className="font-medium">
                       {formatUGX(selectedOrder.subtotal)}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Delivery Fee</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Delivery Fee:</span>
                     <span className="font-medium">
                       {formatUGX(selectedOrder.deliveryFee)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold border-t pt-2">
-                    <span>Total</span>
-                    <span>{formatUGX(selectedOrder.total)}</span>
+                  <div className="flex justify-between text-lg font-bold border-t border-border/50 pt-4 mt-4">
+                    <span>Total:</span>
+                    <span className="text-primary">
+                      {formatUGX(selectedOrder.total)}
+                    </span>
                   </div>
                 </div>
 
-                <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border/50">
+                {/* Payment & Status */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 bg-muted/30 rounded-lg border border-border/50">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label className="text-base font-semibold">
+                      <Label className="text-muted-foreground text-xs block">
                         Payment Method
                       </Label>
                       {selectedOrder.paymentMethod === "pending" && (
@@ -608,7 +647,7 @@ export default function OrdersPage() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-base font-semibold">
+                    <Label className="text-muted-foreground text-xs block">
                       Order Status
                     </Label>
                     <Select
@@ -643,15 +682,22 @@ export default function OrdersPage() {
                 </div>
 
                 {selectedOrder.notes && (
-                  <div>
-                    <Label className="text-muted-foreground">Notes</Label>
-                    <p className="text-sm">{selectedOrder.notes}</p>
+                  <div className="p-5 bg-muted/30 rounded-lg border border-border/50">
+                    <Label className="text-muted-foreground text-xs mb-2 block">
+                      Notes
+                    </Label>
+                    <p className="text-sm leading-relaxed">
+                      {selectedOrder.notes}
+                    </p>
                   </div>
                 )}
 
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-muted-foreground pt-5 border-t border-border/50 space-y-1">
                   <p>Created: {selectedOrder.createdAt.toLocaleString()}</p>
-                  <p>Updated: {selectedOrder.updatedAt.toLocaleString()}</p>
+                  {selectedOrder.updatedAt.getTime() !==
+                    selectedOrder.createdAt.getTime() && (
+                    <p>Updated: {selectedOrder.updatedAt.toLocaleString()}</p>
+                  )}
                 </div>
 
                 <div className="bg-muted/50 border border-border/50 rounded-lg p-4 text-sm text-muted-foreground">
