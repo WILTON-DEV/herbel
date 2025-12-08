@@ -1,14 +1,91 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { CheckCircleIcon, PhoneIcon } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-export default function OrderConfirmationPage() {
+import { Button } from "@/components/ui/button";
+import { CheckCircleIcon, PhoneIcon, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { ordersApi } from "@/lib/mockApi";
+import { formatUGX } from "@/lib/inventory";
+import type { Order } from "@/lib/types";
+import { branches } from "@/lib/types";
+
+function OrderConfirmationContent() {
+  const searchParams = useSearchParams();
+  const orderNumber = searchParams.get("orderNumber");
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      if (!orderNumber) {
+        setError("Order number is missing");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const orders = await ordersApi.getOrders();
+        const foundOrder = orders.find(
+          (o) =>
+            o.orderNumber === orderNumber || o.orderNumber === `#${orderNumber}`
+        );
+
+        if (!foundOrder) {
+          setError(`Order ${orderNumber} not found`);
+        } else {
+          setOrder(foundOrder);
+        }
+      } catch (err) {
+        console.error("Failed to fetch order:", err);
+        setError("Failed to load order details. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrder();
+  }, [orderNumber]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f5f1e8] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[#4CAF50] mx-auto mb-4" />
+          <p className="text-gray-600">Loading order details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !order) {
+    return (
+      <div className="min-h-screen bg-[#f5f1e8]">
+        <div className="container mx-auto px-4 lg:px-8 py-6 sm:py-12 lg:py-16">
+          <div className="text-center max-w-md mx-auto">
+            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 mb-6">
+              <p className="text-red-700 font-semibold mb-2">Order Not Found</p>
+              <p className="text-sm text-red-600">
+                {error || "The order you're looking for doesn't exist."}
+              </p>
+            </div>
+            <Link href="/account/orders">
+              <Button className="bg-primary hover:bg-primary text-white">
+                View My Orders
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f5f1e8]">
-      <div className="container mx-auto px-4 lg:px-8 py-6 sm:py-12 lg:py-16 ">
-        <div className="text-center">
+      <div className="container mx-auto px-4 lg:px-8 py-6 sm:py-12 lg:py-16">
+        <div className="text-center  mx-auto">
           <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
             <CheckCircleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
           </div>
@@ -18,6 +95,46 @@ export default function OrderConfirmationPage() {
           <p className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6">
             Your order has been received and is being processed.
           </p>
+
+          {/* Order Details */}
+          <div className="bg-white rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 text-left border border-gray-200">
+            <h3 className="text-base sm:text-lg font-semibold text-[#4CAF50] mb-4">
+              Order Details
+            </h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Order Number:</span>
+                <span className="font-mono font-semibold text-[#4CAF50]">
+                  {order.orderNumber}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Amount:</span>
+                <span className="font-semibold">{formatUGX(order.total)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Delivery Method:</span>
+                <span className="font-medium capitalize">
+                  {order.deliveryMethod}
+                </span>
+              </div>
+              {order.deliveryMethod === "pickup" && order.branch && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Pickup Branch:</span>
+                  <span className="font-medium">
+                    {branches.find((b) => b.id === order.branch)?.name ||
+                      order.branch}
+                  </span>
+                </div>
+              )}
+              {order.deliveryMethod === "delivery" && order.location && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Delivery Location:</span>
+                  <span className="font-medium">{order.location}</span>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Important Message */}
           <div className="bg-[#fff4e6] border-2 border-[#c9a961] rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
@@ -31,17 +148,9 @@ export default function OrderConfirmationPage() {
               <strong>We will contact you</strong> via phone to confirm your
               order and arrange delivery/pickup.
             </p>
-            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-[#c9a961]/30">
-              <p className="text-xs sm:text-sm text-gray-600 text-left">
-                Order Number:{" "}
-                <span className="font-mono font-semibold text-[#4CAF50]">
-                  #ORD-{Math.floor(Math.random() * 100000)}
-                </span>
-              </p>
-            </div>
           </div>
 
-          <div className="/50 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 text-left">
+          <div className="bg-white rounded-lg sm:rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 text-left border border-gray-200">
             <h3 className="text-sm sm:text-base font-semibold text-[#4CAF50] mb-3 sm:mb-4">
               What happens next?
             </h3>
@@ -97,5 +206,22 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#f5f1e8] flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-[#4CAF50] mx-auto mb-4" />
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <OrderConfirmationContent />
+    </Suspense>
   );
 }

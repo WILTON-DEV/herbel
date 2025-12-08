@@ -1,8 +1,6 @@
 "use client";
 
 import type React from "react";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/lib/cart-context";
@@ -11,37 +9,21 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { CheckIcon, MapPinIcon, StoreIcon } from "lucide-react";
-
-const branches = [
-  {
-    id: 1,
-    name: "Main Branch - Kampala",
-    address: "Kampala Road, Kampala",
-    phone: "0200 804 020",
-  },
-  {
-    id: 2,
-    name: "Entebbe Branch",
-    address: "Entebbe Road, Entebbe",
-    phone: "0200 804 020",
-  },
-  {
-    id: 3,
-    name: "Ntinda Branch",
-    address: "Ntinda Shopping Center, Ntinda",
-    phone: "0200 804 020",
-  },
-];
+import { CheckIcon, MapPinIcon, StoreIcon, AlertCircle } from "lucide-react";
+import { ordersApi } from "@/lib/mockApi";
+import { branches } from "@/lib/types";
+import type { Order } from "@/lib/types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">(
     "pickup"
   );
-  const [selectedBranch, setSelectedBranch] = useState<number>(1);
+  const [selectedBranch, setSelectedBranch] = useState<string>("kampala");
   const [location, setLocation] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -49,10 +31,123 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    // Validation
+    if (items.length === 0) {
+      setError("Your cart is empty. Please add items before checkout.");
+      return;
+    }
+
+    if (deliveryMethod === "delivery" && !location.trim()) {
+      setError("Please enter a delivery location.");
+      return;
+    }
+
+    if (deliveryMethod === "pickup" && !selectedBranch) {
+      setError("Please select a pickup branch.");
+      return;
+    }
+
     setIsProcessing(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    clearCart();
-    router.push("/order-confirmation");
+
+    try {
+      // Validate cart items
+      if (
+        items.some(
+          (item) => !item.id || !item.name || !item.price || item.quantity <= 0
+        )
+      ) {
+        setError("Invalid cart items detected. Please refresh and try again.");
+        setIsProcessing(false);
+        return;
+      }
+
+      // Prepare order items with validation
+      const orderItems = items.map((item) => {
+        if (!item.price || item.price <= 0) {
+          throw new Error(`Invalid price for ${item.name}`);
+        }
+        if (!item.quantity || item.quantity <= 0) {
+          throw new Error(`Invalid quantity for ${item.name}`);
+        }
+        return {
+          productId: String(item.id),
+          productName: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        };
+      });
+
+      // Recalculate subtotal from items to ensure accuracy
+      const calculatedSubtotal = orderItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+
+      // Validate that calculated subtotal matches cart total (with small tolerance for floating point)
+      if (Math.abs(calculatedSubtotal - totalPrice) > 1) {
+        console.warn("Subtotal mismatch, using calculated value", {
+          cartTotal: totalPrice,
+          calculated: calculatedSubtotal,
+        });
+      }
+
+      // Calculate totals dynamically
+      const deliveryCost = deliveryMethod === "delivery" ? 5000 : 0;
+      const subtotal = calculatedSubtotal;
+      const total = subtotal + deliveryCost;
+
+      // Validate totals
+      if (subtotal <= 0) {
+        throw new Error("Order subtotal must be greater than zero");
+      }
+      if (total <= 0) {
+        throw new Error("Order total must be greater than zero");
+      }
+
+      // Create order data with validated values
+      const orderData: Omit<
+        Order,
+        "id" | "orderNumber" | "createdAt" | "updatedAt"
+      > = {
+        customerName: name.trim(),
+        customerPhone: phone.trim(),
+        customerEmail: email.trim() || undefined,
+        items: orderItems,
+        subtotal,
+        deliveryFee: deliveryCost,
+        total,
+        deliveryMethod,
+        branch: deliveryMethod === "pickup" ? selectedBranch : undefined,
+        location: deliveryMethod === "delivery" ? location.trim() : undefined,
+        status: "pending",
+        paymentMethod: "pending",
+        source: "website",
+      };
+
+      // Create order via API
+      const createdOrder = await ordersApi.createOrder(orderData);
+
+      // Store customer phone in localStorage for order filtering
+      if (typeof window !== "undefined") {
+        localStorage.setItem("customer_phone", phone.trim());
+      }
+
+      // Clear cart
+      clearCart();
+
+      // Redirect to confirmation page with order number
+      router.push(
+        `/order-confirmation?orderNumber=${encodeURIComponent(
+          createdOrder.orderNumber
+        )}`
+      );
+    } catch (err: any) {
+      console.error("Failed to create order:", err);
+      setError(err.message || "Failed to place order. Please try again.");
+      setIsProcessing(false);
+    }
   };
 
   const deliveryCost = 0; // Delivery fee removed
@@ -64,6 +159,14 @@ export default function CheckoutPage() {
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-[#4CAF50] mb-8 sm:mb-10 tracking-tight">
           Checkout
         </h1>
+
+        {/* Error Alert */}
+        {error && (
+          <Alert variant="destructive" className="mb-4 sm:mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -294,7 +397,14 @@ export default function CheckoutPage() {
                 disabled={isProcessing}
                 className="w-full bg-[#4CAF50] hover:bg-[#45a049] text-white py-5 text-lg font-medium rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.12)] transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isProcessing ? "Processing..." : "Complete Order"}
+                {isProcessing ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                    Processing Order...
+                  </span>
+                ) : (
+                  "Complete Order"
+                )}
               </Button>
             </div>
           </div>

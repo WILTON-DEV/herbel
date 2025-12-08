@@ -3,6 +3,7 @@
 import type React from "react";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { AdminHeader } from "@/components/admin-header";
+import { Toaster } from "@/components/ui/sonner";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -54,11 +55,10 @@ export default function AdminLayout({
       <div className="flex flex-1 flex-col overflow-hidden">
         <AdminHeader onMenuClick={() => setSidebarOpen((v) => !v)} />
         <main className="flex-1 overflow-y-auto bg-gray-50 p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto">
-            {children}
-          </div>
+          <div className="max-w-7xl mx-auto">{children}</div>
         </main>
       </div>
+      <Toaster />
     </div>
   );
 }

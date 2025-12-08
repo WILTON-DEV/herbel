@@ -26,6 +26,13 @@ export default function SalesPage() {
 
   useEffect(() => {
     loadData();
+
+    // Auto-refresh sales every 15 seconds to catch new sales from order payments
+    const interval = setInterval(() => {
+      loadData();
+    }, 15000);
+
+    return () => clearInterval(interval);
   }, [filterDate]);
 
   const loadData = async () => {
@@ -106,7 +113,9 @@ export default function SalesPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Sales Records</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Sales Records
+          </h1>
           <p className="text-muted-foreground">
             Track daily sales by branch with payment details
           </p>
@@ -204,7 +213,9 @@ export default function SalesPage() {
       {/* Sales by Branch */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold">Sales by Branch</CardTitle>
+          <CardTitle className="text-lg font-semibold">
+            Sales by Branch
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -223,7 +234,7 @@ export default function SalesPage() {
                     </p>
                   </div>
                   <div className="text-right">
-            <div className="text-2xl font-semibold tracking-tight">
+                    <div className="text-2xl font-semibold tracking-tight">
                       {formatUGX(item.total)}
                     </div>
                     <p className="text-xs text-muted-foreground">Total</p>
@@ -256,7 +267,9 @@ export default function SalesPage() {
       {/* Detailed Sales Records */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold">Detailed Sales Records</CardTitle>
+          <CardTitle className="text-lg font-semibold">
+            Detailed Sales Records
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -264,9 +277,7 @@ export default function SalesPage() {
               <thead>
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 font-medium">Date</th>
-                  <th className="text-left py-3 px-4 font-medium">
-                    Order #
-                  </th>
+                  <th className="text-left py-3 px-4 font-medium">Order #</th>
                   <th className="text-left py-3 px-4 font-medium">Branch</th>
                   <th className="text-left py-3 px-4 font-medium">Type</th>
                   <th className="text-left py-3 px-4 font-medium">Amount</th>
@@ -279,61 +290,73 @@ export default function SalesPage() {
               <tbody>
                 {filteredSales.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-6 text-center text-muted-foreground">
+                    <td
+                      colSpan={7}
+                      className="py-6 text-center text-muted-foreground"
+                    >
                       No sales records found
                     </td>
                   </tr>
                 ) : (
                   filteredSales.map((sale) => {
                     const order = orders.find((o) => o.id === sale.orderId);
-                  return (
-                    <tr key={sale.id} className="border-b last:border-0">
-                      <td className="py-3 px-4 text-sm text-muted-foreground">
-                        {sale.date.toLocaleDateString()}
-                      </td>
-                      <td className="py-3 px-4 font-medium">
-                        {order?.orderNumber || sale.orderId}
-                      </td>
-                      <td className="py-3 px-4">
-                        {branches.find((b) => b.id === sale.branch)?.name ||
-                          sale.branch}
-                      </td>
-                      <td className="py-3 px-4">
-                        {sale.deliveryMethod === "pickup" ? (
-                          <div className="flex items-center gap-1 text-sm">
-                            <StoreIcon className="h-4 w-4 text-[#4CAF50]" />
-                            <span>Pickup</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1 text-sm">
-                            <TruckIcon className="h-4 w-4 text-[#4CAF50]" />
-                            <span>Delivery</span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-3 px-4 font-medium">
-                        {formatUGX(sale.amount)}
-                      </td>
-                      <td className="py-3 px-4">
-                        {sale.status === "cash-received" ? (
-                          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                            Cash (Sin)
-                          </Badge>
-                        ) : sale.status === "mobile-money-sent" ? (
-                            <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
-                            MoMo (Mum)
-                          </Badge>
-                        ) : (
-                            <Badge variant="outline" className="bg-muted text-muted-foreground">
-                            Pending
-                          </Badge>
-                        )}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-muted-foreground">
-                        {sale.recordedBy}
-                      </td>
-                    </tr>
-                  );
+                    return (
+                      <tr key={sale.id} className="border-b last:border-0">
+                        <td className="py-3 px-4 text-sm text-muted-foreground">
+                          {sale.date.toLocaleDateString()}
+                        </td>
+                        <td className="py-3 px-4 font-medium">
+                          {order?.orderNumber || sale.orderId}
+                        </td>
+                        <td className="py-3 px-4">
+                          {branches.find((b) => b.id === sale.branch)?.name ||
+                            sale.branch}
+                        </td>
+                        <td className="py-3 px-4">
+                          {sale.deliveryMethod === "pickup" ? (
+                            <div className="flex items-center gap-1 text-sm">
+                              <StoreIcon className="h-4 w-4 text-[#4CAF50]" />
+                              <span>Pickup</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 text-sm">
+                              <TruckIcon className="h-4 w-4 text-[#4CAF50]" />
+                              <span>Delivery</span>
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 font-medium">
+                          {formatUGX(sale.amount)}
+                        </td>
+                        <td className="py-3 px-4">
+                          {sale.status === "cash-received" ? (
+                            <Badge
+                              variant="outline"
+                              className="bg-primary/10 text-primary border-primary/20"
+                            >
+                              Cash (Sin)
+                            </Badge>
+                          ) : sale.status === "mobile-money-sent" ? (
+                            <Badge
+                              variant="outline"
+                              className="bg-accent/10 text-accent border-accent/20"
+                            >
+                              MoMo (Mum)
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="outline"
+                              className="bg-muted text-muted-foreground"
+                            >
+                              Pending
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground">
+                          {sale.recordedBy}
+                        </td>
+                      </tr>
+                    );
                   })
                 )}
               </tbody>
