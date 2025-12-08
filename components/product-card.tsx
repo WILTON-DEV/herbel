@@ -15,6 +15,8 @@ interface ProductCardProps {
   image?: string;
   rating?: number;
   reviews?: number;
+  showSaleTag?: boolean;
+  isFlashSale?: boolean;
 }
 
 export function ProductCard({
@@ -24,6 +26,8 @@ export function ProductCard({
   image = "/placeholder.svg",
   rating = 4.5,
   reviews = 0,
+  showSaleTag = false,
+  isFlashSale = false,
 }: ProductCardProps) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
@@ -35,10 +39,21 @@ export function ProductCard({
   };
 
   return (
-    <div className=" rounded-lg overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full border border-gray-100">
+    <div
+      className={`rounded-lg overflow-hidden flex flex-col h-full border transition-all duration-300 ${
+        isFlashSale
+          ? "border-gray-100 hover:border-red-500 hover:shadow-lg"
+          : "border-gray-100 hover:shadow-md"
+      }`}
+    >
       <Link href={`/product/${id}`} className="block">
         <div className="relative aspect-square bg-[#f5f1e8] p-2">
           <Image src={image} alt={name} fill className="object-cover rounded" />
+          {showSaleTag && (
+            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold z-10">
+              SALE
+            </div>
+          )}
         </div>
       </Link>
 
@@ -76,7 +91,11 @@ export function ProductCard({
             onClick={handleAddToCart}
             size="sm"
             className={`w-full text-[11px] sm:text-xs py-1.5 sm:py-2 h-auto ${
-              added
+              isFlashSale
+                ? added
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-red-500 hover:bg-red-600"
+                : added
                 ? "bg-primary hover:bg-primary"
                 : "bg-primary hover:bg-primary"
             } text-white transition-colors`}

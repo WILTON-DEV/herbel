@@ -364,10 +364,10 @@ export default function OrdersPage() {
                             <SelectContent>
                               <SelectItem value="pending">Pending</SelectItem>
                               <SelectItem value="cash">
-                                Cash (Sin) - Received
+                                Cash - Received
                               </SelectItem>
                               <SelectItem value="mobile-money">
-                                MoMo (Mum) - Received
+                                Paid via MM
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -527,13 +527,13 @@ export default function OrdersPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="pending">
-                          Pending - Not Paid
+                          Pending
                         </SelectItem>
                         <SelectItem value="cash">
-                          Cash (Sin) - Received at Shop
+                          Cash - Received
                         </SelectItem>
                         <SelectItem value="mobile-money">
-                          Mobile Money (Mum) - Sent to Boss
+                          Paid via MM
                         </SelectItem>
                       </SelectContent>
                     </Select>

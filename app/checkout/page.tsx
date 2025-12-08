@@ -55,25 +55,25 @@ export default function CheckoutPage() {
     router.push("/order-confirmation");
   };
 
-  const deliveryCost = deliveryMethod === "delivery" ? 5000 : 0;
+  const deliveryCost = 0; // Delivery fee removed
   const finalTotal = totalPrice + deliveryCost;
 
   return (
     <div className="min-h-screen bg-[#f5f1e8]">
-      <div className="container mx-auto px-4 lg:px-8 py-4 sm:py-6 lg:py-10">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#4CAF50] mb-4 sm:mb-6">
+      <div className="container mx-auto px-4 lg:px-8 py-8 sm:py-10 lg:py-14">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-[#4CAF50] mb-8 sm:mb-10 tracking-tight">
           Checkout
         </h1>
 
         <form
           onSubmit={handleSubmit}
-          className="grid lg:grid-cols-3 gap-4 sm:gap-6"
+          className="grid lg:grid-cols-3 gap-6 sm:gap-8"
         >
           {/* Left Column - Order Details */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-5">
+          <div className="lg:col-span-2 space-y-8">
             {/* Delivery Method Selection */}
-            <div className=" rounded-lg sm:rounded-xl p-4 sm:p-5 lg:p-6">
-              <h2 className="text-base sm:text-lg lg:text-xl font-bold text-[#4CAF50] mb-4 sm:mb-5">
+            <div className="bg-white rounded-2xl p-8 lg:p-10 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <h2 className="text-xl sm:text-2xl font-medium text-[#4CAF50] mb-8 tracking-tight">
                 Choose Delivery Method
               </h2>
               <RadioGroup
@@ -83,40 +83,48 @@ export default function CheckoutPage() {
                 }
               >
                 <div className="space-y-3">
-                  <div className="flex items-start space-x-2 sm:space-x-3 p-3 sm:p-4 border-2 border-[#1a3a2e] rounded-lg hover:bg-[#f5f1e8] transition-colors cursor-pointer">
+                  <div className={`group flex items-start gap-5 p-6 rounded-2xl border transition-all duration-300 ease-out cursor-pointer ${
+                    deliveryMethod === "pickup"
+                      ? "border-[#4CAF50]/30 bg-[#f7fdf8]"
+                      : "border-gray-200/80 bg-white hover:border-[#4CAF50]/20 hover:bg-gray-50/50"
+                  }`}>
                     <RadioGroupItem
                       value="pickup"
                       id="pickup"
-                      className="mt-0.5 sm:mt-1"
+                      className="mt-1"
                     />
                     <Label htmlFor="pickup" className="flex-1 cursor-pointer">
-                      <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
-                        <StoreIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[#c9a961]" />
-                        <span className="font-semibold text-sm sm:text-base">
+                      <div className="flex items-center gap-3 mb-2">
+                        <StoreIcon className="w-5 h-5 text-[#4CAF50]" />
+                        <span className="font-medium text-base sm:text-lg text-gray-900">
                           Pickup from Store
                         </span>
                       </div>
-                      <span className="text-xs sm:text-sm text-gray-600">
+                      <span className="text-sm text-gray-500 leading-relaxed">
                         Free pickup from any branch
                       </span>
                     </Label>
                   </div>
 
-                  <div className="flex items-start space-x-2 sm:space-x-3 p-3 sm:p-4 border-2 border-gray-300 rounded-lg hover:bg-[#f5f1e8] transition-colors cursor-pointer">
+                  <div className={`group flex items-start gap-5 p-6 rounded-2xl border transition-all duration-300 ease-out cursor-pointer ${
+                    deliveryMethod === "delivery"
+                      ? "border-[#4CAF50]/30 bg-[#f7fdf8]"
+                      : "border-gray-200/80 bg-white hover:border-[#4CAF50]/20 hover:bg-gray-50/50"
+                  }`}>
                     <RadioGroupItem
                       value="delivery"
                       id="delivery"
-                      className="mt-0.5 sm:mt-1"
+                      className="mt-1"
                     />
                     <Label htmlFor="delivery" className="flex-1 cursor-pointer">
-                      <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
-                        <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[#c9a961]" />
-                        <span className="font-semibold text-sm sm:text-base">
+                      <div className="flex items-center gap-3 mb-2">
+                        <MapPinIcon className="w-5 h-5 text-[#4CAF50]" />
+                        <span className="font-medium text-base sm:text-lg text-gray-900">
                           Home Delivery
                         </span>
                       </div>
-                      <span className="text-xs sm:text-sm text-gray-600">
-                        Fee: UGX 5,000 (Covered by buyer)
+                      <span className="text-sm text-gray-500 leading-relaxed">
+                        Free delivery
                       </span>
                     </Label>
                   </div>
@@ -125,54 +133,56 @@ export default function CheckoutPage() {
 
               {/* Branch Selection - Only show if pickup */}
               {deliveryMethod === "pickup" && (
-                <div className="mt-4 sm:mt-5 space-y-2 sm:space-y-3">
-                  <h3 className="font-semibold text-[#4CAF50] text-sm sm:text-base">
+                <div className="mt-8 space-y-4">
+                  <h3 className="font-medium text-[#4CAF50] text-lg tracking-tight">
                     Select Branch
                   </h3>
-                  {branches.map((branch) => (
-                    <div
-                      key={branch.id}
-                      onClick={() => setSelectedBranch(branch.id)}
-                      className={`p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        selectedBranch === branch.id
-                          ? "border-[#c9a961] bg-[#f5f1e8]"
-                          : "border-gray-200 hover:border-[#c9a961]"
-                      }`}
-                    >
-                      <div className="flex items-start gap-2 sm:gap-3">
-                        <div
-                          className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center mt-0.5 flex-shrink-0 ${
-                            selectedBranch === branch.id
-                              ? "border-[#c9a961] bg-[#c9a961]"
-                              : "border-gray-300"
-                          }`}
-                        >
-                          {selectedBranch === branch.id && (
-                            <CheckIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-[#4CAF50] text-sm sm:text-base">
-                            {branch.name}
+                  <div className="space-y-3">
+                    {branches.map((branch) => (
+                      <div
+                        key={branch.id}
+                        onClick={() => setSelectedBranch(branch.id)}
+                        className={`p-6 rounded-2xl border cursor-pointer transition-all duration-300 ease-out ${
+                          selectedBranch === branch.id
+                            ? "border-[#4CAF50]/30 bg-[#f7fdf8]"
+                            : "border-gray-200/80 bg-white hover:border-[#4CAF50]/20 hover:bg-gray-50/50"
+                        }`}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div
+                            className={`w-5 h-5 rounded-full border flex items-center justify-center mt-0.5 flex-shrink-0 transition-all duration-300 ${
+                              selectedBranch === branch.id
+                                ? "border-[#4CAF50] bg-[#4CAF50]"
+                                : "border-gray-300 bg-white"
+                            }`}
+                          >
+                            {selectedBranch === branch.id && (
+                              <CheckIcon className="w-3 h-3 text-white" />
+                            )}
                           </div>
-                          <div className="text-xs sm:text-sm text-gray-600">
-                            {branch.address}
-                          </div>
-                          <div className="text-xs sm:text-sm text-gray-600">
-                            {branch.phone}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-[#4CAF50] text-base sm:text-lg mb-2">
+                              {branch.name}
+                            </div>
+                            <div className="text-sm text-gray-500 mb-1 leading-relaxed">
+                              {branch.address}
+                            </div>
+                            <div className="text-sm text-gray-500 leading-relaxed">
+                              {branch.phone}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
 
               {/* Location Input - Only show if delivery */}
               {deliveryMethod === "delivery" && (
-                <div className="mt-4 sm:mt-5 space-y-3 sm:space-y-4">
+                <div className="mt-8 space-y-5">
                   <div>
-                    <Label className="text-[#4CAF50] font-semibold mb-2 block text-sm sm:text-base">
+                    <Label className="text-[#4CAF50] font-medium mb-4 block text-lg tracking-tight">
                       Delivery Location
                     </Label>
                     <Input
@@ -180,14 +190,14 @@ export default function CheckoutPage() {
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       required
-                      className="border-2 border-[#1a3a2e] py-2.5 sm:py-3 text-sm sm:text-base"
+                      className="border border-gray-200 rounded-xl py-4 text-base focus:border-[#4CAF50] focus:ring-1 focus:ring-[#4CAF50]/10 transition-all duration-300 ease-out"
                     />
-                    <p className="text-xs sm:text-sm text-gray-600 mt-2 flex items-start gap-1.5 sm:gap-2">
+                    <p className="text-sm text-gray-500 mt-4 flex items-start gap-2 leading-relaxed">
                       <span className="font-medium text-[#4CAF50] flex-shrink-0">
                         Note:
                       </span>
                       <span>
-                        Delivery cost covered by buyer. We'll confirm location.
+                        Free delivery. We'll confirm location.
                       </span>
                     </p>
                   </div>
@@ -196,13 +206,13 @@ export default function CheckoutPage() {
             </div>
 
             {/* Contact Information */}
-            <div className=" rounded-lg sm:rounded-xl p-4 sm:p-5 lg:p-6">
-              <h2 className="text-base sm:text-lg lg:text-xl font-bold text-[#4CAF50] mb-4 sm:mb-5">
+            <div className="bg-white rounded-2xl p-8 lg:p-10 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <h2 className="text-xl sm:text-2xl font-medium text-[#4CAF50] mb-8 tracking-tight">
                 Contact Information
               </h2>
-              <div className="space-y-3 sm:space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <Label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 block">
+                  <Label className="text-base font-medium text-gray-700 mb-3 block tracking-tight">
                     Full Name
                   </Label>
                   <Input
@@ -210,11 +220,11 @@ export default function CheckoutPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="border-2 border-gray-300 py-2.5 sm:py-3 text-sm sm:text-base"
+                    className="border border-gray-200 rounded-xl py-4 text-base focus:border-[#4CAF50] focus:ring-1 focus:ring-[#4CAF50]/10 transition-all duration-300 ease-out"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 block">
+                  <Label className="text-base font-medium text-gray-700 mb-3 block tracking-tight">
                     Phone Number
                   </Label>
                   <Input
@@ -223,11 +233,11 @@ export default function CheckoutPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
-                    className="border-2 border-gray-300 py-2.5 sm:py-3 text-sm sm:text-base"
+                    className="border border-gray-200 rounded-xl py-4 text-base focus:border-[#4CAF50] focus:ring-1 focus:ring-[#4CAF50]/10 transition-all duration-300 ease-out"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 block">
+                  <Label className="text-base font-medium text-gray-700 mb-3 block tracking-tight">
                     Email (Optional)
                   </Label>
                   <Input
@@ -235,7 +245,7 @@ export default function CheckoutPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="border-2 border-gray-300 py-2.5 sm:py-3 text-sm sm:text-base"
+                    className="border border-gray-200 rounded-xl py-4 text-base focus:border-[#4CAF50] focus:ring-1 focus:ring-[#4CAF50]/10 transition-all duration-300 ease-out"
                   />
                 </div>
               </div>
@@ -244,42 +254,36 @@ export default function CheckoutPage() {
 
           {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
-            <div className=" rounded-lg sm:rounded-xl p-4 sm:p-5 sticky top-20">
-              <h2 className="text-base sm:text-lg lg:text-xl font-bold text-[#4CAF50] mb-4 sm:mb-5">
+            <div className="bg-white rounded-2xl p-8 lg:p-10 shadow-[0_1px_3px_rgba(0,0,0,0.05)] sticky top-28">
+              <h2 className="text-xl sm:text-2xl font-medium text-[#4CAF50] mb-8 tracking-tight">
                 Order Summary
               </h2>
-              <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-5">
-                {items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex justify-between text-xs sm:text-sm"
-                  >
-                    <span className="text-gray-600 flex-1 line-clamp-1 pr-2">
-                      {item.name} x {item.quantity}
-                    </span>
-                    <span className="font-medium flex-shrink-0">
-                      {formatUGX(item.price * item.quantity)}
-                    </span>
-                  </div>
-                ))}
-                <div className="border-t pt-2 sm:pt-3 space-y-1.5 sm:space-y-2">
-                  <div className="flex justify-between text-xs sm:text-sm">
+              <div className="space-y-6 mb-8">
+                <div className="space-y-4">
+                  {items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex justify-between items-start text-base"
+                    >
+                      <span className="text-gray-700 flex-1 line-clamp-2 pr-4 leading-relaxed">
+                        {item.name} x {item.quantity}
+                      </span>
+                      <span className="font-medium text-gray-900 flex-shrink-0">
+                        {formatUGX(item.price * item.quantity)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="border-t border-gray-100 pt-6 space-y-4">
+                  <div className="flex justify-between text-base">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">{formatUGX(totalPrice)}</span>
+                    <span className="font-medium text-gray-900">{formatUGX(totalPrice)}</span>
                   </div>
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-gray-600">
-                      {deliveryMethod === "delivery" ? "Delivery" : "Pickup"}
-                    </span>
-                    <span className="font-medium">
-                      {formatUGX(deliveryCost)}
-                    </span>
-                  </div>
-                  <div className="border-t pt-2 sm:pt-3 flex justify-between">
-                    <span className="text-sm sm:text-base lg:text-lg font-bold text-[#4CAF50]">
+                  <div className="border-t border-gray-100 pt-6 flex justify-between items-center">
+                    <span className="text-lg sm:text-xl font-semibold text-[#4CAF50] tracking-tight">
                       Total
                     </span>
-                    <span className="text-sm sm:text-base lg:text-lg font-bold text-[#4CAF50]">
+                    <span className="text-lg sm:text-xl font-semibold text-[#4CAF50] tracking-tight">
                       {formatUGX(finalTotal)}
                     </span>
                   </div>
@@ -288,7 +292,7 @@ export default function CheckoutPage() {
               <Button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full bg-primary hover:bg-primary text-white py-2.5 sm:py-3 text-sm sm:text-base"
+                className="w-full bg-[#4CAF50] hover:bg-[#45a049] text-white py-5 text-lg font-medium rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.12)] transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? "Processing..." : "Complete Order"}
               </Button>

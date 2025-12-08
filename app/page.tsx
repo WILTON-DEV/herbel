@@ -8,6 +8,8 @@ import { ProductCard } from "@/components/product-card";
 import { Footer } from "@/components/footer";
 import { inventory } from "@/lib/inventory";
 import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -19,17 +21,39 @@ export default function Home() {
             <CategorySidebar />
           </div>
 
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-6">
             <PromoHero />
           </div>
 
-          <div className="lg:col-span-2 relative bg-primary">
-            <Image
-              src="https://res.cloudinary.com/dkz73xkbr/image/upload/v1761716224/freepik__create-a-bright-modern-and-highenergy-ecommerce-ad__86227_l895hl.png"
-              alt="adds images"
-              className="object-center object-contain"
-              fill
-            />
+          <div className="lg:col-span-4">
+            <div className="bg-primary rounded-xl lg:rounded-2xl p-6 lg:p-8 h-full flex flex-col">
+              <div className="flex-1 space-y-5">
+                <div className="text-xs lg:text-sm font-semibold text-white/90 uppercase tracking-wide">
+                  PREMIUM QUALITY
+                </div>
+                <h3 className="text-xl lg:text-2xl font-bold text-white leading-tight">
+                  Natural Botanical Wellness Collection
+                </h3>
+                <p className="text-xs lg:text-sm text-white/80 leading-relaxed">
+                  Experience the power of nature with our carefully curated
+                  selection of organic essential oils and botanical extracts.
+                  Sustainably sourced and ethically produced.
+                </p>
+                <Link href="/shop" className="inline-block mt-2">
+                  <Button className="bg-white/20 hover:bg-white/30 text-white border border-white/30 px-3 py-2 lg:px-4 lg:py-2 text-xs lg:text-sm font-semibold transition-colors">
+                    Explore Collection
+                  </Button>
+                </Link>
+              </div>
+              <div className="mt-8 relative h-36 lg:h-44 rounded-lg overflow-hidden bg-white/5">
+                <Image
+                  src="https://res.cloudinary.com/dkz73xkbr/image/upload/v1761716224/freepik__create-a-bright-modern-and-highenergy-ecommerce-ad__86227_l895hl.png"
+                  alt="Botanical wellness collection"
+                  className="object-contain object-bottom"
+                  fill
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -47,7 +71,7 @@ export default function Home() {
             price="UGX 249,999"
             oldPrice="UGX 350,000"
             discount="30% OFF"
-            image="/premium-essential-oil-bottle-and-packaging-box-gold.jpg"
+            image="https://res.cloudinary.com/dkz73xkbr/image/upload/v1765174961/removed_zpg6yr.png"
             ctaText="Shop Now"
             ctaLink="/shop"
           />
@@ -93,7 +117,7 @@ export default function Home() {
             ctaText="Learn More"
             ctaLink="/shop"
             bgColor="bg-gradient-to-r from-purple-600 to-pink-600"
-            image="/essential-oil-bottles-with-botanical-ingredients-a.jpg"
+            image="https://res.cloudinary.com/dkz73xkbr/image/upload/v1765174961/rm_xzed3w.png"
           />
         </div>
 

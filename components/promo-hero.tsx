@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -36,9 +37,7 @@ export function PromoHero() {
   }, [slides.length]);
 
   return (
-    <div className="relative rounded-xl lg:rounded-2xl overflow-hidden h-[320px] lg:h-[460px] border-0 bg-transparent">
-      {/* subtle backdrop texture */}
-      <div className="pointer-events-none absolute inset-0 " />
+    <div className="relative rounded-xl lg:rounded-2xl overflow-hidden h-[320px] lg:h-[460px] bg-white">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -46,28 +45,30 @@ export function PromoHero() {
             index === currentSlide ? "opacity-100" : "opacity-0"
           }`}
         >
-          <div className="container mx-auto h-full grid grid-cols-1 lg:grid-cols-2 items-center gap-2 px-4 ">
-            {/* Right visual - hidden on mobile */}
-            <div className="relative hidden lg:block h-full">
-              <img
-                src={slide.image || "/placeholder.svg"}
+          <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+            {/* Left: Image */}
+            <div className="relative h-full hidden lg:block">
+              <Image
+                src={slide.image}
                 alt={slide.description}
-                className="w-full h-full object-cover object-center"
+                fill
+                className="object-cover rounded-l-xl lg:rounded-l-2xl"
               />
             </div>
-            {/* Left copy */}
-            <div className="relative z-10 p-3 lg:p-4  h-full">
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1 rounded-full text-xs tracking-wide uppercase mb-4 shadow-sm">
+
+            {/* Right: Content */}
+            <div className="flex flex-col justify-center p-4 lg:p-6 h-full">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1 rounded-full text-xs tracking-wide uppercase mb-3 shadow-sm w-fit">
                 {slide.title}
               </div>
-              <h2 className="text-xl lg:text-5xl font-extrabold text-primary leading-tight mb-2 lg:mb-3">
+              <h2 className="text-2xl lg:text-4xl font-extrabold text-primary leading-tight mb-2 lg:mb-3">
                 {slide.subtitle}
               </h2>
-              <p className="text-sm lg:text-xl text-primary/80 mb-2 lg:mb-3">
+              <p className="text-sm lg:text-lg text-primary/80 mb-3 lg:mb-4">
                 {slide.description}
               </p>
-              <div className="flex flex-wrap items-center gap-2 lg:gap-3 mb-4 lg:mb-8">
-                <span className="text-3xl font-extrabold text-primary">
+              <div className="flex flex-wrap items-center gap-2 lg:gap-3 mb-4 lg:mb-6">
+                <span className="text-2xl lg:text-3xl font-extrabold text-primary">
                   {slide.price}
                 </span>
                 <span className="text-base lg:text-lg text-primary/60 line-through">
@@ -77,28 +78,31 @@ export function PromoHero() {
                   {slide.badge}
                 </span>
               </div>
-              <Link href="/shop">
-                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-3 lg:px-8 lg:py-6 text-xs lg:text-lg">
-                  Shop Now
-                </Button>
-              </Link>
-              <span className="ml-2 lg:ml-4 text-xs lg:text-sm text-primary/70">
-                Free delivery over UGX 50k
-              </span>
+              <div className="flex items-center gap-3">
+                <Link href="/shop">
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 lg:px-6 lg:py-3 text-sm lg:text-base">
+                    Shop Now
+                  </Button>
+                </Link>
+                <span className="text-xs lg:text-sm text-primary/70">
+                  Free delivery over UGX 50k
+                </span>
+              </div>
             </div>
           </div>
         </div>
       ))}
 
       {/* Carousel indicators */}
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
             className={`h-2 rounded-full transition-all ${
-              index === currentSlide ? "bg-primary w-8" : "bg-black/20 w-2"
+              index === currentSlide ? "bg-primary w-8" : "bg-gray-300 w-2"
             }`}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>

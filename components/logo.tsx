@@ -14,12 +14,13 @@ export function Logo({
   const dropperColor = variant === "white" ? "#ffffff" : "#C9A961";
 
   return (
-    <div className={`flex items-center ${className}`}>
+    <div className={`flex items-center gap-2 ${className}`}>
       <Image
         src="https://res.cloudinary.com/dkz73xkbr/image/upload/v1761719143/Org_Gold__1__page-0001-removebg-preview_jscxil.png"
-        height={100}
-        width={100}
+        height={75}
+        width={75}
         alt="company logo"
+        className=""
       />
     </div>
   );

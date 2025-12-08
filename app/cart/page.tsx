@@ -111,13 +111,9 @@ export default function CartPage() {
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-medium">{formatUGX(totalPrice)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Delivery</span>
-                  <span className="font-medium">{formatUGX(5000)}</span>
-                </div>
                 <div className="border-t pt-3 flex justify-between text-base sm:text-lg font-bold text-[#1a3a2e]">
                   <span>Total</span>
-                  <span>{formatUGX(totalPrice + 5000)}</span>
+                  <span>{formatUGX(totalPrice)}</span>
                 </div>
               </div>
 

@@ -822,13 +822,22 @@ export const productsApi = {
     return products.find((p) => p.id === id) || null;
   },
 
-  createProduct: async (productData: Omit<Product, "id" | "createdAt" | "updatedAt">): Promise<Product> => {
+  createProduct: async (productData: Omit<Product, "id" | "productNumber" | "createdAt" | "updatedAt">): Promise<Product> => {
     await delay();
     const products = getFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, []);
+    
+    // Generate unique product number
+    const generateProductNumber = () => {
+      const prefix = "PRD";
+      const timestamp = Date.now().toString().slice(-6);
+      const random = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
+      return `${prefix}-${timestamp}-${random}`;
+    };
     
     const newProduct: Product = {
       ...productData,
       id: `prod_${Date.now()}`,
+      productNumber: productData.productNumber || generateProductNumber(),
       createdAt: new Date(),
       updatedAt: new Date(),
     };

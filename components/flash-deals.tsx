@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { inventory } from "@/lib/inventory";
 import { ProductCard } from "@/components/product-card";
-import { Button } from "@/components/ui/button";
+import { Zap } from "lucide-react";
 
 export function FlashDeals() {
   const [timeLeft, setTimeLeft] = useState({
@@ -30,30 +30,48 @@ export function FlashDeals() {
   }, []);
 
   return (
-    <div className=" rounded-lg  overflow-hidden">
-      <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between flex-wrap gap-2">
-        <h2 className="text-lg lg:text-xl font-bold">⚡ Flash Sales</h2>
+    <div className="rounded-lg overflow-hidden">
+      <div className="bg-red-500 text-white px-3 lg:px-4 py-2 lg:py-2.5 rounded-t-lg flex items-center justify-between flex-wrap gap-2">
+        {/* Left: Flash Sales with icon */}
+        <div className="flex items-center gap-1.5">
+          <Zap className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+          <h2 className="text-base lg:text-lg font-bold">Flash Sales</h2>
+        </div>
+
+        {/* Center: Time Left with countdown boxes */}
         <div className="flex items-center gap-2">
-          <span className="text-xs lg:text-sm">Time Left:</span>
-          <div className="flex gap-1">
-            <div className=" text-red-600 px-2 py-1 rounded-md font-bold text-xs lg:text-sm">
-              {String(timeLeft.hours).padStart(2, "0")}h
+          <span className="text-xs lg:text-sm">Time left</span>
+          <div className="flex gap-1.5">
+            {/* Hours Box */}
+            <div className="bg-red-600 rounded-md px-2 py-1.5 text-center min-w-[50px]">
+              <div className="text-sm lg:text-base font-bold">
+                {String(timeLeft.hours).padStart(2, "0")}
+              </div>
+              <div className="text-[10px] lg:text-xs">Hours</div>
             </div>
-            <div className=" text-red-600 px-2 py-1 rounded-md font-bold text-xs lg:text-sm">
-              {String(timeLeft.minutes).padStart(2, "0")}m
+            {/* Minutes Box */}
+            <div className="bg-red-600 rounded-md px-2 py-1.5 text-center min-w-[50px]">
+              <div className="text-sm lg:text-base font-bold">
+                {String(timeLeft.minutes).padStart(2, "0")}
+              </div>
+              <div className="text-[10px] lg:text-xs">Mins</div>
             </div>
-            <div className=" text-red-600 px-2 py-1 rounded-md font-bold text-xs lg:text-sm">
-              {String(timeLeft.seconds).padStart(2, "0")}s
+            {/* Seconds Box */}
+            <div className="bg-red-600 rounded-md px-2 py-1.5 text-center min-w-[50px]">
+              <div className="text-sm lg:text-base font-bold">
+                {String(timeLeft.seconds).padStart(2, "0")}
+              </div>
+              <div className="text-[10px] lg:text-xs">Secs</div>
             </div>
           </div>
         </div>
-        <Link href="/shop?filter=flash-deals">
-          <Button
-            variant="ghost"
-            className="text-white hover:/20 text-xs lg:text-sm"
-          >
-            See All →
-          </Button>
+
+        {/* Right: See All */}
+        <Link
+          href="/shop?filter=flash-deals"
+          className="text-white hover:text-yellow-200 text-xs lg:text-sm font-medium transition-colors"
+        >
+          See All &gt;
         </Link>
       </div>
 
@@ -69,6 +87,8 @@ export function FlashDeals() {
               image={item.image || "/placeholder.svg"}
               rating={4.5}
               reviews={Math.floor(Math.random() * 100) + 50}
+              showSaleTag={true}
+              isFlashSale={true}
             />
           );
         })}

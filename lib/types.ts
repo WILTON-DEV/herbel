@@ -203,6 +203,7 @@ export type Customer = {
 // Product type
 export type Product = {
   id: string;
+  productNumber: string; // Unique product number/SKU
   name: string;
   description: string;
   category: ProductCategory;

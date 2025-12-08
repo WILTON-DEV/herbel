@@ -2,6 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { SearchIcon, ShoppingCartIcon } from "@/components/icons";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
@@ -84,7 +89,7 @@ export function Header() {
                   <Input
                     type="search"
                     placeholder="Search products"
-                    className="pl-9"
+                    className="min-w-[200px]"
                     // no onSubmit here; wire up when ready
                   />
                 </div>
@@ -166,22 +171,14 @@ export function Header() {
             <Logo />
           </Link>
 
-          {/* Desktop Search */}
-          <div className="hidden lg:flex flex-1 max-w-xl mx-8">
-            <div className="relative w-full">
-              <Input
-                type="search"
-                placeholder="Search products..."
-                className="w-full min-w-[300px] pr-10"
-              />
-              {/* <Button
-                size="icon"
-                variant="ghost"
-                className="absolute right-0 top-0 h-full"
-              >
-                <SearchIcon className="w-5 h-5" />
-              </Button> */}
-            </div>
+          {/* Desktop Search - Centered */}
+          <div className="hidden lg:flex flex-1 justify-center items-center">
+            <InputGroup className="w-full max-w-lg min-w-[300px]">
+              <InputGroupAddon align="inline-start">
+                <Search className="h-4 w-4" />
+              </InputGroupAddon>
+              <InputGroupInput type="search" placeholder="Search products..." />
+            </InputGroup>
           </div>
 
           {/* Right Actions */}
