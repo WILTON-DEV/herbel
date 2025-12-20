@@ -25,7 +25,7 @@ import { PlusIcon, EditIcon, TrashIcon } from "@/components/icons";
 import Image from "next/image";
 import { formatUGX } from "@/lib/inventory";
 import { useState, useEffect } from "react";
-import { productsApi } from "@/lib/mockApi";
+import { productsApi } from "@/lib/api-client";
 import type { Product, ProductCategory } from "@/lib/types";
 import { productCategories } from "@/lib/types";
 

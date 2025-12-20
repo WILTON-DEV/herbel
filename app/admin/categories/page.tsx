@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { PlusIcon, EditIcon, TrashIcon } from "@/components/icons";
 import { useState, useEffect } from "react";
-import { categoriesApi } from "@/lib/mockApi";
+import { categoriesApi } from "@/lib/api-client";
 import type { Category } from "@/lib/types";
 
 export default function CategoriesPage() {

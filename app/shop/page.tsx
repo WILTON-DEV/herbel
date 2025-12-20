@@ -1,25 +1,59 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ProductCard } from "@/components/product-card";
-import { inventory } from "@/lib/inventory";
+import { productsApi } from "@/lib/api-client";
 import { productCategories, type ProductCategory } from "@/lib/types";
+import type { Product } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 
 export default function ShopPage() {
   const [selectedCategory, setSelectedCategory] = useState<
     ProductCategory | "all"
   >("all");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const fetchedProducts = await productsApi.getProducts();
+        setProducts(fetchedProducts);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const filteredProducts = useMemo(() => {
-    if (selectedCategory === "all") return inventory;
-    return inventory.filter(
-      (product) =>
-        product.category && product.category.includes(selectedCategory)
-    );
-  }, [selectedCategory]);
+    if (selectedCategory === "all") return products;
+    return products.filter((product) => {
+      if (!product.category) return false;
+      
+      // Handle category as object (from backend)
+      if (typeof product.category === "object") {
+        // Match by slug (e.g., "hormonal-balance") or by category name
+        return (
+          product.category.slug === selectedCategory ||
+          product.category.name?.toLowerCase().replace(/\s+/g, "-") === selectedCategory
+        );
+      }
+      
+      // Handle category as string (legacy/display name)
+      if (typeof product.category === "string") {
+        return product.category.toLowerCase().includes(selectedCategory.toLowerCase());
+      }
+      
+      return false;
+    });
+  }, [products, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-[#f5f1e8] bg-pattern-dots">
@@ -53,12 +87,27 @@ export default function ShopPage() {
                   : ""
               }`}
             >
-              All ({inventory.length})
+              All ({products.length})
             </Button>
             {productCategories.map((cat) => {
-              const count = inventory.filter(
-                (p) => p.category && p.category.includes(cat.id)
-              ).length;
+              const count = products.filter((p) => {
+                if (!p.category) return false;
+                
+                // Handle category as object (from backend)
+                if (typeof p.category === "object") {
+                  return (
+                    p.category.slug === cat.id ||
+                    p.category.name?.toLowerCase().replace(/\s+/g, "-") === cat.id
+                  );
+                }
+                
+                // Handle category as string (legacy/display name)
+                if (typeof p.category === "string") {
+                  return p.category.toLowerCase().includes(cat.id.toLowerCase());
+                }
+                
+                return false;
+              }).length;
               return (
                 <Button
                   key={cat.id}
@@ -92,23 +141,34 @@ export default function ShopPage() {
               {filteredProducts.length} product(s)
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
-            {filteredProducts.map((product) => {
-              const price =
-                product.priceUGX ?? product.priceOptionsUGX?.[0] ?? 0;
-              return (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  price={price}
-                  image={product.image || "/placeholder.svg"}
-                  rating={4.5}
-                  reviews={Math.floor(Math.random() * 100) + 50}
-                />
-              );
-            })}
-          </div>
+          {loading ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading products...</p>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No products found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
+              {filteredProducts.map((product) => {
+                const price = product.priceOptions.length > 0 
+                  ? product.priceOptions[0] 
+                  : product.price;
+                return (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    price={price}
+                    image={product.image || product.images[0] || "/placeholder.svg"}
+                    rating={product.averageRating || 0}
+                    reviews={product.reviewCount || 0}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
     </div>

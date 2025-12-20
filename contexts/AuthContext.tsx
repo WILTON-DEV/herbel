@@ -2,13 +2,13 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { User } from "@/lib/types";
-import { authApi, initializeData } from "@/lib/mockApi";
+import { authApi } from "@/lib/api-client";
 
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
   isAdmin: boolean;
   isAttendant: boolean;
 };
@@ -22,14 +22,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const init = async () => {
       try {
-        // Initialize mock data on app load
-        initializeData();
-        
-        // Check if user is already logged in
-        const currentUser = authApi.getCurrentUser();
+        const currentUser = await authApi.getCurrentUser();
         setUser(currentUser);
       } catch (error) {
         console.error("Failed to initialize auth:", error);
+        setUser(null);
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("herbel_token");
+        }
       } finally {
         setLoading(false);
       }
@@ -38,24 +38,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     init();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const user = await authApi.login(email, password);
-      if (user) {
-        authApi.setCurrentUser(user);
-        setUser(user);
-        return true;
+      const result = await authApi.login(email, password);
+      if (result.user) {
+        setUser(result.user);
+        return { success: true };
       }
-      return false;
-    } catch (error) {
+      return { success: false, error: result.error || "Login failed" };
+    } catch (error: any) {
       console.error("Login failed:", error);
-      return false;
+      const errorMessage = error?.message || error?.toString() || "An unexpected error occurred";
+      return { success: false, error: errorMessage };
     }
   };
 
-  const logout = () => {
-    authApi.logout();
-    setUser(null);
+  const logout = async () => {
+    try {
+      await authApi.logout();
+      setUser(null);
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const value: AuthContextType = {

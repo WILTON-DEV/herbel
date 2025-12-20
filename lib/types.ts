@@ -1,38 +1,20 @@
-// Core types for the Organic Plug application
 
 export type Branch = {
-  id: string;
-  name: string;
+  id: string; 
+  name: string; 
   address: string;
   phone: string;
+  isActive: boolean; 
+  createdAt: Date;
+  updatedAt: Date;
 };
 
-export const branches: Branch[] = [
-  {
-    id: "kampala",
-    name: "Main Branch - Kampala",
-    address: "Kampala Road, Kampala",
-    phone: "0200 804 020",
-  },
-  {
-    id: "entebbe",
-    name: "Entebbe Branch",
-    address: "Entebbe Road, Entebbe",
-    phone: "0200 804 021",
-  },
-  {
-    id: "ntinda",
-    name: "Ntinda Branch",
-    address: "Ntinda Shopping Center, Ntinda",
-    phone: "0200 804 022",
-  },
-  {
-    id: "chengira",
-    name: "Chengira Branch",
-    address: "Chengira, Kampala",
-    phone: "0200 804 023",
-  },
-];
+export const branchNames = {
+  kampala: "Main Branch - Kampala",
+  entebbe: "Entebbe Branch",
+  ntinda: "Ntinda Branch",
+  chengira: "Chengira Branch",
+} as const;
 
 export type ProductCategory =
   | "hormonal-balance"
@@ -122,74 +104,108 @@ export type DeliveryMethod = "pickup" | "delivery";
 export type PaymentMethod = "cash" | "mobile-money" | "pending";
 
 export type Order = {
-  id: string;
-  orderNumber: string;
+  id: string; 
+  orderNumber: string; 
   customerName: string;
   customerPhone: string;
-  customerEmail?: string;
-  items: {
-    productId: string;
-    productName: string;
-    quantity: number;
-    price: number;
-  }[];
-  subtotal: number;
-  deliveryFee: number;
-  total: number;
-  deliveryMethod: DeliveryMethod;
-  branch?: string;
-  location?: string;
-  status: OrderStatus;
-  paymentMethod: PaymentMethod;
-  notes?: string;
+  customerEmail: string | null;
+  deliveryMethod: DeliveryMethod; 
+  branchId: string | null; 
+  location: string | null; 
+  status: OrderStatus; 
+  paymentMethod: PaymentMethod; 
+  subtotal: number; 
+  deliveryFee: number; 
+  total: number; 
+  notes: string | null;
+  source: OrderSource; 
+  createdById: string | null; 
   createdAt: Date;
   updatedAt: Date;
-  source: "website" | "manual"; // From website or manually entered by shop attendant
+  items: OrderItem[];
+  branch?: {
+    id: string;
+    name: string;
+    address: string;
+    phone: string;
+    isActive: boolean;
+  } | null;
 };
 
+export type OrderItem = {
+  id: string; 
+  orderId: string; 
+  productId: string; 
+  productName: string; 
+  quantity: number; 
+  price: number; 
+};
+
+export type OrderSource = "website" | "manual";
+
 export type InventoryItem = {
-  productId: string;
-  branch: string;
-  quantity: number;
-  lastUpdated: Date;
+  id: string; 
+  productId: string; 
+  branchId: string; 
+  quantity: number; 
+  createdAt: Date;
+  lastUpdated: Date; 
 };
 
 export type Expense = {
-  id: string;
-  branch: string;
+  id: string; 
+  branchId: string; 
+  category: ExpenseCategory; 
   description: string;
-  amount: number;
-  category: string;
-  recordedBy: string;
-  date: Date;
+  amount: number; 
+  recordedById: string; 
+  date: Date; 
   createdAt: Date;
+  updatedAt: Date;
 };
+
+export type ExpenseCategory =
+  | "SUPPLIES"
+  | "TRANSPORT"
+  | "UTILITIES"
+  | "SALARIES"
+  | "MARKETING"
+  | "MAINTENANCE"
+  | "OTHER";
 
 export type SalesRecord = {
-  id: string;
-  orderId: string;
-  branch: string;
-  amount: number;
-  paymentMethod: PaymentMethod;
-  deliveryMethod: DeliveryMethod;
-  status: "cash-received" | "mobile-money-sent" | "pending";
-  date: Date;
-  recordedBy: string;
-};
-
-// User & Authentication types
-export type UserRole = "admin" | "attendant";
-
-export type User = {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
-  branch?: string; // Required for attendants, optional for admins
+  id: string; 
+  orderId: string; 
+  branchId: string; 
+  amount: number; 
+  paymentMethod: PaymentMethod; 
+  deliveryMethod: DeliveryMethod; 
+  status: SalesStatus; 
+  recordedById: string; 
+  date: Date; 
   createdAt: Date;
 };
 
-// Customer type
+export type SalesStatus = "cash-received" | "mobile-money-sent" | "pending";
+
+export type UserRole = "admin" | "attendant" | "customer";
+
+export type User = {
+  id: string; 
+  name: string | null;
+  email: string; 
+  emailVerified: boolean;
+  image: string | null;
+  contact: string | null; 
+  role: UserRole; 
+  branchId: string | null; 
+  banned: boolean | null;
+  banReason: string | null;
+  banExpires: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type Customer = {
   id: string;
   name: string;
@@ -200,32 +216,58 @@ export type Customer = {
   joinedDate: Date;
 };
 
-// Product type
 export type Product = {
-  id: string;
-  productNumber: string; // Unique product number/SKU
+  id: string; 
   name: string;
-  description: string;
-  category: ProductCategory;
-  image: string;
-  priceUGX?: number;
-  priceOptionsUGX?: number[];
-  sizeOptions?: string[];
-  stockQuantity?: number;
+  description: string | null;
+  price: number; 
+  stock: number; 
+  image: string | null;
+  images: string[]; 
+  categoryId: string | null; 
+  productNumber: string | null; 
+  priceOptions: number[]; 
+  sizeOptions: string[]; 
+  averageRating: number; 
+  reviewCount: number; 
+  benefits: string[]; 
   createdAt: Date;
   updatedAt: Date;
+  category?: string | {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+  }; 
 };
 
-// Category management type
-export type Category = {
-  id: string;
-  name: string;
-  description: string;
-  productCount: number;
+export type Review = {
+  id: string; 
+  productId: string; 
+  userId: string; 
+  rating: number; 
+  comment: string | null;
   createdAt: Date;
+  updatedAt: Date;
+  user?: {
+    id: string;
+    name: string | null;
+    email: string;
+    image: string | null;
+  };
 };
 
-// Settings type
+export type Category = {
+  id: string; 
+  name: string; 
+  slug: string; 
+  description: string | null;
+  parentId: string | null; 
+  createdAt: Date;
+  updatedAt: Date;
+  productCount?: number; 
+};
+
 export type Settings = {
   storeName: string;
   storeEmail: string;

@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { seedData } from "@/lib/mockApi";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -29,14 +28,15 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const success = await login(email, password);
-      if (success) {
+      const result = await login(email, password);
+      if (result.success) {
         router.push("/admin");
       } else {
-        setError("Invalid email or password");
+        setError(result.error || "Invalid email or password");
       }
-    } catch (err) {
-      setError("An error occurred during login");
+    } catch (err: any) {
+      const errorMessage = err?.message || "An error occurred during login";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -49,14 +49,15 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const success = await login(demoEmail, "password");
-      if (success) {
+      const result = await login(demoEmail, "password");
+      if (result.success) {
         router.push("/admin");
       } else {
-        setError("Demo login failed. Try resetting data below.");
+        setError(result.error || "Demo login failed. Try resetting data below.");
       }
-    } catch (err) {
-      setError("An error occurred during login");
+    } catch (err: any) {
+      const errorMessage = err?.message || "An error occurred during login";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -64,16 +65,9 @@ export default function LoginPage() {
 
   const handleResetData = () => {
     if (typeof window !== "undefined") {
-      // Clear all localStorage keys
-      Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith("herbel_")) {
-          localStorage.removeItem(key);
-        }
-      });
-      // Seed fresh data
-      seedData();
+      localStorage.removeItem("herbel_token");
       setError("");
-      alert("Data reset! Please try logging in again.");
+      alert("Auth token cleared! Please try logging in again.");
     }
   };
 

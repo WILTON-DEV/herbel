@@ -608,14 +608,12 @@ export const seedData = () => {
   };
 };
 
-// Initialize data if not already done
 export const initializeData = () => {
   if (typeof window === "undefined") return null;
 
   const initialized = getFromStorage(STORAGE_KEYS.INITIALIZED, false);
   const users = getFromStorage(STORAGE_KEYS.USERS, []);
 
-  // If not initialized OR if users array is empty, seed data
   if (!initialized || !Array.isArray(users) || users.length === 0) {
     console.log("Initializing demo data...");
     return seedData();
@@ -631,12 +629,10 @@ export const authApi = {
   login: async (email: string, password: string): Promise<User | null> => {
     await delay();
 
-    // Ensure data is initialized
     initializeData();
 
     const users = getFromStorage<User[]>(STORAGE_KEYS.USERS, []);
 
-    // If still no users, force seed
     if (!users || users.length === 0) {
       console.warn("No users found, forcing data initialization...");
       seedData();
@@ -645,7 +641,6 @@ export const authApi = {
       return user || null;
     }
 
-    // In demo, any password works for simplicity
     const user = users.find((u) => u.email === email);
     return user || null;
   },

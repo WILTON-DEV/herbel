@@ -562,7 +562,6 @@ const rawInventory: Omit<InventoryItem, "category">[] = [
   },
 ];
 
-// Add categories to inventory items
 export const inventory: InventoryItem[] = rawInventory.map((item) => ({
   ...item,
   category: getCategoriesForProduct(item.id),
@@ -570,20 +569,16 @@ export const inventory: InventoryItem[] = rawInventory.map((item) => ({
 
 export function formatUGX(value: number) {
   try {
-    // Format as Uganda Shillings (UGX) - explicitly use USh prefix
     const formatted = new Intl.NumberFormat("en-UG", {
       style: "currency",
       currency: "UGX",
       maximumFractionDigits: 0,
     }).format(value);
-    // Ensure we never show dollar signs - replace $ with USh if it appears
     if (formatted.includes("$")) {
       return formatted.replace(/\$/g, "USh");
     }
-    // If it already has USh or UGX, return as is
     return formatted;
   } catch {
-    // Fallback: explicitly use USh prefix
     return `USh ${value.toLocaleString()}`;
   }
 }

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { EyeIcon } from "@/components/icons";
 import { useState, useEffect } from "react";
-import { customersApi, ordersApi } from "@/lib/mockApi";
+import { customersApi, ordersApi } from "@/lib/api-client";
 import type { Customer, Order } from "@/lib/types";
 import { formatUGX } from "@/lib/inventory";
 

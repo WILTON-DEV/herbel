@@ -19,9 +19,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ChevronRight, LogIn, Menu, Search, X } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronRight, LogIn, Menu, Search, X, User, LogOut } from "lucide-react";
 import { Logo } from "@/components/logo";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const categories = [
   { name: "All Products", href: "/shop" },
@@ -38,6 +47,8 @@ const categories = [
 
 export function Header() {
   const { totalItems } = useCart();
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
@@ -46,6 +57,11 @@ export function Header() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
+  };
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -129,14 +145,41 @@ export function Header() {
                 {/* Divider + Account */}
                 <div className="my-4 border-t" />
                 <div className="px-2 pb-2">
-                  <Link
-                    href="/login"
-                    // onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                  >
-                    <LogIn className="h-4 w-4" />
-                    <span>Account / Sign In</span>
-                  </Link>
+                  {mounted && user ? (
+                    <>
+                      <div className="px-3 py-2 mb-2">
+                        <p className="text-sm font-medium text-gray-900">{user.name || "User"}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                      <Link
+                        href="/account/orders"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                      >
+                        <User className="h-4 w-4" />
+                        <span>My Orders</span>
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setOpen(false);
+                        }}
+                        className="flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Log out</span>
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      href="/login"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      <span>Account / Sign In</span>
+                    </Link>
+                  )}
                 </div>
               </nav>
 
@@ -183,25 +226,46 @@ export function Header() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="hidden lg:flex items-center gap-2 text-sm hover:text-[#c9a961] transition-colors"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            {mounted && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="hidden lg:flex items-center gap-2 text-sm hover:text-[#c9a961] transition-colors"
+                  >
+                    <User className="w-5 h-5" />
+                    <span>{user.name || user.email}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="space-y-1">
+                      <p className="font-medium text-sm">{user.name || "User"}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/orders" className="cursor-pointer">
+                      My Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden lg:flex items-center gap-2 text-sm hover:text-[#c9a961] transition-colors"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-              <span>Account</span>
-            </Link>
+                <LogIn className="w-5 h-5" />
+                <span>Sign In</span>
+              </Link>
+            )}
 
             <Link href="/cart" className="relative">
               <ShoppingCartIcon className="w-6 h-6" />

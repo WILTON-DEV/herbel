@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
-import { settingsApi, resetDemoData } from "@/lib/mockApi";
+import { settingsApi } from "@/lib/api-client";
 import type { Settings } from "@/lib/types";
 
 export default function SettingsPage() {
@@ -53,14 +53,7 @@ export default function SettingsPage() {
       return;
     }
 
-    try {
-      resetDemoData();
-      alert("Demo data has been reset! The page will now reload.");
-      window.location.reload();
-    } catch (error) {
-      console.error("Failed to reset demo data:", error);
-      alert("Failed to reset demo data. Please try again.");
-    }
+    alert("Demo data reset is not available with the real API. This feature is only available in mock mode.");
   };
 
   if (loading || !settings) {

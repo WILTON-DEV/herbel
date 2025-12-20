@@ -16,7 +16,7 @@ import {
   salesApi,
   inventoryApi,
   expensesApi,
-} from "@/lib/mockApi";
+} from "@/lib/api-client";
 import type {
   Order,
   Product,

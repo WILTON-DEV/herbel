@@ -5,7 +5,7 @@ import { CheckCircleIcon, PhoneIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ordersApi } from "@/lib/mockApi";
+import { ordersApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
 import type { Order } from "@/lib/types";
 import { branches } from "@/lib/types";

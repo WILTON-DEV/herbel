@@ -33,7 +33,7 @@ import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import type { Order, OrderStatus, PaymentMethod, Product } from "@/lib/types";
-import { ordersApi, productsApi } from "@/lib/mockApi";
+import { ordersApi, productsApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
 import { branches } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
