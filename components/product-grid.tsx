@@ -1,16 +1,41 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRightIcon } from "@/components/icons";
 import Image from "next/image";
-import { inventory, formatUGX } from "@/lib/inventory";
-
-const products = inventory.slice(0, 4).map((item) => ({
-  name: item.name,
-  price: item.priceUGX ?? item.priceOptionsUGX?.[0] ?? 0,
-  image: "/amber-essential-oil-dropper-bottle.jpg",
-}));
+import { formatUGX } from "@/lib/utils";
+import { productsApi } from "@/lib/api-client";
+import { Product } from "@/lib/types";
+import { useState, useEffect } from "react";
 
 export function ProductGrid() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await productsApi.getProducts({ limit: 4 });
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="bg-[#f5f1e8] py-16 lg:py-24">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center">Loading products...</div>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="bg-[#f5f1e8] py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
@@ -32,14 +57,14 @@ export function ProductGrid() {
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {products.map((product, index) => (
+          {products.map((product) => (
             <Card
-              key={index}
+              key={product.id}
               className="p-6 space-y-4 hover:shadow-lg transition-shadow overflow-hidden"
             >
               <div className="relative w-full aspect-[3/4] bg-gray-50 rounded-lg overflow-hidden">
                 <Image
-                  src={product.image || "/placeholder.svg"}
+                  src={product.image || product.images?.[0] || "/placeholder.svg"}
                   alt={product.name}
                   fill
                   className="object-contain p-4"

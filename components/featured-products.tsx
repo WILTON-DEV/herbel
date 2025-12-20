@@ -6,29 +6,37 @@ import { ShoppingCartIcon, HeartIcon, EyeIcon } from "@/components/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
-import { useState } from "react";
-import { inventory, formatUGX } from "@/lib/inventory";
-
-const products = inventory.slice(0, 8).map((item, idx) => ({
-  id: String(idx + 1),
-  name: item.name,
-  priceUGX: item.priceUGX ?? item.priceOptionsUGX?.[0] ?? 0,
-  image: "/amber-essential-oil-dropper-bottle.jpg",
-  rating: 4.8,
-  reviews: 124,
-}));
+import { useState, useEffect } from "react";
+import { formatUGX } from "@/lib/utils";
+import { productsApi } from "@/lib/api-client";
+import { Product } from "@/lib/types";
 
 export function FeaturedProducts() {
-  const { addToCart } = useCart();
+  const { addItem } = useCart();
   const [addedToCart, setAddedToCart] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddToCart = (product: (typeof products)[0]) => {
-    addToCart({
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await productsApi.getProducts({ limit: 8 });
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const handleAddToCart = (product: Product) => {
+    addItem({
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image,
-      quantity: 1,
+      image: product.image || product.images?.[0] || "/placeholder.svg",
     });
     setAddedToCart(product.id);
     setTimeout(() => setAddedToCart(null), 2000);
@@ -59,38 +67,24 @@ export function FeaturedProducts() {
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <Card
-              key={product.id}
-              className="overflow-hidden group hover:shadow-2xl transition-all duration-300 border border-gray-100"
-            >
-              {/* Product Image */}
-              <div className="relative aspect-square bg-gray-50 overflow-hidden">
-                <Link href={`/product/${product.id}`}>
-                  <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    fill
-                    className="object-contain p-6 group-hover:scale-110 transition-transform duration-300"
-                  />
-                </Link>
-
-                {/* Badge */}
-                {product.badge && (
-                  <div
-                    className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold text-white ${
-                      product.badge === "Sale"
-                        ? "bg-red-500"
-                        : product.badge === "New"
-                        ? "bg-green-500"
-                        : product.badge === "Best Seller"
-                        ? "bg-[#c9a961]"
-                        : "bg-primary"
-                    }`}
-                  >
-                    {product.badge}
-                  </div>
-                )}
+          {loading ? (
+            <div className="col-span-full text-center py-8">Loading featured products...</div>
+          ) : (
+            products.map((product) => (
+              <Card
+                key={product.id}
+                className="overflow-hidden group hover:shadow-2xl transition-all duration-300 border border-gray-100"
+              >
+                {/* Product Image */}
+                <div className="relative aspect-square bg-gray-50 overflow-hidden">
+                  <Link href={`/product/${product.id}`}>
+                    <Image
+                      src={product.image || product.images?.[0] || "/placeholder.svg"}
+                      alt={product.name}
+                      fill
+                      className="object-contain p-6 group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </Link>
 
                 {/* Quick Actions */}
                 <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -123,7 +117,7 @@ export function FeaturedProducts() {
                       <svg
                         key={i}
                         className={`w-4 h-4 ${
-                          i < Math.floor(product.rating)
+                          i < Math.floor(product.averageRating || 0)
                             ? "text-[#c9a961]"
                             : "text-gray-300"
                         }`}
@@ -135,14 +129,14 @@ export function FeaturedProducts() {
                     ))}
                   </div>
                   <span className="text-sm text-gray-600">
-                    ({product.reviews})
+                    ({product.reviewCount || 0})
                   </span>
                 </div>
 
                 {/* Price */}
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold text-[#1a3a2e]">
-                    {formatUGX(product.priceUGX)}
+                    {formatUGX(product.price)}
                   </span>
                 </div>
 
@@ -166,7 +160,8 @@ export function FeaturedProducts() {
                 </Button>
               </div>
             </Card>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </section>

@@ -10,30 +10,71 @@ import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { CheckIcon, MapPinIcon, StoreIcon, AlertCircle } from "lucide-react";
-import { ordersApi } from "@/lib/mockApi";
-import { branches } from "@/lib/types";
-import type { Order } from "@/lib/types";
+import { ordersApi } from "@/lib/api-client";
+import type { Order, OrderItem, PaymentMethod } from "@/lib/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { getBranches, type Branch } from "@/lib/branches-api";
+import { useEffect } from "react";
+import { CreditCardIcon, WalletIcon } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">(
     "pickup"
   );
-  const [selectedBranch, setSelectedBranch] = useState<string>("kampala");
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [branchesLoading, setBranchesLoading] = useState(true);
+  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [location, setLocation] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pending");
+
+  useEffect(() => {
+    setMounted(true);
+    if (!authLoading && !user) {
+      router.push(`/login?returnUrl=${encodeURIComponent("/checkout")}`);
+    }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
+    if (user && mounted) {
+      if (user.name && !name) setName(user.name);
+      if (user.email && !email) setEmail(user.email);
+    }
+  }, [user, mounted, name, email]);
+
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const fetchedBranches = await getBranches();
+        setBranches(Array.isArray(fetchedBranches) ? fetchedBranches : []);
+        if (Array.isArray(fetchedBranches) && fetchedBranches.length > 0 && !selectedBranch) {
+          setSelectedBranch(fetchedBranches[0].id);
+        }
+      } catch (err) {
+        console.error("Failed to fetch branches:", err);
+          setBranches([]); 
+        setError("Failed to load branches. Please refresh the page.");
+      } finally {
+        setBranchesLoading(false);
+      }
+    };
+
+    fetchBranches();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Validation
     if (items.length === 0) {
       setError("Your cart is empty. Please add items before checkout.");
       return;
@@ -52,7 +93,6 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
-      // Validate cart items
       if (
         items.some(
           (item) => !item.id || !item.name || !item.price || item.quantity <= 0
@@ -63,7 +103,6 @@ export default function CheckoutPage() {
         return;
       }
 
-      // Prepare order items with validation
       const orderItems = items.map((item) => {
         if (!item.price || item.price <= 0) {
           throw new Error(`Invalid price for ${item.name}`);
@@ -79,13 +118,11 @@ export default function CheckoutPage() {
         };
       });
 
-      // Recalculate subtotal from items to ensure accuracy
       const calculatedSubtotal = orderItems.reduce(
         (sum, item) => sum + item.price * item.quantity,
         0
       );
 
-      // Validate that calculated subtotal matches cart total (with small tolerance for floating point)
       if (Math.abs(calculatedSubtotal - totalPrice) > 1) {
         console.warn("Subtotal mismatch, using calculated value", {
           cartTotal: totalPrice,
@@ -93,12 +130,10 @@ export default function CheckoutPage() {
         });
       }
 
-      // Calculate totals dynamically
       const deliveryCost = deliveryMethod === "delivery" ? 5000 : 0;
       const subtotal = calculatedSubtotal;
       const total = subtotal + deliveryCost;
 
-      // Validate totals
       if (subtotal <= 0) {
         throw new Error("Order subtotal must be greater than zero");
       }
@@ -106,38 +141,33 @@ export default function CheckoutPage() {
         throw new Error("Order total must be greater than zero");
       }
 
-      // Create order data with validated values
-      const orderData: Omit<
-        Order,
-        "id" | "orderNumber" | "createdAt" | "updatedAt"
-      > = {
+      const orderData: Omit<Order, "id" | "orderNumber" | "createdAt" | "updatedAt" | "items" | "status"> & {
+        items: Omit<OrderItem, "id" | "orderId">[];
+      } = {
         customerName: name.trim(),
         customerPhone: phone.trim(),
-        customerEmail: email.trim() || undefined,
+        customerEmail: email.trim() || null,
         items: orderItems,
         subtotal,
         deliveryFee: deliveryCost,
         total,
         deliveryMethod,
-        branch: deliveryMethod === "pickup" ? selectedBranch : undefined,
-        location: deliveryMethod === "delivery" ? location.trim() : undefined,
-        status: "pending",
-        paymentMethod: "pending",
-        source: "website",
+        branchId: deliveryMethod === "pickup" ? selectedBranch || null : null,
+        location: deliveryMethod === "delivery" ? location.trim() || null : null,
+        paymentMethod: paymentMethod,
+        source: "website" as const,
+        notes: null,
+        createdById: null,
       };
 
-      // Create order via API
       const createdOrder = await ordersApi.createOrder(orderData);
 
-      // Store customer phone in localStorage for order filtering
       if (typeof window !== "undefined") {
         localStorage.setItem("customer_phone", phone.trim());
       }
 
-      // Clear cart
       clearCart();
 
-      // Redirect to confirmation page with order number
       router.push(
         `/order-confirmation?orderNumber=${encodeURIComponent(
           createdOrder.orderNumber
@@ -150,8 +180,19 @@ export default function CheckoutPage() {
     }
   };
 
-  const deliveryCost = 0; // Delivery fee removed
+  const deliveryCost = 0; 
   const finalTotal = totalPrice + deliveryCost;
+
+  if (authLoading || !mounted || !user) {
+    return (
+      <div className="min-h-screen bg-[#f5f1e8] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50] mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading checkout...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f1e8]">
@@ -160,7 +201,6 @@ export default function CheckoutPage() {
           Checkout
         </h1>
 
-        {/* Error Alert */}
         {error && (
           <Alert variant="destructive" className="mb-4 sm:mb-6">
             <AlertCircle className="h-4 w-4" />
@@ -172,9 +212,7 @@ export default function CheckoutPage() {
           onSubmit={handleSubmit}
           className="grid lg:grid-cols-3 gap-6 sm:gap-8"
         >
-          {/* Left Column - Order Details */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Delivery Method Selection */}
+              <div className="lg:col-span-2 space-y-8">
             <div className="bg-white rounded-2xl p-8 lg:p-10 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
               <h2 className="text-xl sm:text-2xl font-medium text-[#4CAF50] mb-8 tracking-tight">
                 Choose Delivery Method
@@ -234,14 +272,22 @@ export default function CheckoutPage() {
                 </div>
               </RadioGroup>
 
-              {/* Branch Selection - Only show if pickup */}
               {deliveryMethod === "pickup" && (
                 <div className="mt-8 space-y-4">
                   <h3 className="font-medium text-[#4CAF50] text-lg tracking-tight">
                     Select Branch
                   </h3>
-                  <div className="space-y-3">
-                    {branches.map((branch) => (
+                  {branchesLoading ? (
+                    <div className="text-center py-4 text-gray-500">
+                      Loading branches...
+                    </div>
+                  ) : !Array.isArray(branches) || branches.length === 0 ? (
+                    <div className="text-center py-4 text-gray-500">
+                      No branches available
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {branches.map((branch) => (
                       <div
                         key={branch.id}
                         onClick={() => setSelectedBranch(branch.id)}
@@ -276,12 +322,12 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Location Input - Only show if delivery */}
               {deliveryMethod === "delivery" && (
                 <div className="mt-8 space-y-5">
                   <div>
@@ -308,7 +354,89 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            {/* Contact Information */}
+            <div className="bg-white rounded-2xl p-8 lg:p-10 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <h2 className="text-xl sm:text-2xl font-medium text-[#4CAF50] mb-8 tracking-tight">
+                Payment Method
+              </h2>
+              <RadioGroup
+                value={paymentMethod}
+                onValueChange={(value) =>
+                  setPaymentMethod(value as PaymentMethod)
+                }
+              >
+                <div className="space-y-3">
+                  <div className={`group flex items-start gap-5 p-6 rounded-2xl border transition-all duration-300 ease-out cursor-pointer ${
+                    paymentMethod === "pending"
+                      ? "border-[#4CAF50]/30 bg-[#f7fdf8]"
+                      : "border-gray-200/80 bg-white hover:border-[#4CAF50]/20 hover:bg-gray-50/50"
+                  }`}>
+                    <RadioGroupItem
+                      value="pending"
+                      id="payment-pending"
+                      className="mt-1"
+                    />
+                    <Label htmlFor="payment-pending" className="flex-1 cursor-pointer">
+                      <div className="flex items-center gap-3 mb-2">
+                        <CreditCardIcon className="w-5 h-5 text-[#4CAF50]" />
+                        <span className="font-medium text-base sm:text-lg text-gray-900">
+                          Pay Later
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-500 leading-relaxed">
+                        Pay when you receive your order
+                      </span>
+                    </Label>
+                  </div>
+
+                  <div className={`group flex items-start gap-5 p-6 rounded-2xl border transition-all duration-300 ease-out cursor-pointer ${
+                    paymentMethod === "cash"
+                      ? "border-[#4CAF50]/30 bg-[#f7fdf8]"
+                      : "border-gray-200/80 bg-white hover:border-[#4CAF50]/20 hover:bg-gray-50/50"
+                  }`}>
+                    <RadioGroupItem
+                      value="cash"
+                      id="payment-cash"
+                      className="mt-1"
+                    />
+                    <Label htmlFor="payment-cash" className="flex-1 cursor-pointer">
+                      <div className="flex items-center gap-3 mb-2">
+                        <WalletIcon className="w-5 h-5 text-[#4CAF50]" />
+                        <span className="font-medium text-base sm:text-lg text-gray-900">
+                          Cash on Delivery
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-500 leading-relaxed">
+                        Pay with cash when you receive your order
+                      </span>
+                    </Label>
+                  </div>
+
+                  <div className={`group flex items-start gap-5 p-6 rounded-2xl border transition-all duration-300 ease-out cursor-pointer ${
+                    paymentMethod === "mobile-money"
+                      ? "border-[#4CAF50]/30 bg-[#f7fdf8]"
+                      : "border-gray-200/80 bg-white hover:border-[#4CAF50]/20 hover:bg-gray-50/50"
+                  }`}>
+                    <RadioGroupItem
+                      value="mobile-money"
+                      id="payment-momo"
+                      className="mt-1"
+                    />
+                    <Label htmlFor="payment-momo" className="flex-1 cursor-pointer">
+                      <div className="flex items-center gap-3 mb-2">
+                        <CreditCardIcon className="w-5 h-5 text-[#4CAF50]" />
+                        <span className="font-medium text-base sm:text-lg text-gray-900">
+                          Mobile Money
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-500 leading-relaxed">
+                        Pay via Mobile Money (MTN/Airtel)
+                      </span>
+                    </Label>
+                  </div>
+                </div>
+              </RadioGroup>
+            </div>
+
             <div className="bg-white rounded-2xl p-8 lg:p-10 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
               <h2 className="text-xl sm:text-2xl font-medium text-[#4CAF50] mb-8 tracking-tight">
                 Contact Information
@@ -355,7 +483,6 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl p-8 lg:p-10 shadow-[0_1px_3px_rgba(0,0,0,0.05)] sticky top-28">
               <h2 className="text-xl sm:text-2xl font-medium text-[#4CAF50] mb-8 tracking-tight">
@@ -363,31 +490,39 @@ export default function CheckoutPage() {
               </h2>
               <div className="space-y-6 mb-8">
                 <div className="space-y-4">
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex justify-between items-start text-base"
-                    >
-                      <span className="text-gray-700 flex-1 line-clamp-2 pr-4 leading-relaxed">
-                        {item.name} x {item.quantity}
-                      </span>
-                      <span className="font-medium text-gray-900 flex-shrink-0">
-                        {formatUGX(item.price * item.quantity)}
-                      </span>
+                  {mounted && items.length > 0 ? (
+                    items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex justify-between items-start text-base"
+                      >
+                        <span className="text-gray-700 flex-1 line-clamp-2 pr-4 leading-relaxed">
+                          {item.name} x {item.quantity}
+                        </span>
+                        <span className="font-medium text-gray-900 flex-shrink-0">
+                          {formatUGX(item.price * item.quantity)}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-gray-500">
+                      {mounted ? "Your cart is empty" : "Loading..."}
                     </div>
-                  ))}
+                  )}
                 </div>
                 <div className="border-t border-gray-100 pt-6 space-y-4">
                   <div className="flex justify-between text-base">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium text-gray-900">{formatUGX(totalPrice)}</span>
+                    <span className="font-medium text-gray-900">
+                      {mounted ? formatUGX(totalPrice) : "UGX 0"}
+                    </span>
                   </div>
                   <div className="border-t border-gray-100 pt-6 flex justify-between items-center">
                     <span className="text-lg sm:text-xl font-semibold text-[#4CAF50] tracking-tight">
                       Total
                     </span>
                     <span className="text-lg sm:text-xl font-semibold text-[#4CAF50] tracking-tight">
-                      {formatUGX(finalTotal)}
+                      {mounted ? formatUGX(finalTotal) : "UGX 0"}
                     </span>
                   </div>
                 </div>

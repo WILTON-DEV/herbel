@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { CategorySidebar } from "@/components/category-sidebar";
 import { PromoHero } from "@/components/promo-hero";
@@ -6,12 +9,31 @@ import { FlashDeals } from "@/components/flash-deals";
 import { DealsGrid } from "@/components/deals-grid";
 import { ProductCard } from "@/components/product-card";
 import { Footer } from "@/components/footer";
-import { inventory } from "@/lib/inventory";
+import { productsApi } from "@/lib/api-client";
+import type { Product } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const fetchedProducts = await productsApi.getProducts();
+        setProducts(fetchedProducts);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
   return (
     <main className="min-h-screen">
       <div className="container mx-auto py-2 sm:py-3 lg:py-5 px-2 sm:px-3 lg:px-4 ">
@@ -89,20 +111,32 @@ export default function Home() {
               </a>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4">
-              {inventory.slice(0, 6).map((item) => {
-                const price = item.priceUGX ?? item.priceOptionsUGX?.[0] ?? 0;
-                return (
-                  <ProductCard
-                    key={item.id}
-                    id={item.id}
-                    name={item.name}
-                    price={price}
-                    image={item.image || "/placeholder.svg"}
-                    rating={4.8}
-                    reviews={Math.floor(Math.random() * 200) + 100}
-                  />
-                );
-              })}
+              {loading ? (
+                <div className="col-span-full text-center py-4 text-muted-foreground">
+                  Loading products...
+                </div>
+              ) : products.length === 0 ? (
+                <div className="col-span-full text-center py-4 text-muted-foreground">
+                  No products available
+                </div>
+              ) : (
+                products.slice(0, 6).map((product) => {
+                  const price = product.priceOptions.length > 0 
+                    ? product.priceOptions[0] 
+                    : product.price;
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      price={price}
+                      image={product.image || product.images[0] || "/placeholder.svg"}
+                      rating={product.averageRating || 0}
+                      reviews={product.reviewCount || 0}
+                    />
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
@@ -138,20 +172,32 @@ export default function Home() {
               </a>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3 p-2 sm:p-3 lg:p-4">
-              {inventory.slice(12, 18).map((item) => {
-                const price = item.priceUGX ?? item.priceOptionsUGX?.[0] ?? 0;
-                return (
-                  <ProductCard
-                    key={item.id}
-                    id={item.id}
-                    name={item.name}
-                    price={price}
-                    image={item.image || "/placeholder.svg"}
-                    rating={4.6}
-                    reviews={Math.floor(Math.random() * 50) + 20}
-                  />
-                );
-              })}
+              {loading ? (
+                <div className="col-span-full text-center py-4 text-muted-foreground">
+                  Loading products...
+                </div>
+              ) : products.length === 0 ? (
+                <div className="col-span-full text-center py-4 text-muted-foreground">
+                  No products available
+                </div>
+              ) : (
+                products.slice(12, 18).map((product) => {
+                  const price = product.priceOptions.length > 0 
+                    ? product.priceOptions[0] 
+                    : product.price;
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      price={price}
+                      image={product.image || product.images[0] || "/placeholder.svg"}
+                      rating={product.averageRating || 0}
+                      reviews={product.reviewCount || 0}
+                    />
+                  );
+                })
+              )}
             </div>
           </div>
         </div>

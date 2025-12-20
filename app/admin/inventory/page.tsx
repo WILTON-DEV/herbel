@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { PlusIcon, MinusIcon } from "@/components/icons";
 import { useState, useEffect } from "react";
-import { inventoryApi, productsApi } from "@/lib/mockApi";
+import { inventoryApi, productsApi } from "@/lib/api-client";
 import type { InventoryItem, Product } from "@/lib/types";
 import { formatUGX } from "@/lib/inventory";
 import { branches } from "@/lib/types";

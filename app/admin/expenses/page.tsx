@@ -24,7 +24,7 @@ import {
 import { PlusIcon, TrashIcon } from "@/components/icons";
 import { useState, useEffect } from "react";
 import type { Expense } from "@/lib/types";
-import { expensesApi } from "@/lib/mockApi";
+import { expensesApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
 import { branches } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";

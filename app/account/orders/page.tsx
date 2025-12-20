@@ -12,10 +12,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Link from "next/link";
-import { ordersApi } from "@/lib/mockApi";
+import { ordersApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
 import type { Order } from "@/lib/types";
 import { EyeIcon } from "@/components/icons";
+import { useAuth } from "@/contexts/AuthContext";
 
 function getStatusLabel(status: string) {
   const labels: Record<string, string> = {
@@ -42,35 +43,30 @@ function getStatusColor(status: string) {
 }
 
 export default function OrdersPage() {
+  const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   useEffect(() => {
-    loadOrders();
-  }, []);
+    if (user) {
+      loadOrders();
+    }
+  }, [user]);
 
   const loadOrders = async () => {
     try {
       setLoading(true);
+      // Backend automatically filters orders by authenticated user's ID (createdById)
+      // For CUSTOMER role, only returns their own orders
       const allOrders = await ordersApi.getOrders();
-      // Filter orders by customer phone (stored in localStorage from checkout)
-      // For demo purposes, we'll show all orders, but in production you'd filter by logged-in customer
-      const customerPhone =
-        typeof window !== "undefined"
-          ? localStorage.getItem("customer_phone")
-          : null;
-
-      const filteredOrders = customerPhone
-        ? allOrders.filter((order) => order.customerPhone === customerPhone)
-        : allOrders.filter((order) => order.source === "website"); // Show website orders by default
-
+      
       // Sort by date, newest first
-      filteredOrders.sort(
+      allOrders.sort(
         (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
       );
-      setOrders(filteredOrders);
+      setOrders(allOrders);
     } catch (error) {
       console.error("Failed to load orders:", error);
     } finally {
@@ -238,7 +234,7 @@ export default function OrdersPage() {
                     {selectedOrder.deliveryMethod === "pickup" &&
                       selectedOrder.branch && (
                         <p className="text-sm text-muted-foreground mt-1">
-                          Pickup from: {selectedOrder.branch}
+                          Pickup from: {selectedOrder.branch.name}
                         </p>
                       )}
                     {selectedOrder.deliveryMethod === "delivery" &&

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { inventory } from "@/lib/inventory";
+import { productsApi } from "@/lib/api-client";
+import { Product } from "@/lib/types";
 import { ProductCard } from "@/components/product-card";
 import { Zap } from "lucide-react";
 
@@ -12,6 +13,8 @@ export function FlashDeals() {
     minutes: 23,
     seconds: 45,
   });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -27,6 +30,20 @@ export function FlashDeals() {
       });
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await productsApi.getProducts({ limit: 12 });
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
   }, []);
 
   return (
@@ -76,22 +93,23 @@ export function FlashDeals() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-4 p-3 sm:p-6">
-        {inventory.slice(0, 12).map((item) => {
-          const price = item.priceUGX ?? item.priceOptionsUGX?.[0] ?? 0;
-          return (
+        {loading ? (
+          <div className="col-span-full text-center py-8">Loading flash deals...</div>
+        ) : (
+          products.map((product) => (
             <ProductCard
-              key={item.id}
-              id={item.id}
-              name={item.name}
-              price={price}
-              image={item.image || "/placeholder.svg"}
-              rating={4.5}
-              reviews={Math.floor(Math.random() * 100) + 50}
+              key={product.id}
+              id={product.id}
+              name={product.name}
+              price={product.price}
+              image={product.image || product.images?.[0] || "/placeholder.svg"}
+              rating={product.averageRating || 0}
+              reviews={product.reviewCount || 0}
               showSaleTag={true}
               isFlashSale={true}
             />
-          );
-        })}
+          ))
+        )}
       </div>
     </div>
   );

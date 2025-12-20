@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import type { SalesRecord, Order } from "@/lib/types";
-import { salesApi, ordersApi } from "@/lib/mockApi";
+import { salesApi, ordersApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
 import { branches } from "@/lib/types";
 import { StoreIcon, TruckIcon } from "@/components/icons";
