@@ -27,7 +27,7 @@ import type {
 } from "@/lib/types";
 import { formatUGX } from "@/lib/inventory";
 import { useAuth } from "@/contexts/AuthContext";
-import { branches } from "@/lib/types";
+import { getBranches, type Branch } from "@/lib/branches-api";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +52,7 @@ export default function DashboardPage() {
   const [sales, setSales] = useState<SalesRecord[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
@@ -66,6 +67,7 @@ export default function DashboardPage() {
           salesData,
           inventoryData,
           expensesData,
+          branchesData,
         ] = await Promise.all([
           ordersApi.getOrders(),
           productsApi.getProducts(),
@@ -73,6 +75,7 @@ export default function DashboardPage() {
           salesApi.getSales(),
           inventoryApi.getInventory(),
           expensesApi.getExpenses(),
+          getBranches(),
         ]);
         setOrders(ordersData);
         setProducts(productsData);
@@ -80,6 +83,7 @@ export default function DashboardPage() {
         setSales(salesData);
         setInventory(inventoryData);
         setExpenses(expensesData);
+        setBranches(branchesData);
       } catch (error) {
         console.error("Failed to load dashboard data:", error);
       } finally {
@@ -99,18 +103,18 @@ export default function DashboardPage() {
 
   // Filter data by user branch if attendant
   const filteredOrders =
-    user?.role === "attendant" && user.branch
-      ? orders.filter((o) => o.branch === user.branch)
+    user?.role === "attendant" && user.branchId
+      ? orders.filter((o) => o.branchId === user.branchId)
       : orders;
 
   const filteredSales =
-    user?.role === "attendant" && user.branch
-      ? sales.filter((s) => s.branch === user.branch)
+    user?.role === "attendant" && user.branchId
+      ? sales.filter((s) => s.branchId === user.branchId)
       : sales;
 
   const filteredExpenses =
-    user?.role === "attendant" && user.branch
-      ? expenses.filter((e) => e.branch === user.branch)
+    user?.role === "attendant" && user.branchId
+      ? expenses.filter((e) => e.branchId === user.branchId)
       : expenses;
 
   // Calculate stats
@@ -161,10 +165,10 @@ export default function DashboardPage() {
 
   // Calculate branch statistics
   const branchStats = branches.map((branch) => {
-    const branchOrders = orders.filter((o) => o.branch === branch.id);
-    const branchSales = sales.filter((s) => s.branch === branch.id);
+    const branchOrders = orders.filter((o) => o.branchId === branch.id);
+    const branchSales = sales.filter((s) => s.branchId === branch.id);
     const branchRevenue = branchSales.reduce((sum, s) => sum + s.amount, 0);
-    const branchInventory = inventory.filter((i) => i.branch === branch.id);
+    const branchInventory = inventory.filter((i) => i.branchId === branch.id);
     const branchStock = branchInventory.reduce((sum, i) => sum + i.quantity, 0);
 
     return {
@@ -245,9 +249,9 @@ export default function DashboardPage() {
       <div className="space-y-1">
         <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
-          {user?.role === "attendant" && user.branch
+          {user?.role === "attendant" && user.branchId
             ? `Welcome back! Showing data for ${
-                branches.find((b) => b.id === user.branch)?.name
+                branches.find((b) => b.id === user.branchId)?.name
               } branch.`
             : "Welcome back! Here's what's happening across all branches."}
         </p>
@@ -547,11 +551,12 @@ export default function DashboardPage() {
                       {selectedOrder.deliveryMethod}
                     </p>
                     {selectedOrder.deliveryMethod === "pickup" &&
-                      selectedOrder.branch && (
+                      (selectedOrder.branch || selectedOrder.branchId) && (
                         <p className="text-sm text-muted-foreground mt-2">
                           Pickup from:{" "}
-                          {branches.find((b) => b.id === selectedOrder.branch)
-                            ?.name || selectedOrder.branch}
+                          {selectedOrder.branch?.name || 
+                           branches.find((b) => b.id === selectedOrder.branchId)?.name ||
+                           "Unknown Branch"}
                         </p>
                       )}
                     {selectedOrder.deliveryMethod === "delivery" &&

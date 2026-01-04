@@ -23,25 +23,26 @@ import {
 } from "@/components/ui/dialog";
 import { PlusIcon, TrashIcon } from "@/components/icons";
 import { useState, useEffect } from "react";
-import type { Expense } from "@/lib/types";
+import type { Expense, ExpenseCategory } from "@/lib/types";
 import { expensesApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
-import { branches } from "@/lib/types";
+import { getBranches, type Branch } from "@/lib/branches-api";
 import { useAuth } from "@/contexts/AuthContext";
 
-const expenseCategories = [
-  { id: "supplies", name: "Supplies & Packaging" },
-  { id: "transport", name: "Transportation" },
-  { id: "utilities", name: "Utilities" },
-  { id: "salaries", name: "Salaries & Wages" },
-  { id: "marketing", name: "Marketing" },
-  { id: "maintenance", name: "Maintenance" },
-  { id: "other", name: "Other" },
+const expenseCategories: { id: ExpenseCategory; name: string }[] = [
+  { id: "SUPPLIES", name: "Supplies & Packaging" },
+  { id: "TRANSPORT", name: "Transportation" },
+  { id: "UTILITIES", name: "Utilities" },
+  { id: "SALARIES", name: "Salaries & Wages" },
+  { id: "MARKETING", name: "Marketing" },
+  { id: "MAINTENANCE", name: "Maintenance" },
+  { id: "OTHER", name: "Other" },
 ];
 
 export default function ExpensesPage() {
   const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filterBranch, setFilterBranch] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
@@ -53,8 +54,12 @@ export default function ExpensesPage() {
 
   const loadExpenses = async () => {
     try {
-      const data = await expensesApi.getExpenses();
-      setExpenses(data);
+      const [expensesData, branchesData] = await Promise.all([
+        expensesApi.getExpenses(),
+        getBranches(),
+      ]);
+      setExpenses(expensesData);
+      setBranches(branchesData);
     } catch (error) {
       console.error("Failed to load expenses:", error);
     } finally {
@@ -63,12 +68,12 @@ export default function ExpensesPage() {
   };
 
   const handleAddExpense = async (
-    expense: Omit<Expense, "id" | "createdAt">
+    expense: Omit<Expense, "id" | "createdAt" | "updatedAt">
   ) => {
     try {
       const newExpense = await expensesApi.createExpense(expense);
-    setExpenses((prev) => [newExpense, ...prev]);
-    setIsDialogOpen(false);
+      setExpenses((prev) => [newExpense, ...prev]);
+      setIsDialogOpen(false);
       alert("Expense added successfully!");
     } catch (error) {
       console.error("Failed to add expense:", error);
@@ -92,7 +97,7 @@ export default function ExpensesPage() {
   };
 
   const filteredExpenses = expenses.filter((expense) => {
-    if (filterBranch !== "all" && expense.branch !== filterBranch) return false;
+    if (filterBranch !== "all" && expense.branchId !== filterBranch) return false;
     if (filterCategory !== "all" && expense.category !== filterCategory)
       return false;
     return true;
@@ -135,7 +140,7 @@ export default function ExpensesPage() {
                 Record a new expense for a branch
               </DialogDescription>
             </DialogHeader>
-            <ExpenseForm onSubmit={handleAddExpense} currentUser={user} />
+            <ExpenseForm onSubmit={handleAddExpense} currentUser={user} branches={branches} />
           </DialogContent>
         </Dialog>
       </div>
@@ -245,8 +250,8 @@ export default function ExpensesPage() {
                       {expense.date.toLocaleDateString()}
                     </td>
                     <td className="py-3 px-4">
-                      {branches.find((b) => b.id === expense.branch)?.name ||
-                        expense.branch}
+                      {branches.find((b) => b.id === expense.branchId)?.name ||
+                        expense.branchId}
                     </td>
                     <td className="py-3 px-4">
                         {expenseCategories.find(
@@ -258,7 +263,7 @@ export default function ExpensesPage() {
                       {formatUGX(expense.amount)}
                     </td>
                     <td className="py-3 px-4 text-sm text-muted-foreground">
-                      {expense.recordedBy}
+                      {expense.recordedById}
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center justify-end">
@@ -286,12 +291,14 @@ export default function ExpensesPage() {
 function ExpenseForm({
   onSubmit,
   currentUser,
+  branches,
 }: {
-  onSubmit: (expense: Omit<Expense, "id" | "createdAt">) => void;
+  onSubmit: (expense: Omit<Expense, "id" | "createdAt" | "updatedAt">) => void;
   currentUser: any;
+  branches: Branch[];
 }) {
-  const [branch, setBranch] = useState(currentUser?.branch || "kampala");
-  const [category, setCategory] = useState("supplies");
+  const [branch, setBranch] = useState(currentUser?.branchId || "kampala");
+  const [category, setCategory] = useState<ExpenseCategory>("SUPPLIES");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [recordedBy, setRecordedBy] = useState(currentUser?.name || "Admin");
@@ -300,11 +307,11 @@ function ExpenseForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
-      branch,
+      branchId: branch,
       category,
       description,
       amount: parseFloat(amount),
-      recordedBy,
+      recordedById: recordedBy,
       date: new Date(date),
     });
     // Reset form
@@ -333,7 +340,7 @@ function ExpenseForm({
 
         <div>
           <Label htmlFor="category">Category *</Label>
-          <Select value={category} onValueChange={setCategory}>
+          <Select value={category} onValueChange={(value) => setCategory(value as ExpenseCategory)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

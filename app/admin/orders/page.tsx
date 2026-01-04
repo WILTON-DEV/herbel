@@ -35,13 +35,14 @@ import { useState, useEffect } from "react";
 import type { Order, OrderStatus, PaymentMethod, Product } from "@/lib/types";
 import { ordersApi, productsApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
-import { branches } from "@/lib/types";
+import { getBranches, type Branch } from "@/lib/branches-api";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function OrdersPage() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -55,6 +56,7 @@ export default function OrdersPage() {
   useEffect(() => {
     loadOrders();
     loadProducts();
+    loadBranches();
 
     // Auto-refresh orders every 10 seconds to catch new website orders
     const interval = setInterval(() => {
@@ -87,6 +89,15 @@ export default function OrdersPage() {
       setProducts(data);
     } catch (error) {
       console.error("Failed to load products:", error);
+    }
+  };
+
+  const loadBranches = async () => {
+    try {
+      const data = await getBranches();
+      setBranches(data);
+    } catch (error) {
+      console.error("Failed to load branches:", error);
     }
   };
 
@@ -181,7 +192,7 @@ export default function OrdersPage() {
 
   const filteredOrders = orders.filter((order) => {
     if (filterStatus !== "all" && order.status !== filterStatus) return false;
-    if (filterBranch !== "all" && order.branch !== filterBranch) return false;
+    if (filterBranch !== "all" && order.branchId !== filterBranch) return false;
     if (filterSource !== "all" && order.source !== filterSource) return false;
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -258,6 +269,7 @@ export default function OrdersPage() {
                   });
                 }}
                 currentUser={user}
+                branches={branches}
               />
             </DialogContent>
           </Dialog>
@@ -403,8 +415,8 @@ export default function OrdersPage() {
                       </td>
                       <td className="py-3 px-4 text-sm text-muted-foreground">
                         {order.deliveryMethod === "pickup"
-                          ? branches.find((b) => b.id === order.branch)?.name ||
-                            order.branch
+                          ? branches.find((b) => b.id === order.branchId)?.name ||
+                            order.branch?.name || "Unknown Branch"
                           : order.location}
                       </td>
                       <td className="py-3 px-4 font-medium">
@@ -535,8 +547,8 @@ export default function OrdersPage() {
                       selectedOrder.branch && (
                         <p className="text-sm text-muted-foreground mt-2">
                           Pickup from:{" "}
-                          {branches.find((b) => b.id === selectedOrder.branch)
-                            ?.name || selectedOrder.branch}
+                          {branches.find((b) => b.id === selectedOrder.branchId)
+                            ?.name || selectedOrder.branch?.name}
                         </p>
                       )}
                     {selectedOrder.deliveryMethod === "delivery" &&
@@ -730,11 +742,13 @@ function ManualOrderForm({
   onClose,
   onSuccess,
   currentUser,
+  branches,
 }: {
   products: Product[];
   onClose: () => void;
   onSuccess: () => void;
   currentUser: any;
+  branches: Branch[];
 }) {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -774,7 +788,7 @@ function ManualOrderForm({
     orderItems.forEach((item) => {
       const product = products.find((p) => p.id === item.productId);
       if (product) {
-        const price = product.priceUGX || product.priceOptionsUGX?.[0] || 0;
+        const price = product.price || product.priceOptions?.[0] || 0;
         subtotal += price * item.quantity;
       }
     });
@@ -802,7 +816,7 @@ function ManualOrderForm({
 
       const items = orderItems.map((item) => {
         const product = products.find((p) => p.id === item.productId);
-        const price = product?.priceUGX || product?.priceOptionsUGX?.[0] || 0;
+        const price = product?.price || product?.priceOptions?.[0] || 0;
         return {
           productId: item.productId,
           productName: product?.name || "Unknown",
@@ -814,17 +828,17 @@ function ManualOrderForm({
       await ordersApi.createOrder({
         customerName,
         customerPhone,
-        customerEmail: customerEmail || undefined,
+        customerEmail: customerEmail || null,
         items,
         subtotal,
         deliveryFee,
         total,
         deliveryMethod,
-        branch: deliveryMethod === "pickup" ? branch : undefined,
-        location: deliveryMethod === "delivery" ? location : undefined,
-        status: "pending",
+        branchId: deliveryMethod === "pickup" ? branch : null,
+        location: deliveryMethod === "delivery" ? location : null,
+        createdById: currentUser?.id || null,
         paymentMethod,
-        notes: notes || undefined,
+        notes: notes || null,
         source: "manual",
       });
 
@@ -956,7 +970,7 @@ function ManualOrderForm({
                       <SelectItem key={product.id} value={product.id}>
                         {product.name} -{" "}
                         {formatUGX(
-                          product.priceUGX || product.priceOptionsUGX?.[0] || 0
+                          product.price || product.priceOptions?.[0] || 0
                         )}
                       </SelectItem>
                     ))}

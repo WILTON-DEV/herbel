@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -35,8 +36,7 @@ export default function LoginPage() {
         setError(result.error || "Invalid email or password");
       }
     } catch (err: any) {
-      const errorMessage = err?.message || "An error occurred during login";
-      setError(errorMessage);
+      setError(err?.message || "An error occurred during login");
     } finally {
       setLoading(false);
     }

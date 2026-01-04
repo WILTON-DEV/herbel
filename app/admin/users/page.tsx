@@ -168,9 +168,9 @@ export default function UsersPage() {
                         </Badge>
                       </td>
                       <td className="py-3 px-4 text-sm text-muted-foreground">
-                        {user.branch ? (
+                        {user.branchId ? (
                           <Badge variant="outline" className="text-xs">
-                            {user.branch}
+                            {user.branchId}
                           </Badge>
                         ) : (
                           <span className="text-xs">—</span>
@@ -191,7 +191,7 @@ export default function UsersPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleDelete(user.id, user.name)}
+                            onClick={() => handleDelete(user.id, user.name || "Unknown User")}
                             disabled={user.id === currentUser?.id}
                           >
                             <TrashIcon className="h-4 w-4 text-destructive" />
@@ -224,7 +224,7 @@ function UserFormDialog({
     email: user?.email || "",
     password: "",
     role: user?.role || "attendant",
-    branch: user?.branch || "",
+    branch: user?.branchId || "",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -238,7 +238,7 @@ function UserFormDialog({
         await userApi.updateUser(user.id, {
           name: formData.name,
           role: formData.role as "admin" | "attendant",
-          branch: formData.role === "attendant" ? formData.branch : undefined,
+          branchId: formData.role === "attendant" ? formData.branch : undefined,
         });
       } else {
         // Create new user
@@ -252,7 +252,7 @@ function UserFormDialog({
           password: formData.password,
           name: formData.name,
           role: formData.role as "admin" | "attendant",
-          branch: formData.role === "attendant" ? formData.branch : undefined,
+          branchId: formData.role === "attendant" ? formData.branch : undefined,
         });
       }
       onSuccess();
@@ -323,7 +323,7 @@ function UserFormDialog({
           <Select
             value={formData.role}
             onValueChange={(value) =>
-              setFormData({ ...formData, role: value, branch: value === "admin" ? "" : formData.branch })
+              setFormData({ ...formData, role: value as "admin" | "attendant", branch: value === "admin" ? "" : formData.branch })
             }
           >
             <SelectTrigger id="role">

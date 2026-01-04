@@ -17,12 +17,13 @@ import { useState, useEffect } from "react";
 import { inventoryApi, productsApi } from "@/lib/api-client";
 import type { InventoryItem, Product } from "@/lib/types";
 import { formatUGX } from "@/lib/inventory";
-import { branches } from "@/lib/types";
+import { getBranches, type Branch } from "@/lib/branches-api";
 import Image from "next/image";
 
 export default function InventoryPage() {
   const [inventoryStock, setInventoryStock] = useState<InventoryItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [filterBranch, setFilterBranch] = useState<string>("all");
   const [filterProduct, setFilterProduct] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -33,12 +34,14 @@ export default function InventoryPage() {
 
   const loadData = async () => {
     try {
-      const [inventoryData, productsData] = await Promise.all([
+      const [inventoryData, productsData, branchesData] = await Promise.all([
         inventoryApi.getInventory(),
         productsApi.getProducts(),
+        getBranches(),
       ]);
       setInventoryStock(inventoryData);
       setProducts(productsData);
+      setBranches(branchesData);
     } catch (error) {
       console.error("Failed to load inventory data:", error);
     } finally {
@@ -59,7 +62,7 @@ export default function InventoryPage() {
       );
     setInventoryStock((prev) =>
       prev.map((stock) =>
-        stock.productId === productId && stock.branch === branch
+        stock.productId === productId && stock.branchId === branch
             ? updated
           : stock
       )
@@ -71,7 +74,7 @@ export default function InventoryPage() {
   };
 
   const filteredInventory = inventoryStock.filter((stock) => {
-    if (filterBranch !== "all" && stock.branch !== filterBranch) return false;
+    if (filterBranch !== "all" && stock.branchId !== filterBranch) return false;
     const product = products.find((p) => p.id === stock.productId);
     if (
       filterProduct &&
@@ -227,7 +230,7 @@ export default function InventoryPage() {
               ([productId, { productName, product, stocks }]) => {
                 const totalStock = getTotalStock(productId);
                 const price =
-                  product.priceUGX ?? product.priceOptionsUGX?.[0] ?? 0;
+                  product.price ?? product.priceOptions?.[0] ?? 0;
 
                 return (
                   <div
@@ -275,12 +278,12 @@ export default function InventoryPage() {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                           {stocks.map((stock) => (
                             <div
-                              key={`${stock.productId}-${stock.branch}`}
+                              key={`${stock.productId}-${stock.branchId}`}
                                 className="border rounded p-3"
                             >
                               <div className="text-xs text-muted-foreground mb-1">
-                                {branches.find((b) => b.id === stock.branch)
-                                  ?.name || stock.branch}
+                                {branches.find((b) => b.id === stock.branchId)
+                                  ?.name || stock.branchId}
                               </div>
                               <div className="flex items-center justify-between">
                                 <span className="text-lg font-semibold">
@@ -294,7 +297,7 @@ export default function InventoryPage() {
                                     onClick={() =>
                                       handleAdjustStock(
                                         stock.productId,
-                                        stock.branch,
+                                        stock.branchId,
                                         -1
                                       )
                                     }
@@ -309,7 +312,7 @@ export default function InventoryPage() {
                                     onClick={() =>
                                       handleAdjustStock(
                                         stock.productId,
-                                        stock.branch,
+                                        stock.branchId,
                                         1
                                       )
                                     }

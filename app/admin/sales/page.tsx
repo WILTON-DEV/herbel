@@ -14,12 +14,13 @@ import { useState, useEffect } from "react";
 import type { SalesRecord, Order } from "@/lib/types";
 import { salesApi, ordersApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
-import { branches } from "@/lib/types";
+import { getBranches, type Branch } from "@/lib/branches-api";
 import { StoreIcon, TruckIcon } from "@/components/icons";
 
 export default function SalesPage() {
   const [salesRecords, setSalesRecords] = useState<SalesRecord[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [filterBranch, setFilterBranch] = useState<string>("all");
   const [filterDate, setFilterDate] = useState<string>("all");
   const [loading, setLoading] = useState(true);
@@ -49,15 +50,17 @@ export default function SalesPage() {
         dateFrom = new Date(now.setMonth(now.getMonth() - 1));
       }
 
-      const [salesData, ordersData] = await Promise.all([
+      const [salesData, ordersData, branchesData] = await Promise.all([
         salesApi.getSales({
           dateFrom,
         }),
         ordersApi.getOrders(),
+        getBranches(),
       ]);
 
       setSalesRecords(salesData);
       setOrders(ordersData);
+      setBranches(branchesData);
     } catch (error) {
       console.error("Failed to load sales data:", error);
     } finally {
@@ -66,7 +69,7 @@ export default function SalesPage() {
   };
 
   const filteredSales = salesRecords.filter((sale) => {
-    if (filterBranch !== "all" && sale.branch !== filterBranch) return false;
+    if (filterBranch !== "all" && sale.branchId !== filterBranch) return false;
     return true;
   });
 
@@ -82,7 +85,7 @@ export default function SalesPage() {
 
   // Group sales by branch
   const salesByBranch = branches.map((branch) => {
-    const branchSales = filteredSales.filter((s) => s.branch === branch.id);
+    const branchSales = filteredSales.filter((s) => s.branchId === branch.id);
     const total = branchSales.reduce((sum, s) => sum + s.amount, 0);
     const cash = branchSales
       .filter((s) => s.status === "cash-received")
@@ -309,8 +312,8 @@ export default function SalesPage() {
                           {order?.orderNumber || sale.orderId}
                         </td>
                         <td className="py-3 px-4">
-                          {branches.find((b) => b.id === sale.branch)?.name ||
-                            sale.branch}
+                          {branches.find((b) => b.id === sale.branchId)?.name ||
+                            sale.branchId}
                         </td>
                         <td className="py-3 px-4">
                           {sale.deliveryMethod === "pickup" ? (
@@ -353,7 +356,7 @@ export default function SalesPage() {
                           )}
                         </td>
                         <td className="py-3 px-4 text-sm text-muted-foreground">
-                          {sale.recordedBy}
+                          {sale.recordedById}
                         </td>
                       </tr>
                     );

@@ -1,7 +1,9 @@
 
-
+// Re-export all APIs for backward compatibility
 export { authApi } from "./auth-api";
+export { api, getAuthToken, getApiConfig, API_BASE_URL, API_VERSION } from "./api";
 
+// Re-export as API objects for backward compatibility
 import * as productsApiModule from "./products-api";
 import * as ordersApiModule from "./orders-api";
 import * as inventoryApiModule from "./inventory-api";
