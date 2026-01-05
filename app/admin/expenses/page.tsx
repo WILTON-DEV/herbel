@@ -27,7 +27,7 @@ import type { Expense } from "@/lib/types";
 import { expensesApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
 import { branches } from "@/lib/types";
-import { useAuth } from "@/contexts/AuthContext";
+
 
 const expenseCategories = [
   { id: "supplies", name: "Supplies & Packaging" },
@@ -40,7 +40,7 @@ const expenseCategories = [
 ];
 
 export default function ExpensesPage() {
-  const { user } = useAuth();
+  const [user, setUser] = useState<any>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filterBranch, setFilterBranch] = useState<string>("all");

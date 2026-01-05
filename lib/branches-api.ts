@@ -1,6 +1,6 @@
 
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://herbel-api.onrender.com";
 const API_VERSION = "v1";
 
 function getAuthToken(): string | null {
@@ -13,7 +13,7 @@ async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const token = getAuthToken();
-  
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -44,7 +44,7 @@ async function apiRequest<T>(
 }
 
 export interface Branch {
-  id: string; 
+  id: string;
   name: string;
   address: string;
   phone: string;
@@ -53,7 +53,7 @@ export interface Branch {
 
 let branchesCache: Branch[] | null = null;
 let branchesCacheTime: number = 0;
-const CACHE_TTL = 5 * 60 * 1000; 
+const CACHE_TTL = 5 * 60 * 1000;
 
 export async function getBranches(): Promise<Branch[]> {
   const now = Date.now();
@@ -76,7 +76,7 @@ export async function getBranchIdByName(branchName: string): Promise<string | nu
   const branches = await getBranches();
   const branch = branches.find(
     (b) => b.name.toLowerCase().includes(branchName.toLowerCase()) ||
-           branchName.toLowerCase().includes(b.name.toLowerCase())
+      branchName.toLowerCase().includes(b.name.toLowerCase())
   );
   return branch?.id || null;
 }

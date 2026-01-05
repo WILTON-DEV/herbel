@@ -37,75 +37,76 @@ export function PromoHero() {
   }, [slides.length]);
 
   return (
-    <div className="relative rounded-xl lg:rounded-2xl overflow-hidden h-[320px] lg:h-[460px] bg-white">
+    <div className="relative rounded-xl overflow-hidden min-h-[340px] lg:min-h-[460px] bg-card border border-muted shadow-sm group">
       {slides.map((slide, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-opacity duration-500 ${
-            index === currentSlide ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute h-full w-full inset-0 transition-all duration-700 ease-in-out ${index === currentSlide ? "opacity-100 scale-100" : "opacity-0 scale-105 "
+            }`}
         >
-          <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-            {/* Left: Image */}
-            <div className="relative h-full hidden lg:block">
+          <div className="h-full grid grid-cols-1 lg:grid-cols-2">
+            {/* Left: Image with gradient overlay */}
+            <div className="relative h-full hidden lg:block overflow-hidden">
               <Image
                 src={slide.image}
                 alt={slide.description}
                 fill
-                className="object-cover rounded-l-xl lg:rounded-l-2xl"
+                className="object-cover transition-transform duration-[5000ms] group-hover:scale-110"
               />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/50" />
             </div>
 
             {/* Right: Content */}
-            <div className="flex flex-col justify-center p-4 lg:p-6 h-full">
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1 rounded-full text-xs tracking-wide uppercase mb-3 shadow-sm w-fit">
+            <div className="relative z-10 flex flex-col justify-center px-6 sm:px-8 lg:px-12 h-full">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-[9px] font-black tracking-[0.1em] uppercase mb-4 w-fit border border-primary/20">
                 {slide.title}
               </div>
-              <h2 className="text-2xl lg:text-4xl font-extrabold text-primary leading-tight mb-2 lg:mb-3">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground leading-[1.1] mb-3 tracking-tight">
                 {slide.subtitle}
               </h2>
-              <p className="text-sm lg:text-lg text-primary/80 mb-3 lg:mb-4">
+              <p className="text-[13px] sm:text-sm lg:text-[14.5px] text-muted-foreground mb-6 sm:mb-8 leading-relaxed">
                 {slide.description}
               </p>
-              <div className="flex flex-wrap items-center gap-2 lg:gap-3 mb-4 lg:mb-6">
-                <span className="text-2xl lg:text-3xl font-extrabold text-primary">
-                  {slide.price}
-                </span>
-                <span className="text-base lg:text-lg text-primary/60 line-through">
-                  {slide.oldPrice}
-                </span>
-                <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs lg:text-sm font-semibold shadow-sm">
-                  {slide.badge}
-                </span>
+
+              <div className="flex flex-wrap items-center gap-4 mb-8 sm:mb-10">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-1">Price</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xl sm:text-2xl font-black text-primary">
+                      {slide.price}
+                    </span>
+                    {slide.oldPrice && (
+                      <span className="text-sm sm:text-base font-medium text-muted-foreground/50 line-through">
+                        {slide.oldPrice}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="ml-auto lg:ml-6">
+                  <span className="bg-destructive text-destructive-foreground px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-black shadow-lg shadow-destructive/20 animate-pulse">
+                    {slide.badge}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Link href="/shop">
-                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 lg:px-6 lg:py-3 text-sm lg:text-base">
-                    Shop Now
+
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                <Link href="/shop" className="w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto h-11 sm:h-12 px-8 text-xs sm:text-sm font-black rounded-xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95">
+                    Shop Collection
                   </Button>
                 </Link>
-                <span className="text-xs lg:text-sm text-primary/70">
+                <div className="flex items-center gap-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  <div className="w-1.5 h-1.5 rounded-full bg-success ring-4 ring-success/10" />
                   Free delivery over UGX 50k
-                </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       ))}
 
-      {/* Carousel indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
-            className={`h-2 rounded-full transition-all ${
-              index === currentSlide ? "bg-primary w-8" : "bg-gray-300 w-2"
-            }`}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div>
+
     </div>
   );
 }

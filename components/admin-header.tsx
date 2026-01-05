@@ -11,17 +11,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Menu } from "lucide-react";
+import { useState } from "react";
 
 type AdminHeaderProps = {
   onMenuClick?: () => void;
 };
 
 export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
-  const { user, logout } = useAuth();
+  const [user, setUser] = useState<any>(null);
+  const [logout, setLogout] = useState<() => void>(() => () => {});
+
   const router = useRouter();
 
   const handleLogout = () => {

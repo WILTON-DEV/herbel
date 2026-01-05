@@ -26,7 +26,7 @@ import type {
   Expense,
 } from "@/lib/types";
 import { formatUGX } from "@/lib/inventory";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { branches } from "@/lib/types";
 import {
   Dialog,
@@ -45,7 +45,7 @@ type StatCard = {
 };
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const [user, setUser] = useState<any>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);

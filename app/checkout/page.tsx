@@ -16,11 +16,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { getBranches, type Branch } from "@/lib/branches-api";
 import { useEffect } from "react";
 import { CreditCardIcon, WalletIcon } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
-  const { user, loading: authLoading } = useAuth();
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState<boolean>(true);
+  
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);

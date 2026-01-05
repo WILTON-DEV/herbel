@@ -36,10 +36,10 @@ import type { Order, OrderStatus, PaymentMethod, Product } from "@/lib/types";
 import { ordersApi, productsApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
 import { branches } from "@/lib/types";
-import { useAuth } from "@/contexts/AuthContext";
+  
 
 export default function OrdersPage() {
-  const { user } = useAuth();
+  const [user, setUser] = useState<any>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);

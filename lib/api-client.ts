@@ -21,7 +21,7 @@ import type {
 } from "./types";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_API_URL || "https://herbel-api.onrender.com";
 const API_VERSION = "v1";
 
 function getAuthToken(): string | null {
@@ -38,7 +38,7 @@ export async function apiRequest<T>(
   }
 
   const token = getAuthToken();
-  
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -95,11 +95,11 @@ function adaptProduct(backendProduct: any): Product {
     updatedAt: new Date(backendProduct.updatedAt),
     category: backendProduct.category
       ? {
-          id: backendProduct.category.id,
-          name: backendProduct.category.name,
-          slug: backendProduct.category.slug,
-          description: backendProduct.category.description ?? null,
-        }
+        id: backendProduct.category.id,
+        name: backendProduct.category.name,
+        slug: backendProduct.category.slug,
+        description: backendProduct.category.description ?? null,
+      }
       : undefined,
   };
 }
@@ -126,12 +126,12 @@ function adaptOrder(backendOrder: any): Order {
     updatedAt: new Date(backendOrder.updatedAt),
     branch: backendOrder.branch
       ? {
-          id: backendOrder.branch.id,
-          name: backendOrder.branch.name,
-          address: backendOrder.branch.address,
-          phone: backendOrder.branch.phone,
-          isActive: backendOrder.branch.isActive,
-        }
+        id: backendOrder.branch.id,
+        name: backendOrder.branch.name,
+        address: backendOrder.branch.address,
+        phone: backendOrder.branch.phone,
+        isActive: backendOrder.branch.isActive,
+      }
       : null,
     items: backendOrder.items?.map((item: any) => ({
       id: item.id,
@@ -204,7 +204,7 @@ export const authApi = {
       // Check for error in response
       if (response?.error) {
         const errorObj = response.error;
-        const errorMessage = errorObj?.message || 
+        const errorMessage = errorObj?.message ||
           (typeof response.error === 'string' ? response.error : "Invalid email or password");
         return { user: null, error: errorMessage };
       }
@@ -212,7 +212,7 @@ export const authApi = {
       // After successful sign in, get the session to retrieve user and token
       // Better-auth handles session management, so we get it from getSession
       const session = await authClient.getSession();
-      
+
       if (!session?.data?.user) {
         return { user: null, error: "Failed to get user session after login" };
       }
@@ -231,9 +231,9 @@ export const authApi = {
         localStorage.setItem("herbel_token", token);
       }
 
-   
 
-      const user = session.data.user as any; 
+
+      const user = session.data.user as any;
       const mappedUser: User = {
         id: user.id,
         name: user.name ?? null,
@@ -249,7 +249,7 @@ export const authApi = {
         createdAt: new Date(user.createdAt),
         updatedAt: new Date(user.updatedAt || user.createdAt),
       };
-      
+
       return { user: mappedUser, error: null };
     } catch (error: any) {
       console.error("Login error:", error);
@@ -277,7 +277,7 @@ export const authApi = {
         localStorage.setItem("herbel_token", (session as any).data.token);
       }
 
-      const user = session.data.user as any; 
+      const user = session.data.user as any;
       return {
         id: user.id,
         name: user.name ?? null,
@@ -466,12 +466,12 @@ export const productsApi = {
       price: productData.price,
       stock: productData.stock,
     };
-    
+
     if (productData.image) {
       payload.image = productData.image;
       payload.images = [productData.image];
     }
-    
+
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (productData.category) {
       if (typeof productData.category === 'string' && uuidRegex.test(productData.category)) {
@@ -494,17 +494,17 @@ export const productsApi = {
     updates: Partial<Omit<Product, "id" | "createdAt" | "updatedAt" | "category">>
   ): Promise<Product> => {
     const payload: any = {};
-    
+
     if (updates.name !== undefined) payload.name = updates.name;
     if (updates.description !== undefined) payload.description = updates.description ?? null;
     if (updates.price !== undefined) payload.price = updates.price;
     if (updates.stock !== undefined) payload.stock = updates.stock;
-    
+
     if (updates.image !== undefined || updates.images !== undefined) {
       if (updates.image) {
         payload.image = updates.image;
-        payload.images = updates.images && updates.images.length > 0 
-          ? updates.images 
+        payload.images = updates.images && updates.images.length > 0
+          ? updates.images
           : [updates.image];
       } else if (updates.images) {
         payload.images = updates.images;
@@ -514,7 +514,7 @@ export const productsApi = {
         payload.images = [];
       }
     }
-    
+
     if (updates.categoryId !== undefined) {
       if (updates.categoryId) {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -548,23 +548,23 @@ export const ordersApi = {
   }): Promise<Order[]> => {
     const params = new URLSearchParams();
     if (filters?.status) {
-      params.append("status", filters.status); 
+      params.append("status", filters.status);
     }
     if (filters?.branchId && filters.branchId !== "all") {
       params.append("branchId", filters.branchId);
     }
     if (filters?.source) {
-      params.append("source", filters.source); 
+      params.append("source", filters.source);
     }
 
     const query = params.toString();
     const endpoint = query ? `orders?${query}` : "orders";
-    
+
     const response = await apiRequest<{ data: any[]; total?: number }>(endpoint);
     const orders = Array.isArray(response) ? response : response.data || [];
-    
+
     let filtered = orders.map(adaptOrder);
-    
+
     if (filters?.search) {
       const searchLower = filters.search.toLowerCase();
       filtered = filtered.filter(
@@ -629,16 +629,16 @@ export const ordersApi = {
     const payload: any = {};
 
     if (updates.status !== undefined) {
-      payload.status = updates.status; 
+      payload.status = updates.status;
     }
     if (updates.paymentMethod !== undefined) {
-      payload.paymentMethod = updates.paymentMethod; 
+      payload.paymentMethod = updates.paymentMethod;
     }
     if (updates.deliveryMethod !== undefined) {
-      payload.deliveryMethod = updates.deliveryMethod; 
+      payload.deliveryMethod = updates.deliveryMethod;
     }
     if (updates.branchId !== undefined) {
-      payload.branchId = updates.branchId ?? null; 
+      payload.branchId = updates.branchId ?? null;
     }
     if (updates.location !== undefined) {
       payload.location = updates.location ?? null;
@@ -673,10 +673,10 @@ export const ordersApi = {
 
 export const inventoryApi = {
   getInventory: async (branchId?: string): Promise<InventoryItem[]> => {
-    const endpoint = branchId && branchId !== "all" 
+    const endpoint = branchId && branchId !== "all"
       ? `inventory?branchId=${branchId}`
       : "inventory";
-    
+
     const response = await apiRequest<any[]>(endpoint);
     return response.map((item: any) => ({
       id: item.id,
@@ -696,8 +696,8 @@ export const inventoryApi = {
     const response = await apiRequest<any>("inventory/set", {
       method: "POST",
       body: JSON.stringify({
-        productId, 
-        branchId, 
+        productId,
+        branchId,
         quantity: Math.max(0, quantity),
       }),
     });
@@ -720,9 +720,9 @@ export const inventoryApi = {
     const response = await apiRequest<any>("inventory/adjust", {
       method: "PATCH",
       body: JSON.stringify({
-            productId, 
-        branchId, 
-        quantity: adjustment, 
+        productId,
+        branchId,
+        quantity: adjustment,
       }),
     });
 
@@ -744,7 +744,7 @@ export const salesApi = {
     dateTo?: Date;
   }): Promise<SalesRecord[]> => {
     let endpoint = "sales";
-    
+
     if (filters?.dateFrom || filters?.dateTo) {
       const params = new URLSearchParams();
       if (filters?.dateFrom) {
@@ -760,10 +760,10 @@ export const salesApi = {
     } else if (filters?.branchId && filters.branchId !== "all") {
       endpoint = `sales/by-branch/${filters.branchId}`;
     }
-    
+
     const response = await apiRequest<{ data: any[] }>(endpoint);
     const sales = Array.isArray(response) ? response : response.data || [];
-    
+
     return sales.map((sale: any) => ({
       id: sale.id,
       orderId: sale.orderId,
@@ -785,7 +785,7 @@ export const expensesApi = {
     category?: string;
   }): Promise<Expense[]> => {
     let endpoint = "expenses";
-    
+
     if (filters?.branch && filters.branch !== "all") {
       endpoint = `expenses/by-branch/${filters.branch}`;
     } else if (filters?.category && filters.category !== "all") {
@@ -794,7 +794,7 @@ export const expensesApi = {
 
     const response = await apiRequest<{ data: any[] }>(endpoint);
     const expenses = Array.isArray(response) ? response : response.data || [];
-    
+
     return expenses.map((expense: any) => ({
       id: expense.id,
       branchId: expense.branchId || expense.branch?.id,
@@ -917,7 +917,7 @@ export const categoriesApi = {
 };
 
 export const customersApi = {
-  getCustomers: async (): Promise<Customer[]> => {  
+  getCustomers: async (): Promise<Customer[]> => {
     const orders = await ordersApi.getOrders();
     const customerMap = new Map<string, Customer>();
 
@@ -953,7 +953,7 @@ export const userApi = {
   getUsers: async (): Promise<User[]> => {
     try {
       const response = await (authClient as any).admin.listUsers();
-      
+
       if (response.error) {
         throw new Error(response.error.message || "Failed to fetch users");
       }
@@ -1011,8 +1011,8 @@ export const userApi = {
         email: data.email,
         password: data.password,
         name: data.name,
-        role: mapRoleToBackend(data.role), 
-        branchId: data.branchId ?? null, 
+        role: mapRoleToBackend(data.role),
+        branchId: data.branchId ?? null,
       });
 
       if (response.error) {
@@ -1038,13 +1038,13 @@ export const userApi = {
     } catch (error: any) {
       console.error("Failed to create user:", error);
       try {
-      const payload = {
-        email: data.email,
-        password: data.password,
-        name: data.name,
-        role: mapRoleToBackend(data.role), 
-        branchId: data.branchId ?? null, 
-      };
+        const payload = {
+          email: data.email,
+          password: data.password,
+          name: data.name,
+          role: mapRoleToBackend(data.role),
+          branchId: data.branchId ?? null,
+        };
 
         const user = await apiRequest<any>("users", {
           method: "POST",
@@ -1080,11 +1080,11 @@ export const userApi = {
       branchId?: string | null;
     }
   ): Promise<User> => {
-        try {
+    try {
       const payload: any = {};
       if (updates.name) payload.name = updates.name;
-      if (updates.role) payload.role = mapRoleToBackend(updates.role); 
-      if (updates.branchId !== undefined) payload.branchId = updates.branchId ?? null; 
+      if (updates.role) payload.role = mapRoleToBackend(updates.role);
+      if (updates.branchId !== undefined) payload.branchId = updates.branchId ?? null;
 
       const response = await (authClient as any).admin.updateUser(id, payload);
 
@@ -1145,7 +1145,7 @@ export const userApi = {
   deleteUser: async (id: string): Promise<void> => {
     try {
       const response = await (authClient as any).admin.deleteUser(id);
-      
+
       if (response.error) {
         throw new Error(response.error.message || "Failed to delete user");
       }
@@ -1171,11 +1171,11 @@ export const reviewsApi = {
       updatedAt: new Date(review.updatedAt),
       user: review.user
         ? {
-            id: review.user.id,
-            name: review.user.name ?? null,
-            email: review.user.email,
-            image: review.user.image ?? null,
-          }
+          id: review.user.id,
+          name: review.user.name ?? null,
+          email: review.user.email,
+          image: review.user.image ?? null,
+        }
         : undefined,
     }));
   },
@@ -1199,11 +1199,11 @@ export const reviewsApi = {
       updatedAt: new Date(response.updatedAt),
       user: response.user
         ? {
-            id: response.user.id,
-            name: response.user.name ?? null,
-            email: response.user.email,
-            image: response.user.image ?? null,
-          }
+          id: response.user.id,
+          name: response.user.name ?? null,
+          email: response.user.email,
+          image: response.user.image ?? null,
+        }
         : undefined,
     };
   },
@@ -1226,11 +1226,11 @@ export const reviewsApi = {
       updatedAt: new Date(response.updatedAt),
       user: response.user
         ? {
-            id: response.user.id,
-            name: response.user.name ?? null,
-            email: response.user.email,
-            image: response.user.image ?? null,
-          }
+          id: response.user.id,
+          name: response.user.name ?? null,
+          email: response.user.email,
+          image: response.user.image ?? null,
+        }
         : undefined,
     };
   },
@@ -1238,6 +1238,57 @@ export const reviewsApi = {
   deleteReview: async (id: string): Promise<void> => {
     await apiRequest(`reviews/${id}`, {
       method: "DELETE",
+    });
+  },
+};
+
+export const cartApi = {
+  getCart: async (): Promise<any> => {
+    return apiRequest<any>("cart");
+  },
+  addItem: async (productId: string, quantity: number, price: number): Promise<any> => {
+    return apiRequest<any>("cart/add", {
+      method: "POST",
+      body: JSON.stringify({ productId, quantity, price }),
+    });
+  },
+  updateItem: async (productId: string, quantity: number): Promise<any> => {
+    return apiRequest<any>("cart/update", {
+      method: "PATCH",
+      body: JSON.stringify({ productId, quantity }),
+    });
+  },
+  removeItem: async (productId: string): Promise<void> => {
+    await apiRequest(`cart/remove/${productId}`, {
+      method: "DELETE",
+    });
+  },
+  clearCart: async (): Promise<void> => {
+    await apiRequest("cart/clear", {
+      method: "DELETE",
+    });
+  },
+};
+
+export const notificationsApi = {
+  getNotifications: async (options: { limit?: number; offset?: number } = {}): Promise<any> => {
+    const params = new URLSearchParams();
+    if (options.limit) params.append("limit", options.limit.toString());
+    if (options.offset) params.append("offset", options.offset.toString());
+    const query = params.toString();
+    return apiRequest<any>(query ? `notifications?${query}` : "notifications");
+  },
+  getUnreadCount: async (): Promise<{ count: number }> => {
+    return apiRequest<{ count: number }>("notifications/unread-count");
+  },
+  markAsRead: async (id: string): Promise<void> => {
+    await apiRequest(`notifications/${id}/read`, {
+      method: "PATCH",
+    });
+  },
+  markAllAsRead: async (): Promise<void> => {
+    await apiRequest("notifications/read-all", {
+      method: "PATCH",
     });
   },
 };
@@ -1266,11 +1317,11 @@ export const settingsApi = {
   updateSettings: async (updates: Partial<Settings>): Promise<Settings> => {
     const current = await settingsApi.getSettings();
     const updated = { ...current, ...updates };
-    
+
     if (typeof window !== "undefined") {
       localStorage.setItem("herbel_settings", JSON.stringify(updated));
     }
-    
+
     return updated;
   },
 };

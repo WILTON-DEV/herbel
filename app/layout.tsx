@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
-import { CartProvider } from "@/lib/cart-context";
-import { AuthProvider } from "@/contexts/AuthContext";
 import { ConditionalLayout } from "@/components/conditional-layout";
+import { AuthUIProvider, ReduxProvider } from "@/components/providers";
+import { AuthSyncProvider } from "@/components/auth/AuthSyncProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,14 +27,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="font-sans antialiased text-foreground bg-gray-50">
-        <AuthProvider>
-          <CartProvider>
-            <Suspense>
-              <ConditionalLayout>{children}</ConditionalLayout>
-            </Suspense>
-          </CartProvider>
-        </AuthProvider>
+      <body className="font-sans antialiased text-foreground" cz-shortcut-listen="true">
+        <ReduxProvider>
+          <AuthUIProvider>
+            <AuthSyncProvider>
+              <Suspense>
+                <ConditionalLayout>{children}</ConditionalLayout>
+              </Suspense>
+            </AuthSyncProvider>
+          </AuthUIProvider>
+        </ReduxProvider>
+
       </body>
     </html>
   );

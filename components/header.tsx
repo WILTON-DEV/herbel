@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/input-group";
 import { SearchIcon, ShoppingCartIcon } from "@/components/icons";
 import Link from "next/link";
-import { useCart } from "@/lib/cart-context";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { useCart } from "@/lib/hooks/useCart";
 import { useState, useEffect } from "react";
 import {
   Sheet,
@@ -30,7 +31,7 @@ import {
 import { ChevronRight, LogIn, Menu, Search, X, User, LogOut } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+
 
 const categories = [
   { name: "All Products", href: "/shop" },
@@ -46,8 +47,8 @@ const categories = [
 ];
 
 export function Header() {
-  const { totalItems } = useCart();
-  const { user, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { itemCount } = useCart();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -67,74 +68,74 @@ export function Header() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className=" border-b  top-0 z-50  max-w-7xl mx-auto">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Mobile Menu */}
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="flex h-12 sm:h-14 lg:h-16 items-center justify-between gap-4">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden"
+                className="lg:hidden h-9 w-9 -ml-2 rounded-xl hover:bg-primary/5 hover:text-primary transition-all"
                 aria-label="Open menu"
               >
-                <Menu className="h-6 w-6" />
+                <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
 
             <SheetContent
               side="left"
-              className="p-0 w-[320px] sm:w-[360px] /95 backdrop-blur supports-[backdrop-filter]:/80"
+              className="p-0 w-[320px] sm:w-[360px] bg-background/95 backdrop-blur-lg"
             >
               {/* Branded header */}
-              <div className="flex items-center justify-between px-4 py-4 border-b">
+              <div className="flex items-center justify-between px-6 py-6 border-b">
                 <Link
                   href="/"
-                  // onClick={() => setOpen(false)}
                   aria-label="Go to home"
                 >
-                  <Logo variant="default" />
+                  <Logo />
                 </Link>
+                <SheetClose asChild>
+                  <Button variant="ghost" size="icon">
+                    <X className="h-5 w-5" />
+                  </Button>
+                </SheetClose>
               </div>
 
               {/* Optional search */}
-              <div className="px-4 pt-4 pb-2">
+              <div className="px-6 pt-6 pb-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="search"
-                    placeholder="Search products"
-                    className="min-w-[200px]"
-                    // no onSubmit here; wire up when ready
+                    placeholder="Search products..."
+                    className="pl-10 h-11 bg-muted/50 border-transparent focus:bg-background transition-all"
                   />
                 </div>
               </div>
 
               {/* Navigation */}
-              <nav className="mt-2">
-                <ul className="px-2">
+              <nav className="mt-4 px-3">
+                <ul className="space-y-1">
                   {categories.map((category) => (
                     <li key={category.name}>
                       <Link
                         href={category.href}
-                        // onClick={() => setOpen(false)}
                         className={[
-                          "group flex items-center justify-between rounded-lg px-3 py-3",
-                          "text-sm font-medium",
-                          "transition-colors",
+                          "group flex items-center justify-between rounded-xl px-4 py-3.5",
+                          "text-sm font-medium transition-all",
                           isActive(category.href)
-                            ? "bg-gray-100 text-gray-900"
-                            : "text-gray-700 hover:bg-gray-50 hover:text-gray-900",
+                            ? "bg-primary/5 text-primary"
+                            : "text-foreground/70 hover:bg-muted hover:text-foreground",
                         ].join(" ")}
                       >
                         <span className="truncate">{category.name}</span>
                         <ChevronRight
                           className={[
-                            "h-4 w-4",
+                            "h-4 w-4 transition-transform group-hover:translate-x-0.5",
                             isActive(category.href)
-                              ? "text-gray-700"
-                              : "text-gray-400 group-hover:text-gray-500",
+                              ? "text-primary"
+                              : "text-muted-foreground",
                           ].join(" ")}
                         />
                       </Link>
@@ -143,18 +144,18 @@ export function Header() {
                 </ul>
 
                 {/* Divider + Account */}
-                <div className="my-4 border-t" />
-                <div className="px-2 pb-2">
+                <div className="my-6 border-t border-muted" />
+                <div className="space-y-1">
                   {mounted && user ? (
                     <>
-                      <div className="px-3 py-2 mb-2">
-                        <p className="text-sm font-medium text-gray-900">{user.name || "User"}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
+                      <div className="px-4 py-3 mb-2 bg-muted/30 rounded-xl">
+                        <p className="text-sm font-semibold text-foreground">{user.name || "User"}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
                       <Link
                         href="/account/orders"
                         onClick={() => setOpen(false)}
-                        className="flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                        className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
                       >
                         <User className="h-4 w-4" />
                         <span>My Orders</span>
@@ -164,7 +165,7 @@ export function Header() {
                           handleLogout();
                           setOpen(false);
                         }}
-                        className="flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                        className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-destructive hover:bg-destructive/5 transition-all w-full text-left"
                       >
                         <LogOut className="h-4 w-4" />
                         <span>Log out</span>
@@ -174,7 +175,7 @@ export function Header() {
                     <Link
                       href="/login"
                       onClick={() => setOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                      className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
                     >
                       <LogIn className="h-4 w-4" />
                       <span>Account / Sign In</span>
@@ -183,24 +184,16 @@ export function Header() {
                 </div>
               </nav>
 
-              {/* Bottom actions (safe area) */}
-              <div className="mt-2 border-t px-4 py-4 pb-[max(env(safe-area-inset-bottom),1rem)]">
+              {/* Bottom actions */}
+              <div className="absolute bottom-0 left-0 right-0 border-t bg-background p-6 pb-[max(env(safe-area-inset-bottom),1.5rem)]">
                 <div className="flex gap-3">
-                  <Link
-                    href="/cart"
-                    // onClick={() => setOpen(false)}
-                    className="w-full"
-                  >
-                    <Button variant="outline" className="w-full">
+                  <Link href="/cart" className="flex-1">
+                    <Button variant="outline" className="w-full h-11 rounded-xl">
                       View Cart
                     </Button>
                   </Link>
-                  <Link
-                    href="/products"
-                    // onClick={() => setOpen(false)}
-                    className="w-full"
-                  >
-                    <Button className="w-full bg-[#c9a961] hover:bg-[#b89851] text-white">
+                  <Link href="/shop" className="flex-1">
+                    <Button className="w-full h-11 rounded-xl shadow-lg shadow-primary/20">
                       Shop Now
                     </Button>
                   </Link>
@@ -210,48 +203,48 @@ export function Header() {
           </Sheet>
 
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center transition-opacity hover:opacity-90">
             <Logo />
           </Link>
 
           {/* Desktop Search - Centered */}
-          <div className="hidden lg:flex flex-1 justify-center items-center">
-            <InputGroup className="w-full max-w-lg min-w-[300px]">
-              <InputGroupAddon align="inline-start">
-                <Search className="h-4 w-4" />
-              </InputGroupAddon>
-              <InputGroupInput type="search" placeholder="Search products..." />
-            </InputGroup>
+          <div className="hidden lg:flex flex-1 justify-center items-center px-8 lg:px-12">
+            <div className="relative w-full max-w-md group">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground transition-colors group-focus-within:text-primary" />
+              <Input
+                type="search"
+                placeholder="Search premium botanicals..."
+                className="pl-9 h-9 bg-muted/30 border-transparent rounded-xl focus:bg-background focus:ring-primary/5 transition-all text-[12px]"
+              />
+            </div>
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 font-medium">
             {mounted && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="hidden lg:flex items-center gap-2 text-sm hover:text-[#c9a961] transition-colors"
+                    className="hidden lg:flex items-center gap-2 text-sm rounded-full px-4 hover:bg-primary/5 hover:text-primary transition-all"
                   >
                     <User className="w-5 h-5" />
-                    <span>{user.name || user.email}</span>
+                    <span className="max-w-[100px] truncate">{user.name || user.email}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl border-muted shadow-xl">
+                  <DropdownMenuLabel className="px-4 py-3">
                     <div className="space-y-1">
-                      <p className="font-medium text-sm">{user.name || "User"}</p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                      <p className="font-bold text-foreground">{user.name || "User"}</p>
+                      <p className="text-xs text-muted-foreground font-normal truncate">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/account/orders" className="cursor-pointer">
-                      My Orders
-                    </Link>
+                  <DropdownMenuSeparator className="mx-2" />
+                  <DropdownMenuItem asChild className="rounded-xl px-4 py-2.5 cursor-pointer">
+                    <Link href="/account/orders">My Orders</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
+                  <DropdownMenuSeparator className="mx-2" />
+                  <DropdownMenuItem onClick={handleLogout} className="rounded-xl px-4 py-2.5 text-destructive focus:bg-destructive/5 focus:text-destructive cursor-pointer">
                     <LogOut className="w-4 h-4 mr-2" />
                     Log out
                   </DropdownMenuItem>
@@ -260,39 +253,40 @@ export function Header() {
             ) : (
               <Link
                 href="/login"
-                className="hidden lg:flex items-center gap-2 text-sm hover:text-[#c9a961] transition-colors"
+                className="hidden lg:flex items-center gap-2 text-sm rounded-full px-5 py-2 hover:bg-primary/5 hover:text-primary transition-all"
               >
                 <LogIn className="w-5 h-5" />
                 <span>Sign In</span>
               </Link>
             )}
 
-            <Link href="/cart" className="relative">
-              <ShoppingCartIcon className="w-6 h-6" />
-              {mounted && totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 w-5 h-5 bg-[#c9a961] rounded-full text-xs flex items-center justify-center text-white font-bold">
-                  {totalItems}
-                </span>
-              )}
+            <Link href="/cart">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative h-10 w-10 rounded-full hover:bg-primary/5 hover:text-primary transition-all"
+                aria-label="Shopping cart"
+              >
+                <ShoppingCartIcon className="h-5 w-5" />
+                {mounted && itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center shadow-lg animate-in zoom-in-50">
+                    {itemCount}
+                  </span>
+                )}
+              </Button>
             </Link>
           </div>
         </div>
 
-        {/* Mobile Search */}
-        <div className="lg:hidden pb-3">
-          <div className="relative">
+        {/* Mobile Search Bar - Outside the header row */}
+        <div className="lg:hidden pb-3 px-1">
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input
               type="search"
               placeholder="Search products..."
-              className="w-full pr-10"
+              className="w-full pl-9 h-9 bg-muted/40 border-transparent rounded-lg focus:bg-background transition-all text-xs"
             />
-            <Button
-              size="icon"
-              variant="ghost"
-              className="absolute right-0 top-0 h-full"
-            >
-              <SearchIcon className="w-5 h-5" />
-            </Button>
           </div>
         </div>
       </div>
