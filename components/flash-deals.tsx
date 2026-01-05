@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { productsApi } from "@/lib/api-client";
-import { Product } from "@/lib/types";
+import { useProducts } from "@/lib/hooks/useProducts";
 import { ProductCard } from "@/components/product-card";
+import { BackgroundDecoration } from "@/components/background-decoration";
 import { Zap } from "lucide-react";
 
 export function FlashDeals() {
@@ -13,8 +13,7 @@ export function FlashDeals() {
     minutes: 23,
     seconds: 45,
   });
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { products, loading, loadProducts } = useProducts();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -33,52 +32,52 @@ export function FlashDeals() {
   }, []);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await productsApi.getProducts({ limit: 12 });
-        setProducts(data);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+    loadProducts({ limit: 12 });
+  }, [loadProducts]);
 
   return (
-    <div className="rounded-lg overflow-hidden">
-      <div className="bg-red-500 text-white px-3 lg:px-4 py-2 lg:py-2.5 rounded-t-lg flex items-center justify-between flex-wrap gap-2">
+    <div className="relative rounded-xl overflow-hidden bg-card border border-muted shadow-sm group">
+      <BackgroundDecoration type="organic" position="top-right" opacity={0.02} />
+      <BackgroundDecoration type="dots" position="bottom-left" opacity={0.015} />
+
+      <div className="relative z-10 bg-destructive text-destructive-foreground px-3 sm:px-5 py-2 sm:py-3 flex items-center justify-between flex-wrap gap-3 sm:gap-5">
         {/* Left: Flash Sales with icon */}
-        <div className="flex items-center gap-1.5">
-          <Zap className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-          <h2 className="text-base lg:text-lg font-bold">Flash Sales</h2>
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="bg-white/20 p-1.5 rounded-lg">
+            <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-yellow-400 fill-yellow-400" />
+          </div>
+          <div>
+            <h2 className="text-sm sm:text-lg font-black uppercase tracking-wider leading-none mb-0.5">Flash Sales</h2>
+            <p className="text-[8px] sm:text-[9px] font-bold opacity-70 uppercase tracking-[0.2em]">Limited time offers</p>
+          </div>
         </div>
 
         {/* Center: Time Left with countdown boxes */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs lg:text-sm">Time left</span>
-          <div className="flex gap-1.5">
+        <div className="flex items-center gap-2.5 sm:gap-3 bg-black/10 px-3 sm:px-5 py-1.5 rounded-xl border border-white/10 backdrop-blur-sm">
+          <span className="hidden xs:inline text-[9px] sm:text-[10px] font-bold uppercase tracking-widest opacity-80">Ending In</span>
+          <div className="flex gap-2.5 sm:gap-3 items-center">
             {/* Hours Box */}
-            <div className="bg-red-600 rounded-md px-2 py-1.5 text-center min-w-[50px]">
-              <div className="text-sm lg:text-base font-bold">
+            <div className="text-center">
+              <div className="text-sm sm:text-base font-black tabular-nums">
                 {String(timeLeft.hours).padStart(2, "0")}
               </div>
-              <div className="text-[10px] lg:text-xs">Hours</div>
+              <div className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tighter opacity-60">Hrs</div>
             </div>
+            <div className="text-sm sm:text-base font-black opacity-30">:</div>
             {/* Minutes Box */}
-            <div className="bg-red-600 rounded-md px-2 py-1.5 text-center min-w-[50px]">
-              <div className="text-sm lg:text-base font-bold">
+            <div className="text-center">
+              <div className="text-sm sm:text-base font-black tabular-nums">
                 {String(timeLeft.minutes).padStart(2, "0")}
               </div>
-              <div className="text-[10px] lg:text-xs">Mins</div>
+              <div className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tighter opacity-60">Min</div>
             </div>
+            <div className="text-sm sm:text-base font-black opacity-30">:</div>
             {/* Seconds Box */}
-            <div className="bg-red-600 rounded-md px-2 py-1.5 text-center min-w-[50px]">
-              <div className="text-sm lg:text-base font-bold">
+            <div className="text-center">
+              <div className="text-sm sm:text-base font-black tabular-nums text-yellow-400">
                 {String(timeLeft.seconds).padStart(2, "0")}
               </div>
-              <div className="text-[10px] lg:text-xs">Secs</div>
+              <div className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tighter opacity-60">Sec</div>
             </div>
           </div>
         </div>
@@ -86,15 +85,17 @@ export function FlashDeals() {
         {/* Right: See All */}
         <Link
           href="/shop?filter=flash-deals"
-          className="text-white hover:text-yellow-200 text-xs lg:text-sm font-medium transition-colors"
+          className="bg-white/10 hover:bg-white/20 px-3 sm:px-5 py-2 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all text-center flex-1 sm:flex-none"
         >
-          See All &gt;
+          View All deals
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-4 p-3 sm:p-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 p-6">
         {loading ? (
-          <div className="col-span-full text-center py-8">Loading flash deals...</div>
+          <div className="col-span-full text-center py-20 font-bold text-muted-foreground uppercase tracking-widest animate-pulse">
+            Loading flash deals...
+          </div>
         ) : (
           products.map((product) => (
             <ProductCard

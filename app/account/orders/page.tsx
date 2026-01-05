@@ -16,7 +16,6 @@ import { ordersApi } from "@/lib/api-client";
 import { formatUGX } from "@/lib/inventory";
 import type { Order } from "@/lib/types";
 import { EyeIcon } from "@/components/icons";
-import { useAuth } from "@/contexts/AuthContext";
 
 function getStatusLabel(status: string) {
   const labels: Record<string, string> = {
@@ -43,7 +42,7 @@ function getStatusColor(status: string) {
 }
 
 export default function OrdersPage() {
-  const { user } = useAuth();
+  const [user, setUser] = useState<any>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);

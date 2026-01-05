@@ -25,10 +25,10 @@ import { Badge } from "@/components/ui/badge";
 import { PlusIcon, TrashIcon } from "@/components/icons";
 import { userApi } from "@/lib/api-client";
 import type { User } from "@/lib/types";
-import { useAuth } from "@/contexts/AuthContext";
+
 
 export default function UsersPage() {
-  const { user: currentUser } = useAuth();
+  const currentUser = null;
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);

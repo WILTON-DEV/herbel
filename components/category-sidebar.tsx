@@ -29,21 +29,21 @@ const categories = [
 
 export function CategorySidebar() {
   return (
-    <div className=" overflow-hidden">
-      <div className="bg-primary/10 text-primary px-4 py-3 font-semibold">
+    <div className="bg-card rounded-2xl border border-muted shadow-sm overflow-hidden">
+      <div className="bg-primary px-5 py-4 font-bold text-primary-foreground text-sm uppercase tracking-wider">
         Shop by Category
       </div>
-      <nav className="py-2">
+      <nav className="py-3 px-2 space-y-1">
         {categories.map((category) => {
           const Icon = category.icon;
           return (
             <Link
               key={category.name}
               href={category.href}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors group"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-primary/5 transition-all group"
             >
-              <Icon className="w-5 h-5 text-primary group-hover:text-accent transition-colors" />
-              <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+              <Icon className="w-5 h-5 text-primary/60 group-hover:text-primary transition-colors" />
+              <span className="text-sm font-medium text-foreground/80 group-hover:text-primary transition-colors">
                 {category.name}
               </span>
             </Link>

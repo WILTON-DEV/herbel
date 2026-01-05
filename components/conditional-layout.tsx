@@ -7,9 +7,14 @@ import { Footer } from "@/components/footer";
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdminPage = pathname?.startsWith("/admin");
+  const isAuthPage = pathname?.startsWith("/auth") ||
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/verify-email" ||
+    pathname?.startsWith("/admin/auth");
 
-  if (isAdminPage) {
-    // Admin pages don't need storefront header/footer
+  if (isAdminPage || isAuthPage) {
+    // Admin and Auth pages don't need storefront header/footer
     return <>{children}</>;
   }
 

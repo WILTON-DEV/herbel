@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/lib/cart-context";
+import { useCart } from "@/lib/hooks/useCart";
 import Link from "next/link";
 import Image from "next/image";
 import { formatUGX } from "@/lib/inventory";
@@ -32,75 +32,75 @@ export function ProductCard({
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
 
-  const handleAddToCart = () => {
-    addItem({ id, name, price, image });
+  const handleAddToCart = async () => {
+    await addItem(id, 1, price, name, image);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
   return (
     <div
-      className={`rounded-lg overflow-hidden flex flex-col h-full border transition-all duration-300 ${
-        isFlashSale
-          ? "border-gray-100 hover:border-red-500 hover:shadow-lg"
-          : "border-gray-100 hover:shadow-md"
-      }`}
+      className={`group rounded-xl overflow-hidden flex flex-col h-full bg-card border border-muted transition-all duration-500 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1`}
     >
-      <Link href={`/product/${id}`} className="block">
-        <div className="relative aspect-square bg-[#f5f1e8] p-2">
-          <Image src={image} alt={name} fill className="object-cover rounded" />
-          {showSaleTag && (
-            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold z-10">
-              SALE
-            </div>
-          )}
+      <Link href={`/product/${id}`} className="block relative overflow-hidden">
+        <div className="relative aspect-square bg-[#f8f9fa] transition-transform duration-700 group-hover:scale-105">
+          <Image
+            src={image}
+            alt={name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+          />
         </div>
+
+        {showSaleTag && (
+          <div className="absolute top-3 left-3 bg-destructive text-destructive-foreground px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg z-10">
+            SALE
+          </div>
+        )}
+
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/2 transition-colors duration-500" />
       </Link>
 
-      <div className="p-2 flex-1 flex flex-col">
-        <Link href={`/product/${id}`}>
-          <h3 className="text-xs sm:text-sm font-medium text-gray-900 line-clamp-2 mb-1 hover:text-[#c9a961] transition-colors leading-tight">
-            {name}
-          </h3>
-        </Link>
-
-        <div className="flex items-center gap-0.5 mb-1.5">
+      <div className="p-2 sm:p-2.5 flex-1 flex flex-col">
+        <div className="flex items-center gap-1 mb-1">
           {[...Array(5)].map((_, i) => (
             <StarIcon
               key={i}
-              className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${
-                i < Math.floor(rating)
-                  ? "text-[#c9a961] fill-[#c9a961]"
-                  : "text-gray-300"
-              }`}
+              className={`w-2 h-2 sm:w-2.2 sm:h-2.2 ${i < Math.floor(rating)
+                ? "text-accent fill-accent"
+                : "text-muted"
+                }`}
             />
           ))}
           {reviews > 0 && (
-            <span className="text-[10px] sm:text-xs text-gray-500 ml-1">
+            <span className="text-[7.5px] sm:text-[8.5px] text-muted-foreground font-semibold ml-0.5">
               ({reviews})
             </span>
           )}
         </div>
 
-        <div className="mt-auto">
-          <div className="text-sm sm:text-base font-bold text-primary mb-2">
-            {formatUGX(price)}
+        <Link href={`/product/${id}`}>
+          <h3 className="text-[10px] sm:text-[12px] font-bold text-foreground line-clamp-2 mb-1 hover:text-primary transition-colors leading-tight tracking-tight">
+            {name}
+          </h3>
+        </Link>
+
+        <div className="mt-auto pt-1">
+          <div className="flex items-baseline gap-1.5 mb-1.5 sm:mb-2">
+            <span className="text-[13px] sm:text-[14.5px] font-black text-primary">
+              {formatUGX(price)}
+            </span>
           </div>
 
           <Button
             onClick={handleAddToCart}
-            size="sm"
-            className={`w-full text-[11px] sm:text-xs py-1.5 sm:py-2 h-auto ${
-              isFlashSale
-                ? added
-                  ? "bg-red-500 hover:bg-red-600"
-                  : "bg-red-500 hover:bg-red-600"
-                : added
-                ? "bg-primary hover:bg-primary"
-                : "bg-primary hover:bg-primary"
-            } text-white transition-colors`}
+            className={`w-full rounded-md sm:rounded-lg h-7 sm:h-8 px-2 text-[9px] sm:text-[10px] font-black transition-all duration-300 ${added
+              ? "bg-success hover:bg-success text-white scale-[1.02]"
+              : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+              }`}
           >
-            {added ? "Added!" : "Add to Cart"}
+            {added ? "Added" : "Add to Cart"}
           </Button>
         </div>
       </div>

@@ -4,8 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { authApi } from "@/lib/api-client";
+
+import AuthLayout from "@/components/layout/AuthLayout";
 
 export default function VerifyEmailPage() {
   const [email, setEmail] = useState("");
@@ -43,59 +47,62 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="mx-auto w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Verify Your Email</CardTitle>
-          <CardDescription className="text-center">
+    <AuthLayout>
+      <div className="space-y-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold text-[#1a3a2e]">Verify Your Email</h1>
+          <p className="text-muted-foreground">
             We've sent a verification link to your email address
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {message && (
-            <div className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg p-3">
-              {message}
-            </div>
-          )}
+          </p>
+        </div>
 
-          {error && (
-            <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
-              {error}
-            </div>
-          )}
-
-          <div className="text-sm text-muted-foreground text-center space-y-2">
-            <p>
-              Please check your email inbox and click on the verification link to activate your account.
-            </p>
-            <p>Didn't receive the email?</p>
+        {message && (
+          <div className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg p-3">
+            {message}
           </div>
+        )}
 
+        {error && (
+          <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+            {error}
+          </div>
+        )}
+
+        <div className="text-sm text-muted-foreground text-center space-y-2">
+          <p>
+            Please check your email inbox and click on the verification link to activate your account.
+          </p>
+          <p>Didn't receive the email?</p>
+        </div>
+
+        <div className="space-y-4">
           <div className="space-y-2">
-            <input
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              className="border-gray-200"
             />
-            <Button
-              onClick={handleResend}
-              className="w-full"
-              disabled={loading || !email}
-            >
-              {loading ? "Sending..." : "Resend Verification Email"}
-            </Button>
           </div>
+          <Button
+            onClick={handleResend}
+            className="w-full bg-[#4CAF50] hover:bg-[#45a049] text-white py-6"
+            disabled={loading || !email}
+          >
+            {loading ? "Sending..." : "Resend Verification Email"}
+          </Button>
+        </div>
 
-          <div className="text-center">
-            <Link href="/admin/auth/login" className="text-sm text-primary hover:underline">
-              Back to Login
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        <div className="text-center">
+          <Link href="/login" className="text-sm text-[#4CAF50] hover:underline font-medium">
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    </AuthLayout>
   );
 }
 

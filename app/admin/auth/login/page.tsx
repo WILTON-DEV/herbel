@@ -12,14 +12,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/contexts/AuthContext";
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -28,11 +28,12 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await login(email, password);
-      if (result.success) {
+      // const result = await login(email, password);
+      const result =  ()=>{};
+      if (result?.success) {
         router.push("/admin");
       } else {
-        setError(result.error || "Invalid email or password");
+        setError(result?.error || "Invalid email or password");
       }
     } catch (err: any) {
       const errorMessage = err?.message || "An error occurred during login";
